@@ -3,7 +3,9 @@ package org.jboss.aerogear.sync.rest;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
+import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.SyncManager;
 import org.junit.Test;
 import static io.netty.handler.codec.http.HttpMethod.*;
@@ -24,15 +26,20 @@ public class DefaultRestProcessorTest {
 
     @Test
     public void handlePost() {
-        final String json = "\"id\": 1}";
+        final String json = "{\"model\": \"name\"}";
         final HttpResponse response = restProcessor().processPost(mockRequest(POST, json), mockContext());
         assertThat(response.getStatus(), is(CREATED));
+        assertThat(response, is(instanceOf(FullHttpResponse.class)));
+        final FullHttpResponse full = (FullHttpResponse) response;
+        final Document document = JsonMapper.fromJson(full.content().toString(UTF_8), Document.class);
+        assertThat(document.id(), equalTo("1"));
+        assertThat(document.revision(), equalTo("1"));
+        assertThat(document.content(), equalTo(json));
     }
 
     private static RestProcessor restProcessor() {
         final SyncManager syncManager = mock(SyncManager.class);
-        final Document document = mock(Document.class);
-        when(document.content()).thenReturn("\"id\": 1, \"rev\": 1}");
+        final Document document = new DefaultDocument("1", "1", "{\"model\": \"name\"}");
         when(syncManager.create(anyString())).thenReturn(document);
         return new DefaultRestProcessor(syncManager);
     }
