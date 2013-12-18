@@ -38,6 +38,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <include.couchdb.tests>none</include.couchdb.tests>
     </properties>
 
     <build>
@@ -52,9 +53,27 @@
                         <target>1.6</target>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <includes>
+                            <include>${include.couchdb.tests}</include>
+                        </includes>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>couchdb</id>
+            <properties>
+                <include.couchdb.tests>org/jboss/aerogear/sync/DefaultSyncManagerTest.java</include.couchdb.tests>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -62,8 +81,20 @@
             <artifactId>netty-all</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ektorp</groupId>
+            <artifactId>org.ektorp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-protocol</artifactId>
         </dependency>
     </dependencies>
     

@@ -14,19 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.push;
 
-/**
- * Is responsible handling synchronization of documents.
- */
-public interface SyncManager {
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 
-    Document read(String id, String revision);
+public class SyncHandler extends SimpleChannelInboundHandler<String>{
 
-    Document create(String json);
-
-    Document update(Document doc);
-
-    Document delete(String revision);
-
+    @Override
+    protected void messageReceived(final ChannelHandlerContext ctx, final String msg) throws Exception {
+        ctx.writeAndFlush(msg);
+    }
 }

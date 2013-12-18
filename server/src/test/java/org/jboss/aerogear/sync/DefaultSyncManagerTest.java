@@ -16,17 +16,25 @@
  */
 package org.jboss.aerogear.sync;
 
-/**
- * Is responsible handling synchronization of documents.
- */
-public interface SyncManager {
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-    Document read(String id, String revision);
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
-    Document create(String json);
+public class DefaultSyncManagerTest {
 
-    Document update(Document doc);
+    private static DefaultSyncManager syncManager;
 
-    Document delete(String revision);
+    @BeforeClass
+    public static void createDataStore() {
+        syncManager = new DefaultSyncManager("http://127.0.0.1:5984", "sync-test");
+    }
 
+    @Test
+    public void create() {
+        final String json = "\"model\": \"Toyota\"}";
+        final Document document = syncManager.create(json);
+        assertThat(document.content(), equalTo(json));
+    }
 }

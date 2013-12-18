@@ -36,6 +36,7 @@
 
     <properties>
         <version.io.netty>5.0.0.Alpha1-SNAPSHOT</version.io.netty>
+        <version.ektorp>1.3.0</version.ektorp>
     </properties>
 
     <modules>
@@ -55,26 +56,31 @@
                 <artifactId>netty-all</artifactId>
                 <version>${version.io.netty}</version>
             </dependency>
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<scope>test</scope>
-				<version>4.11</version>
-			</dependency>
-			<dependency>
-				<groupId>org.easytesting</groupId>
-				<artifactId>fest-assert</artifactId>
-				<version>1.4</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>1.9.0</version>
-				<scope>test</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+            <dependency>
+                <groupId>org.ektorp</groupId>
+                <artifactId>org.ektorp</artifactId>
+                <version>${version.ektorp}</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <scope>test</scope>
+                <version>4.11</version>
+            </dependency>
+            <dependency>
+            <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert</artifactId>
+                <version>1.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.9.0</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

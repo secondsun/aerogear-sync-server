@@ -17,16 +17,29 @@
 package org.jboss.aerogear.sync;
 
 /**
- * Is responsible handling synchronization of documents.
+ * Defines the structure of a document for the synchronization protocol.
  */
-public interface SyncManager {
+public interface Document {
 
-    Document read(String id, String revision);
+    /**
+     * The identifier for a document.
+     *
+     * @return {@code int} the document identifier.
+     */
+    int id();
 
-    Document create(String json);
+    /**
+     * Returns the documents revision.
+     *
+     * @return {@code int} the document revision.
+     */
+    int revision();
 
-    Document update(Document doc);
-
-    Document delete(String revision);
+    /**
+     * The documents content
+     *
+     * @return {@code String} the contents of the document.
+     */
+    String content();
 
 }

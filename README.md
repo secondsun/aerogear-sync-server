@@ -9,7 +9,29 @@ Initially this server will mimic CouchDB protocol and use a CouchDB instance beh
 change later but doing this will allow our client libraries to have something to test against sooner rather
 than later.
 
+
+### Communication style
+Should a request/response approach be used or should a full duplex communication channel be used. This really depends on
+how a client the clients will work.
+
+If the a client is only intended to synchronize with the server when saving data then a RESTful server would suffice.
+But if a client should be able "listen" for updates from the server then server initiate push should be used. An example
+of this would be WebSocket and use SockJS to support clients that do not support WebSockets.
+
 ### Prerequisites
 This project currently requires [CouchDB](http://couchdb.apache.org/).
 
+
+### Building/Testing
+To build this project simply use the following maven command:
+
+    mvn install
+
+To run the the unit tests:
+
+    mvn test
+
+To run the integration test (requires a running CouchDB)
+
+    mvn test -Pcouchdb
 
