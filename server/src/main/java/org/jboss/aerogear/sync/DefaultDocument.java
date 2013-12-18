@@ -16,19 +16,15 @@
  */
 package org.jboss.aerogear.sync;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 public class DefaultDocument implements Document {
 
     private final String id;
     private final String revision;
     private final String content;
 
-    @JsonCreator
-    public DefaultDocument(@JsonProperty("id") final String id,
-                           @JsonProperty("rev") final String revision,
-                           @JsonProperty("content") final String content) {
+    public DefaultDocument(final String id,
+                           final String revision,
+                           final String content) {
         this.id = id;
         this.revision = revision;
         this.content = content;

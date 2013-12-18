@@ -30,6 +30,7 @@ public class DefaultRestProcessorTest {
         final HttpResponse response = restProcessor().processPost(mockRequest(POST, json), mockContext());
         assertThat(response.getStatus(), is(CREATED));
         assertThat(response, is(instanceOf(FullHttpResponse.class)));
+
         final FullHttpResponse full = (FullHttpResponse) response;
         final Document document = JsonMapper.fromJson(full.content().toString(UTF_8), Document.class);
         assertThat(document.id(), equalTo("1"));
