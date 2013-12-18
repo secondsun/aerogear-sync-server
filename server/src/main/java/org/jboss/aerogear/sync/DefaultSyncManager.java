@@ -53,20 +53,7 @@ public class DefaultSyncManager implements SyncManager {
         map.put("_id", UUID.randomUUID().toString());
         map.put("content", json);
         db.create(map);
-        return new Document() {
-            @Override
-            public int id() {
-                return Integer.valueOf(map.get("_id"));
-            }
-            @Override
-            public int revision() {
-                return Integer.valueOf(map.get("_rev"));
-            }
-            @Override
-            public String content() {
-                return map.get("content");
-            }
-        };
+        return new DefaultDocument(map.get("_id"), map.get("_rev"), map.get("content"));
     }
 
     @Override

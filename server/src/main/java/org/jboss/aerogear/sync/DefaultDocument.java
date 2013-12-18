@@ -16,30 +16,31 @@
  */
 package org.jboss.aerogear.sync;
 
-/**
- * Defines the structure of a document for the synchronization protocol.
- */
-public interface Document {
+public class DefaultDocument implements Document {
 
-    /**
-     * The identifier for a document.
-     *
-     * @return {@code String} the document identifier.
-     */
-    String id();
+    private final String id;
+    private final String revision;
+    private final String content;
 
-    /**
-     * Returns the documents revision.
-     *
-     * @return {@code String} the document revision.
-     */
-    String revision();
+    public DefaultDocument(final String id, final String revision, final String content) {
+        this.id = id;
+        this.revision = revision;
+        this.content = content;
+    }
 
-    /**
-     * The documents content
-     *
-     * @return {@code String} the contents of the document.
-     */
-    String content();
+    @Override
+    public String id() {
+        return id;
+    }
+
+    @Override
+    public String revision() {
+        return revision;
+    }
+
+    @Override
+    public String content() {
+        return content;
+    }
 
 }
