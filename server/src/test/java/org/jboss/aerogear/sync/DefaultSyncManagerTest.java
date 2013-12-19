@@ -33,14 +33,14 @@ public class DefaultSyncManagerTest {
 
     @Test
     public void create() {
-        final String json = "\"model\": \"Toyota\"}";
+        final String json = "{\"model\": \"Toyota\"}";
         final Document document = syncManager.create(json);
         assertThat(document.content(), equalTo(json));
     }
 
     @Test
     public void read() {
-        final String json = "\"model\": \"mazda\"}";
+        final String json = "{\"model\": \"mazda\"}";
         final Document created = syncManager.create(json);
         final Document read = syncManager.read(created.id(), created.revision());
         assertThat(read.id(), equalTo(created.id()));
@@ -50,10 +50,30 @@ public class DefaultSyncManagerTest {
 
     @Test
     public void update() throws ConflictException {
-        final String updatedJson = "\"model\": \"mazda\"}";
-        final Document created = syncManager.create("\"model\": \"mazda\"}");
+        final String updatedJson = "{\"model\": \"mazda\"}";
+        final Document created = syncManager.create("{\"model\": \"mazda\"}");
         final Document updated = new DefaultDocument(created.id(), created.revision(), updatedJson);
         final Document read = syncManager.update(updated);
         assertThat(read.content(), equalTo(updatedJson));
+    }
+
+    @Test
+    public void updateWithConflict() throws ConflictException {
+        final Document created = syncManager.create("{\"model\": \"toyota\"}");
+        // update the document which will cause a new revision to be generated.
+        final String mazda = "{\"model\": \"mazda\"}";
+        syncManager.update(new DefaultDocument(created.id(), created.revision(), mazda));
+        final String honda = "{\"model\": \"honda\"}";
+        try {
+            // now try to update using the original revision which is not the latest revision
+            syncManager.update(new DefaultDocument(created.id(), created.revision(), honda));
+        } catch (final ConflictException e) {
+            final Document latest = e.latest();
+            assertThat(latest.content(), equalTo(mazda));
+            // verify that we can update using the latest revision
+            final Document updated = syncManager.update(new DefaultDocument(created.id(), latest.revision(), honda));
+            final Document read = syncManager.read(latest.id(), updated.revision());
+            assertThat(read.content(), equalTo(honda));
+        }
     }
 }

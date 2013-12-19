@@ -18,20 +18,26 @@ package org.jboss.aerogear.sync;
 
 public class ConflictException extends Exception {
 
-    private final Document document;
+    private final Document requested;
+    private final Document latest;
 
-    public ConflictException(final Document document, final Throwable cause) {
-        super(cause);
-        this.document = document;
+    public ConflictException(final Document requested, final Document latest, final Throwable cause) {
+        this(requested, latest, null, cause);
     }
 
-    public ConflictException(final Document document, final String message, final Throwable cause) {
+    public ConflictException(final Document document, final Document latest, final String message, final Throwable cause) {
         super(message, cause);
-        this.document = document;
+        this.requested = document;
+        this.latest = latest;
     }
 
-    public Document document() {
-        return document;
+    public Document requested() {
+        return requested;
     }
+
+    public Document latest() {
+        return latest;
+    }
+
 
 }

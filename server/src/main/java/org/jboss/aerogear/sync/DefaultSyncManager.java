@@ -23,9 +23,7 @@ import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.impl.StdCouchDbInstance;
 
 import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class DefaultSyncManager implements SyncManager {
 
@@ -73,13 +71,14 @@ public class DefaultSyncManager implements SyncManager {
     }
 
     @Override
-    public Document update(final Document doc) throws ConflictException {
+    public Document update(final Document update) throws ConflictException {
         try {
-            final Map<String, String> map = asMap(doc.id(), doc.revision(), doc.content());
+            final Map<String, String> map = asMap(update.id(), update.revision(), update.content());
             db.update(map);
             return toDocument(map);
         } catch (final UpdateConflictException e) {
-            throw new ConflictException(doc, e);
+            final Map<String, String> latest = db.get(Map.class, update.id());
+            throw new ConflictException(update, toDocument(latest), e);
         }
     }
 
