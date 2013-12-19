@@ -23,6 +23,7 @@ import org.ektorp.impl.StdCouchDbInstance;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class DefaultSyncManager implements SyncManager {
@@ -44,7 +45,8 @@ public class DefaultSyncManager implements SyncManager {
 
     @Override
     public Document read(final String id, final String revision) {
-        return null;
+        final Map map = db.get(Map.class, id, revision);
+        return fromMap(map);
     }
 
     @Override
@@ -53,6 +55,10 @@ public class DefaultSyncManager implements SyncManager {
         map.put("_id", UUID.randomUUID().toString());
         map.put("content", json);
         db.create(map);
+        return fromMap(map);
+    }
+
+    private static Document fromMap(final Map<String, String> map) {
         return new DefaultDocument(map.get("_id"), map.get("_rev"), map.get("content"));
     }
 

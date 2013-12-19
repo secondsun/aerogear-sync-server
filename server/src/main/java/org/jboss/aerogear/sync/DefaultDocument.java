@@ -45,4 +45,9 @@ public class DefaultDocument implements Document {
         return content;
     }
 
+    @Override
+    public String toString() {
+        return "DefaultDocument[id=" + id + ", revision=" + revision + ", content=" + content + "]";
+    }
+
 }

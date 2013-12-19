@@ -37,4 +37,12 @@ public class DefaultSyncManagerTest {
         final Document document = syncManager.create(json);
         assertThat(document.content(), equalTo(json));
     }
+
+    @Test
+    public void read() {
+        final String json = "\"model\": \"mazda\"}";
+        final Document created = syncManager.create(json);
+        final Document read = syncManager.read(created.id(), created.revision());
+        assertThat(read.content(), equalTo(json));
+    }
 }
