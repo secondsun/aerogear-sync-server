@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
+import io.netty.util.CharsetUtil;
 import org.jboss.aerogear.sync.*;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -22,8 +23,8 @@ import static org.mockito.Mockito.*;
 public class DefaultRestProcessorTest {
 
     @Test
-    public void handlePostNoContent() throws Exception {
-        final HttpResponse response = restProcessor().processPost(mockRequest(POST), mockContext());
+    public void handlePutNoContent() throws Exception {
+        final HttpResponse response = restProcessor().processPut(mockRequest(PUT), mockContext());
         assertThat(response.getStatus(), is(BAD_REQUEST));
     }
 
@@ -54,13 +55,28 @@ public class DefaultRestProcessorTest {
     }
 
     @Test
+    public void processDelete() throws Exception {
+        final String json = "{\"content\": {\"model\": \"name\"}}";
+        final String id = UUID.randomUUID().toString();
+        final Document doc = put(id, json);
+
+        final String deleteJson = "{\"rev\": \"" + doc.revision() + "\"}";
+        final HttpResponse response = restProcessor().processDelete(mockRequest(DELETE, '/' + doc.id(), deleteJson), mockContext());
+        assertThat(response.getStatus(), is(OK));
+        assertThat(response, is(instanceOf(FullHttpResponse.class)));
+        final FullHttpResponse fullHttpResponse = (FullHttpResponse) response;
+        assertThat(fullHttpResponse.content().isReadable(), is(true));
+        assertThat(fullHttpResponse.content().toString(UTF_8), equalTo("mockDeletedRevision"));
+    }
+
+    @Test
     public void processPost() throws Exception {
         final HttpResponse response = restProcessor().processPost(mockRequest(POST, "/1234"), mockContext());
         assertThat(response.getStatus(), is(NOT_IMPLEMENTED));
     }
 
     private static Document put(final String id, final String json) throws Exception {
-        final HttpResponse postResponse = restProcessor().processPost(mockRequest(PUT, '/' + id, json), mockContext());
+        final HttpResponse postResponse = restProcessor().processPut(mockRequest(PUT, '/' + id, json), mockContext());
         return JsonMapper.fromJson(((ByteBufHolder) postResponse).content().toString(UTF_8), Document.class);
     }
 
@@ -70,6 +86,7 @@ public class DefaultRestProcessorTest {
         when(syncManager.create(anyString(), anyString())).thenReturn(document);
         when(syncManager.read(anyString())).thenReturn(document);
         when(syncManager.update(Matchers.any(Document.class))).thenReturn(document);
+        when(syncManager.delete(anyString(), anyString())).thenReturn("mockDeletedRevision");
         return new DefaultRestProcessor(syncManager);
     }
 

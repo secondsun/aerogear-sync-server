@@ -18,6 +18,7 @@ package org.jboss.aerogear.sync.rest;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
+import io.netty.util.CharsetUtil;
 import org.jboss.aerogear.sync.*;
 
 import static io.netty.buffer.Unpooled.*;
@@ -77,7 +78,15 @@ public class DefaultRestProcessor implements RestProcessor {
 
     @Override
     public HttpResponse processDelete(final HttpRequest request, final ChannelHandlerContext ctx) {
-        return null;
+        if (request instanceof FullHttpRequest) {
+            final String id = extractId(request);
+            final FullHttpRequest fullHttpRequest = (FullHttpRequest) request;
+            final Document doc = JsonMapper.partialDocument(id, fullHttpRequest.content().toString(CharsetUtil.UTF_8));
+            final String revision = sync.delete(id, doc.revision());
+            return responseWithContent(request.getProtocolVersion(), OK, revision);
+        } else {
+            return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
+        }
     }
 
     private static FullHttpResponse responseWithContent(final HttpVersion version, final HttpResponseStatus status,
