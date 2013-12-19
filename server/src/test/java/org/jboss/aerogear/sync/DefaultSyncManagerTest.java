@@ -34,14 +34,14 @@ public class DefaultSyncManagerTest {
     @Test
     public void create() {
         final String json = "{\"model\": \"Toyota\"}";
-        final Document document = syncManager.create(json);
+        final Document document = syncManager.create("1", json);
         assertThat(document.content(), equalTo(json));
     }
 
     @Test
     public void read() throws DocumentNotFoundException {
         final String json = "{\"model\": \"mazda\"}";
-        final Document created = syncManager.create(json);
+        final Document created = syncManager.create("1", json);
         final Document read = syncManager.read(created.id(), created.revision());
         assertThat(read.id(), equalTo(created.id()));
         assertThat(read.revision(), equalTo(created.revision()));
@@ -51,7 +51,7 @@ public class DefaultSyncManagerTest {
     @Test
     public void update() throws ConflictException {
         final String updatedJson = "{\"model\": \"mazda\"}";
-        final Document created = syncManager.create("{\"model\": \"mazda\"}");
+        final Document created = syncManager.create("1", "{\"model\": \"mazda\"}");
         final Document updated = new DefaultDocument(created.id(), created.revision(), updatedJson);
         final Document read = syncManager.update(updated);
         assertThat(read.content(), equalTo(updatedJson));
@@ -59,7 +59,7 @@ public class DefaultSyncManagerTest {
 
     @Test
     public void updateWithConflict() throws ConflictException, DocumentNotFoundException {
-        final Document created = syncManager.create("{\"model\": \"toyota\"}");
+        final Document created = syncManager.create("1", "{\"model\": \"toyota\"}");
         // update the document which will cause a new revision to be generated.
         final String mazda = "{\"model\": \"mazda\"}";
         syncManager.update(new DefaultDocument(created.id(), created.revision(), mazda));
@@ -79,7 +79,7 @@ public class DefaultSyncManagerTest {
 
     @Test
     public void delete() {
-        final Document created = syncManager.create("{\"model\": \"lada\"}");
+        final Document created = syncManager.create("1", "{\"model\": \"lada\"}");
         final String deleteRevision = syncManager.delete(created.id(), created.revision());
         assertThat(deleteRevision, is(not(equalTo(created.revision()))));
     }

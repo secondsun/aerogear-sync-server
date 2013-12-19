@@ -1,13 +1,18 @@
 package org.jboss.aerogear.sync;
 
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -55,6 +60,22 @@ public final class JsonMapper {
             return stringWriter.toString();
         } catch (final Exception e) {
             throw new RuntimeException("error trying to parse json [" + obj + ']', e);
+        }
+    }
+
+    public static Document partialDocument(final String id, final String json) {
+        final JsonFactory factory = om.getFactory();
+        try {
+            final JsonParser parser = factory.createParser(json);
+            final ObjectCodec codec = parser.getCodec();
+            final JsonNode node = codec.readTree(parser);
+            final JsonNode revisionNode = node.get("rev");
+            final String revision = revisionNode == null ? null : revisionNode.asText();
+            final JsonNode contentNode = node.get("content");
+            final String content = contentNode == null ? null : contentNode.toString();
+            return new DefaultDocument(id, revision, content);
+        } catch (final Exception e) {
+            throw new RuntimeException("error trying to parse json [" + json + ']', e);
         }
     }
 

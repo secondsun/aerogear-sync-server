@@ -22,8 +22,9 @@ package org.jboss.aerogear.sync;
 public interface SyncManager {
 
     Document read(String id, String revision) throws DocumentNotFoundException;
+    Document read(String id) throws DocumentNotFoundException;
 
-    Document create(String json);
+    Document create(String id, String json);
 
     Document update(Document doc) throws ConflictException;
 

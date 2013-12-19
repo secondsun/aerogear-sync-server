@@ -18,9 +18,7 @@ package org.jboss.aerogear.sync.rest;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import org.jboss.aerogear.sync.Document;
-import org.jboss.aerogear.sync.JsonMapper;
-import org.jboss.aerogear.sync.SyncManager;
+import org.jboss.aerogear.sync.*;
 
 import static io.netty.buffer.Unpooled.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -36,24 +34,41 @@ public class DefaultRestProcessor implements RestProcessor {
 
     @Override
     public HttpResponse processGet(final HttpRequest request, final ChannelHandlerContext ctx) {
-        return null;
+        final String id = extractId(request);
+        try {
+            final Document document = sync.read(id);
+            return responseWithContent(request.getProtocolVersion(), OK, toJson(document));
+        } catch (final DocumentNotFoundException e) {
+            return new DefaultHttpResponse(request.getProtocolVersion(), NOT_FOUND);
+        }
     }
 
     @Override
     public HttpResponse processPut(final HttpRequest request, final ChannelHandlerContext ctx) {
-        return null;
+        if (request instanceof FullHttpRequest) {
+            final String id = extractId(request);
+            final FullHttpRequest fullHttpRequest = (FullHttpRequest) request;
+            if (fullHttpRequest.content().isReadable()) {
+                try {
+                    final Document updateDoc = JsonMapper.partialDocument(id, fullHttpRequest.content().toString(UTF_8));
+                    final Document updatedDoc = sync.update(updateDoc);
+                    return responseWithContent(request.getProtocolVersion(), CREATED, toJson(updatedDoc));
+                } catch (final ConflictException e) {
+                    return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
+                }
+            }
+        }
+        return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
     }
 
     @Override
     public HttpResponse processPost(final HttpRequest request, final ChannelHandlerContext ctx) {
-        if (request instanceof FullHttpRequest) {
-            final FullHttpRequest fullHttpRequest = (FullHttpRequest) request;
-            if (fullHttpRequest.content().isReadable()) {
-                final Document document = sync.create(fullHttpRequest.content().toString(UTF_8));
-                return responseWithContent(request.getProtocolVersion(), CREATED, toJson(document));
-            }
-        }
-        return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
+        return new DefaultHttpResponse(request.getProtocolVersion(), NOT_IMPLEMENTED);
+    }
+
+    private static String extractId(final HttpRequest request) {
+        final String path = new QueryStringDecoder(request.getUri()).path();
+        return path.substring(1);
     }
 
     private static String toJson(final Document doc) {

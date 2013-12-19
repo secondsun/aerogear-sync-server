@@ -91,8 +91,8 @@ public class RestChannelHandlerTest {
         return new EmbeddedChannel(new RestChannelHandler(r));
     }
 
-    private static HttpResponse okResponse() {
-        return new DefaultHttpResponse(HTTP_1_1, OK);
+    private static FullHttpResponse okResponse() {
+        return new DefaultFullHttpResponse(HTTP_1_1, OK);
     }
 
     private static HttpResponse postOkResponse() {

@@ -23,7 +23,8 @@ import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.impl.StdCouchDbInstance;
 
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DefaultSyncManager implements SyncManager {
 
@@ -44,20 +45,31 @@ public class DefaultSyncManager implements SyncManager {
 
     @Override
     @SuppressWarnings("unchecked")
+    public Document read(final String id) throws DocumentNotFoundException {
+        try {
+            final Map<String, String> map = db.get(Map.class, id);
+            return asDocument(map);
+        } catch (final org.ektorp.DocumentNotFoundException e) {
+            throw new DocumentNotFoundException(id, "unknown", e);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public Document read(final String id, final String revision) throws DocumentNotFoundException {
         try {
             final Map<String, String> map = db.get(Map.class, id, revision);
-            return toDocument(map);
+            return asDocument(map);
         } catch (final org.ektorp.DocumentNotFoundException e) {
             throw new DocumentNotFoundException(id, revision, e);
         }
     }
 
     @Override
-    public Document create(final String json) {
-        final Map<String, String> map = asMap(UUID.randomUUID().toString(), null, json);
+    public Document create(final String id, final String json) {
+        final Map<String, String> map = asMap(id, null, json);
         db.create(map);
-        return toDocument(map);
+        return asDocument(map);
     }
 
     @Override
@@ -65,10 +77,10 @@ public class DefaultSyncManager implements SyncManager {
         try {
             final Map<String, String> map = asMap(update.id(), update.revision(), update.content());
             db.update(map);
-            return toDocument(map);
+            return asDocument(map);
         } catch (final UpdateConflictException e) {
             final Map<String, String> latest = db.get(Map.class, update.id());
-            throw new ConflictException(update, toDocument(latest), e);
+            throw new ConflictException(update, asDocument(latest), e);
         }
     }
 
@@ -78,7 +90,7 @@ public class DefaultSyncManager implements SyncManager {
         return deletedRevision;
     }
 
-    private static Document toDocument(final Map<String, String> map) {
+    private static Document asDocument(final Map<String, String> map) {
         return new DefaultDocument(map.get("_id"), map.get("_rev"), map.get("content"));
     }
 
