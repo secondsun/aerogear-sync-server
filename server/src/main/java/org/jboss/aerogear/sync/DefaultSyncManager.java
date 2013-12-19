@@ -44,9 +44,13 @@ public class DefaultSyncManager implements SyncManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Document read(final String id, final String revision) {
-        final Map<String, String> map = db.get(Map.class, id, revision);
-        return toDocument(map);
+    public Document read(final String id, final String revision) throws DocumentNotFoundException {
+        try {
+            final Map<String, String> map = db.get(Map.class, id, revision);
+            return toDocument(map);
+        } catch (final org.ektorp.DocumentNotFoundException e) {
+            throw new DocumentNotFoundException(id, revision, e);
+        }
     }
 
     @Override
@@ -54,20 +58,6 @@ public class DefaultSyncManager implements SyncManager {
         final Map<String, String> map = asMap(UUID.randomUUID().toString(), null, json);
         db.create(map);
         return toDocument(map);
-    }
-
-    private static Map<String, String> asMap(final String id, final String revision, final String content) {
-        final HashMap<String, String> map = new HashMap<String, String>();
-        map.put("_id", id);
-        if (revision != null) {
-            map.put("_rev", revision);
-        }
-        map.put("content", content);
-        return map;
-    }
-
-    private static Document toDocument(final Map<String, String> map) {
-        return new DefaultDocument(map.get("_id"), map.get("_rev"), map.get("content"));
     }
 
     @Override
@@ -83,7 +73,23 @@ public class DefaultSyncManager implements SyncManager {
     }
 
     @Override
-    public Document delete(final String revision) {
-        return null;
+    public String delete(final String id, final String revision) {
+        final String deletedRevision = db.delete(id, revision);
+        return deletedRevision;
     }
+
+    private static Document toDocument(final Map<String, String> map) {
+        return new DefaultDocument(map.get("_id"), map.get("_rev"), map.get("content"));
+    }
+
+    private static Map<String, String> asMap(final String id, final String revision, final String content) {
+        final HashMap<String, String> map = new HashMap<String, String>();
+        map.put("_id", id);
+        if (revision != null) {
+            map.put("_rev", revision);
+        }
+        map.put("content", content);
+        return map;
+    }
+
 }

@@ -16,17 +16,26 @@
  */
 package org.jboss.aerogear.sync;
 
-/**
- * Is responsible handling synchronization of documents.
- */
-public interface SyncManager {
+public class DocumentNotFoundException extends Exception {
 
-    Document read(String id, String revision) throws DocumentNotFoundException;
+    private final String id;
+    private final String revision;
 
-    Document create(String json);
+    public DocumentNotFoundException(final String id, final String revision, final Throwable cause) {
+        this(id, revision, null, cause);
+    }
 
-    Document update(Document doc) throws ConflictException;
+    public DocumentNotFoundException(final String id, final String revision, final String message, Throwable cause) {
+        super(message, cause);
+        this.id = id;
+        this.revision = revision;
+    }
 
-    String delete(String id, String revision);
+    public String id() {
+        return id;
+    }
 
+    public String revision() {
+        return revision;
+    }
 }

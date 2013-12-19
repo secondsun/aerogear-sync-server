@@ -39,7 +39,7 @@ public class DefaultSyncManagerTest {
     }
 
     @Test
-    public void read() {
+    public void read() throws DocumentNotFoundException {
         final String json = "{\"model\": \"mazda\"}";
         final Document created = syncManager.create(json);
         final Document read = syncManager.read(created.id(), created.revision());
@@ -58,7 +58,7 @@ public class DefaultSyncManagerTest {
     }
 
     @Test
-    public void updateWithConflict() throws ConflictException {
+    public void updateWithConflict() throws ConflictException, DocumentNotFoundException {
         final Document created = syncManager.create("{\"model\": \"toyota\"}");
         // update the document which will cause a new revision to be generated.
         final String mazda = "{\"model\": \"mazda\"}";
@@ -75,5 +75,12 @@ public class DefaultSyncManagerTest {
             final Document read = syncManager.read(latest.id(), updated.revision());
             assertThat(read.content(), equalTo(honda));
         }
+    }
+
+    @Test
+    public void delete() {
+        final Document created = syncManager.create("{\"model\": \"lada\"}");
+        final String deleteRevision = syncManager.delete(created.id(), created.revision());
+        assertThat(deleteRevision, is(not(equalTo(created.revision()))));
     }
 }
