@@ -26,13 +26,13 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultSyncManager implements SyncManager {
+public class CouchDBSyncManager implements SyncManager {
 
     private final HttpClient httpClient;
     private final StdCouchDbInstance stdCouchDbInstance;
     private final StdCouchDbConnector db;
 
-    public DefaultSyncManager(final String url, final String dbName)  {
+    public CouchDBSyncManager(final String url, final String dbName)  {
         try {
             httpClient = new StdHttpClient.Builder().url(url).build();
         } catch (final MalformedURLException e) {

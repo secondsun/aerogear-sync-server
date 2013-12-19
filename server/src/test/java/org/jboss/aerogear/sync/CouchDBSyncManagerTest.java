@@ -24,13 +24,13 @@ import java.util.UUID;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
-public class DefaultSyncManagerTest {
+public class CouchDBSyncManagerTest {
 
-    private static DefaultSyncManager syncManager;
+    private static CouchDBSyncManager syncManager;
 
     @BeforeClass
     public static void createDataStore() {
-        syncManager = new DefaultSyncManager("http://127.0.0.1:5984", "sync-test");
+        syncManager = new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test");
     }
 
     @Test

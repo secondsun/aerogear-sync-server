@@ -21,13 +21,50 @@ package org.jboss.aerogear.sync;
  */
 public interface SyncManager {
 
+    /**
+     * Read a specific revision of a document.
+     *
+     * @param id the documents identifier.
+     * @param revision the document revision to read.
+     * @return {@link org.jboss.aerogear.sync.Document} the document matching the id and revision.
+     * @throws DocumentNotFoundException if the document could not be found.
+     */
     Document read(String id, String revision) throws DocumentNotFoundException;
+
+    /**
+     * Read the latest revision of a document.
+     *
+     * @param id the documents identifier.
+     * @return {@link org.jboss.aerogear.sync.Document} the document matching the id.
+     * @throws DocumentNotFoundException if the document could not be found.
+     */
     Document read(String id) throws DocumentNotFoundException;
 
+    /**
+     * Creates a new document with the id and json passed in.
+     *
+     * @param id the new documents identifier.
+     * @param json the contents of the new document
+     * @return {@link org.jboss.aerogear.sync.Document} the new document.
+     */
     Document create(String id, String json);
 
+    /**
+     * Updates the document passed in
+     *
+     * @param doc the document containing the new update.
+     * @return {@link org.jboss.aerogear.sync.Document} the newly updated document.
+     * @throws ConflictException if a newer revision of this document already exists.
+     */
     Document update(Document doc) throws ConflictException;
 
+    /**
+     * Deletes (marks for deletion) the docuement with the specified revision.
+     *
+     * @param id the documents identifier.
+     * @param revision the document revision to delete.
+     * @return {@code String} the revision for the deleted document.
+     */
     String delete(String id, String revision);
 
 }

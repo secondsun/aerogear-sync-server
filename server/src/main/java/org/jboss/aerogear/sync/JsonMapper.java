@@ -63,6 +63,13 @@ public final class JsonMapper {
         }
     }
 
+    /**
+     * Allows for the creation of an incomplete {@link org.jboss.aerogear.sync.Document instance}
+     *
+     * @param id the documents id.
+     * @param json the contents for the document.
+     * @return {@code Document} the document which may not have a revision and/or a content field.
+     */
     public static Document partialDocument(final String id, final String json) {
         final JsonFactory factory = om.getFactory();
         try {
