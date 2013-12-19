@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 public class DefaultRestProcessorTest {
 
     @Test
-    public void handlePutNoContent() throws Exception {
+    public void processPutNoContent() throws Exception {
         final HttpResponse response = restProcessor().processPut(mockRequest(PUT), mockContext());
         assertThat(response.getStatus(), is(BAD_REQUEST));
     }
