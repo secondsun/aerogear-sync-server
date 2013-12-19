@@ -16,17 +16,22 @@
  */
 package org.jboss.aerogear.sync;
 
-/**
- * Is responsible handling synchronization of documents.
- */
-public interface SyncManager {
+public class ConflictException extends Exception {
 
-    Document read(String id, String revision);
+    private final Document document;
 
-    Document create(String json);
+    public ConflictException(final Document document, final Throwable cause) {
+        super(cause);
+        this.document = document;
+    }
 
-    Document update(Document doc) throws ConflictException;
+    public ConflictException(final Document document, final String message, final Throwable cause) {
+        super(message, cause);
+        this.document = document;
+    }
 
-    Document delete(String revision);
+    public Document document() {
+        return document;
+    }
 
 }

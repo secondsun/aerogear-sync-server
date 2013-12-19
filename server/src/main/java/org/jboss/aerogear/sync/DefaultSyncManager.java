@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync;
 
+import org.ektorp.UpdateConflictException;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbConnector;
@@ -44,27 +45,42 @@ public class DefaultSyncManager implements SyncManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Document read(final String id, final String revision) {
-        final Map map = db.get(Map.class, id, revision);
-        return fromMap(map);
+        final Map<String, String> map = db.get(Map.class, id, revision);
+        return toDocument(map);
     }
 
     @Override
     public Document create(final String json) {
-        final HashMap<String, String> map = new HashMap<String, String>();
-        map.put("_id", UUID.randomUUID().toString());
-        map.put("content", json);
+        final Map<String, String> map = asMap(UUID.randomUUID().toString(), null, json);
         db.create(map);
-        return fromMap(map);
+        return toDocument(map);
     }
 
-    private static Document fromMap(final Map<String, String> map) {
+    private static Map<String, String> asMap(final String id, final String revision, final String content) {
+        final HashMap<String, String> map = new HashMap<String, String>();
+        map.put("_id", id);
+        if (revision != null) {
+            map.put("_rev", revision);
+        }
+        map.put("content", content);
+        return map;
+    }
+
+    private static Document toDocument(final Map<String, String> map) {
         return new DefaultDocument(map.get("_id"), map.get("_rev"), map.get("content"));
     }
 
     @Override
-    public Document update(final Document doc) {
-        return null;
+    public Document update(final Document doc) throws ConflictException {
+        try {
+            final Map<String, String> map = asMap(doc.id(), doc.revision(), doc.content());
+            db.update(map);
+            return toDocument(map);
+        } catch (final UpdateConflictException e) {
+            throw new ConflictException(doc, e);
+        }
     }
 
     @Override

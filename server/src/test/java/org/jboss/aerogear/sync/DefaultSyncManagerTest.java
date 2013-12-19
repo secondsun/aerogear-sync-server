@@ -43,6 +43,17 @@ public class DefaultSyncManagerTest {
         final String json = "\"model\": \"mazda\"}";
         final Document created = syncManager.create(json);
         final Document read = syncManager.read(created.id(), created.revision());
+        assertThat(read.id(), equalTo(created.id()));
+        assertThat(read.revision(), equalTo(created.revision()));
         assertThat(read.content(), equalTo(json));
+    }
+
+    @Test
+    public void update() throws ConflictException {
+        final String updatedJson = "\"model\": \"mazda\"}";
+        final Document created = syncManager.create("\"model\": \"mazda\"}");
+        final Document updated = new DefaultDocument(created.id(), created.revision(), updatedJson);
+        final Document read = syncManager.update(updated);
+        assertThat(read.content(), equalTo(updatedJson));
     }
 }
