@@ -1,8 +1,12 @@
 package org.jboss.aerogear.sync;
 
-import org.codehaus.jackson.*;
-import org.codehaus.jackson.map.*;
-import org.codehaus.jackson.map.module.SimpleModule;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -13,7 +17,7 @@ public final class JsonMapper {
 
     private static ObjectMapper createObjectMapper() {
         om = new ObjectMapper();
-        final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null));
+        final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(Document.class, new DocumentDeserializer());
         module.addSerializer(DefaultDocument.class, new DocumentSerializer());
         om.registerModule(module);
