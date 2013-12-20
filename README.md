@@ -14,6 +14,35 @@ But if a client should be able "listen" for updates from the server then server 
 of this would be WebSocket and use SockJS to support clients that do not support WebSockets.
 Perhaps we should offer both approaches?
 
+### RESTful
+Similar to how CouchDB API works we could expose a RESTFul api for synchronizing data.
+
+#### Create a document
+To create a document a HTTP PUT method is used with a path parameter containing the document id, for example:
+
+    PUT /document1234 HTTP/1.1
+    {"model": "Toyota"}
+
+A successful response will return a HTTP ```200``` response code and with a body containing a JSON object with
+the revision:
+
+    HTTP/1.1 200 OK
+    {"id":"document1234","rev":"1","content":"{\"model\": \"Toyota\"}"}
+
+#### Update a document
+To update a document a HTTP PUT method is used with a path parameter containing the document id, and a body
+with the updated documents content, including a ```rev``` field to identify the revision of the document that this
+update is targeted for.
+
+    PUT /document1234 HTTP/1.1
+    {"id":"document1234","rev":"1","content":"{\"state\": \"update\"}"}
+
+A successful response will return a HTTP ```200``` response code and with a body containing a JSON object with
+the revision:
+
+    HTTP/1.1 200 OK
+    {"id":"document1234","rev":"2","content":"{\"state\": \"update\"}"}
+
 ### Implementation
 Initially this server will mimic CouchDB protocol and use a CouchDB instance behind the scenes. We expect this to
 change later but doing this will allow our client libraries to have something to test against sooner rather

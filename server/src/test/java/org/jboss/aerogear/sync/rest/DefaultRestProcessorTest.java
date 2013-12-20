@@ -21,8 +21,8 @@ import static org.mockito.Mockito.*;
 
 public class DefaultRestProcessorTest {
 
-    private static final String REV_ONE_JSON = "{\"content\": {\"state\": \"create\"}}";
-    private static final String REV_TWO_JSON = "{\"content\": {\"state\": \"update\"}}";
+    private static final String REV_ONE_JSON = "{\"state\": \"create\"}";
+    private static final String REV_TWO_JSON = "{\"state\": \"update\"}";
     private static final Document REV_ONE_DOC = new DefaultDocument("1", "1", REV_ONE_JSON);
     private static final Document REV_TWO_DOC = new DefaultDocument("1", "2", REV_TWO_JSON);
     private static final String DELETED_REVISION = "mockDeletedRevision";
@@ -52,7 +52,9 @@ public class DefaultRestProcessorTest {
         // create the initial revision of the document
         restProcessor.processPut(mockRequest(PUT, id, REV_ONE_JSON), mockContext());
         // update the document
-        final HttpResponse response = restProcessor.processPut(mockRequest(PUT, id, REV_TWO_JSON), mockContext());
+        final String updateBody = JsonMapper.toJson(new DefaultDocument(id, "1", REV_TWO_JSON));
+        final FullHttpRequest fullHttpRequest = mockRequest(PUT, id, updateBody);
+        final HttpResponse response = restProcessor.processPut(fullHttpRequest, mockContext());
         assertThat(response.getStatus(), is(OK));
         assertThat(response, is(instanceOf(FullHttpResponse.class)));
         final Document document = fromJson(((ByteBufHolder) response).content());
@@ -120,12 +122,12 @@ public class DefaultRestProcessorTest {
         return mockRequest(method, id, null);
     }
 
-    public static HttpRequest mockRequest(final HttpMethod method, final String id, final String body) {
+    public static FullHttpRequest mockRequest(final HttpMethod method, final String id, final String body) {
         final String path = '/' + id;
         if (body == null) {
-            return new DefaultFullHttpRequest(HTTP_1_0, method, path);
+            return new DefaultFullHttpRequest(HTTP_1_1, method, path);
         }
-        return new DefaultFullHttpRequest(HTTP_1_0, method, path, Unpooled.copiedBuffer(body, UTF_8));
+        return new DefaultFullHttpRequest(HTTP_1_1, method, path, Unpooled.copiedBuffer(body, UTF_8));
     }
 
     public static ChannelHandlerContext mockContext() {
