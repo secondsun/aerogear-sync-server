@@ -59,6 +59,18 @@ A successful response will return a HTTP ```200``` with a body:
     HTTP/1.1 200 OK
     <deleteRevision>
 
+#### Cross Origin Resource Sharing (CORS) Support
+If CORS support is required Netty's [CORS](https://github.com/netty/netty/pull/2070) support could be used.
+
+### "Real-time"
+With real-time we mean that the server can push updates to clients and clients can send updates to the server
+at any time. A client does not have to make a request to find out if there are later versions of a document on
+the server.
+This could utilize Netty's [SockJS](https://github.com/netty/netty/pull/1615) support to provide for cases where the client does not have support for a
+full-duplex communication channel.
+
+In this case the application protocol would differ somewhat, as the document ids cannot be communicated using path
+parameters, as there are not resource paths. Instead the id would be part of the JSON payload sent back and forth.
 
 ### Implementation
 Initially this server will mimic CouchDB protocol and use a CouchDB instance behind the scenes. We expect this to

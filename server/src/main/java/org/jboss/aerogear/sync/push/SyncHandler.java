@@ -19,6 +19,14 @@ package org.jboss.aerogear.sync.push;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
+/**
+ * Netty that handles full-duplex communications from clients enabling
+ * updates to be pushed from the server to the client, and also allows
+ * client changes to be sent of the same channel to the server.
+ * <p>
+ * Netty's SockJS support is used to allow fallbacks for clients that don't
+ * support WebSockets.
+ */
 public class SyncHandler extends SimpleChannelInboundHandler<String>{
 
     @Override
