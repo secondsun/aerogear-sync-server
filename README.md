@@ -18,30 +18,47 @@ Perhaps we should offer both approaches?
 Similar to how CouchDB API works we could expose a RESTFul api for synchronizing data.
 
 #### Create a document
-To create a document a HTTP PUT method is used with a path parameter containing the document id, for example:
+To create a document a PUT request is made:
 
     PUT /document1234 HTTP/1.1
     {"model": "Toyota"}
 
-A successful response will return a HTTP ```200``` response code and with a body containing a JSON object with
-the revision:
+A successful response will return a HTTP ```200``` with a body:
 
     HTTP/1.1 200 OK
     {"id":"document1234","rev":"1","content":"{\"model\": \"Toyota\"}"}
 
 #### Update a document
-To update a document a HTTP PUT method is used with a path parameter containing the document id, and a body
-with the updated documents content, including a ```rev``` field to identify the revision of the document that this
-update is targeted for.
+To update a document a PUT request is made:
 
     PUT /document1234 HTTP/1.1
     {"id":"document1234","rev":"1","content":"{\"state\": \"update\"}"}
 
-A successful response will return a HTTP ```200``` response code and with a body containing a JSON object with
-the revision:
+A successful response will return a HTTP ```200``` with a body:
 
     HTTP/1.1 200 OK
     {"id":"document1234","rev":"2","content":"{\"state\": \"update\"}"}
+
+#### Get a document
+To get a document a GET request is made:
+
+    GET /document1234 HTTP/1.1
+
+A successful response will return a HTTP ```200``` with a body:
+
+    HTTP/1.1 200 OK
+    {"id":"document1234","rev":"5","content":"{\"state\": \"update\"}"}
+
+#### Delete a document
+To delete a document a DELETE request is made:
+
+    DELETE /document1234 HTTP/1.1
+
+A successful response will return a HTTP ```200``` with a body:
+
+    HTTP/1.1 200 OK
+    <deleteRevision>
+
 
 ### Implementation
 Initially this server will mimic CouchDB protocol and use a CouchDB instance behind the scenes. We expect this to
