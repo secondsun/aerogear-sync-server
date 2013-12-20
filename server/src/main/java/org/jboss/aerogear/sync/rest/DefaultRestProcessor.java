@@ -37,6 +37,19 @@ import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.util.CharsetUtil.*;
 import static org.jboss.aerogear.sync.JsonMapper.*;
 
+/**
+ * Processes HTTP GET, PUT, and DELETE requests to synchronize documents.
+ * <p>
+ * HTTP PUT is used to create new documents and to update existing documents. The choice of PUT over POST
+ * is due because the id for the document is specified by the calling client as a path parameter.
+ * For example:
+ * <pre>
+ * somepath/document22
+ * </pre>
+ * Since the client knows the location of the resource it can PUT the document directly. If the server
+ * decided the location of the resource, is our case the document id, the a POST would have been
+ * more appropriate.
+ */
 public class DefaultRestProcessor implements RestProcessor {
 
     private final SyncManager sync;
@@ -63,7 +76,7 @@ public class DefaultRestProcessor implements RestProcessor {
                 try {
                     final Document updateDoc = partialDocument(extractId(request), contentAsString(fullHttpRequest));
                     final Document updatedDoc = sync.update(updateDoc);
-                    return responseWithContent(request.getProtocolVersion(), CREATED, toJson(updatedDoc));
+                    return responseWithContent(request.getProtocolVersion(), OK, toJson(updatedDoc));
                 } catch (final ConflictException e) {
                     return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
                 }
