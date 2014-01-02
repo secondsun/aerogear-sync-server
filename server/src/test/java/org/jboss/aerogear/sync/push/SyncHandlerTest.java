@@ -17,7 +17,6 @@
 package org.jboss.aerogear.sync.push;
 
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.jboss.aerogear.sync.push.SyncHandler;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
