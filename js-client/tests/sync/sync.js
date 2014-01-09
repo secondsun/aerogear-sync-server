@@ -64,7 +64,7 @@
         var xhr = xhrObject( 'GET', id );
         xhr.send( null );
         console.log( xhr.responseText );
-        return Doc.fromJson( xhr.responseText );
+        return fromJson( xhr.responseText );
     }
 
     function putDocument( id, content, rev ) {
@@ -73,7 +73,7 @@
         if( xhr.status >= 400 ) {
             return { status: xhr.status };
         }
-        return {status: xhr.status, doc: Doc.fromJson( xhr.responseText )};
+        return { status: xhr.status, doc: fromJson( xhr.responseText ) };
     }
 
     function httpRequest( method, id, content ) {
@@ -90,22 +90,10 @@
         return xhr;
     }
 
-    function Doc( id, rev, content ) {
-        this.id = id;
-        this.rev = rev;
-        this.content = content;
-    }
-
-    Doc.fromJson = function( str ) {
+    function fromJson( str ) {
         var json = JSON.parse( str );
-        return new Doc( json.id, json.rev, JSON.parse( json.content ) );
-    };
-
-    Doc.prototype = {
-        toString: function() {
-            return "[id=" + this.id + ", rev=" + this.rev + ", content=" + content + "]";
-        }
-    };
+        return { id: json.id, rev: json.rev, content: JSON.parse( json.content ) };
+    }
 
     function uuid()
     {
