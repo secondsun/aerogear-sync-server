@@ -18,6 +18,24 @@
         equal(doc.content.model, 'ferrari', 'id should match the sent path id parameter.');
     });
 
+    test('update document', function() {
+        var documentId = uuid(),
+            putDoc,
+            getDoc,
+            updatedDoc;
+        putDoc = putDocument( documentId, { model: 'bmw' } );
+        getDoc = getDocument( documentId );
+
+        getDoc.content.color = "black";
+
+        updatedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
+
+        equal( updatedDoc.doc.id, documentId, 'id should match the sent path id parameter.');
+        equal( Object.keys( updatedDoc.doc.content ).length, 2, 'the document should have 2 keys' );
+        equal( updatedDoc.doc.content.color, 'black', 'color field should equal black' );
+        notEqual( updatedDoc.doc.rev, getDoc.rev, 'revisions should be different' );
+    });
+
     function getDocument(id) {
         var xhr = xhrObject('GET', id);
         xhr.send(null);
@@ -27,7 +45,7 @@
 
     function putDocument(id, content, rev) {
         var xhr = xhrObject('PUT', id);
-        xhr.send(JSON.stringify({content: content}));
+        xhr.send(JSON.stringify({content: content, rev: rev}));
         return {status: xhr.status, doc: Doc.fromJson(xhr.responseText)};
     };
 
@@ -55,8 +73,8 @@
         return new Doc(json.id, json.rev, JSON.parse(json.content));
     }
     Doc.prototype = {
-        toString: function() { 
-            return "[id=" + this.id + ", rev=" + this.rev + ", content=" + content + "]"; 
+        toString: function() {
+            return "[id=" + this.id + ", rev=" + this.rev + ", content=" + content + "]";
         }
     }
 
