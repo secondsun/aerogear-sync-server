@@ -24,7 +24,7 @@ import java.util.UUID;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
-public class CouchDBSyncManagerTest {
+public class CouchDBSyncManagerITest {
 
     private static CouchDBSyncManager syncManager;
 

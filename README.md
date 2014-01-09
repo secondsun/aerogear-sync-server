@@ -90,7 +90,7 @@ To run the the unit tests:
 
     mvn test
 
-To run the integration test (requires a running CouchDB)
+To run the integration tests (requires a running CouchDB)
 
-    mvn test -Pcouchdb
+    mvn test -Pitests
 

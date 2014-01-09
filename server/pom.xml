@@ -57,21 +57,47 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
-                        <includes>
-                            <include>${include.couchdb.tests}</include>
-                        </includes>
+                        <excludes>
+                            <exclude>**/*$*</exclude>
+                            <exclude>**/*ITest.java</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>org.jboss.aerogear.sync.Server</mainClass>
+                    <!-- Make host and port configurable.
+                    <arguments>
+                        <argument>8080</argument>
+                    </arguments>
+                    -->
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
         <profile>
-            <id>couchdb</id>
-            <properties>
-                <include.couchdb.tests>org/jboss/aerogear/sync/DefaultSyncManagerTest.java</include.couchdb.tests>
-            </properties>
+            <id>itests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
@@ -95,6 +121,10 @@
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-protocol</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
         </dependency>
     </dependencies>
     

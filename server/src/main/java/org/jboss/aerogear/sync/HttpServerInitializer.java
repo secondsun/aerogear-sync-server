@@ -44,7 +44,7 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast("decoder", new HttpRequestDecoder());
         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
         pipeline.addLast("encoder", new HttpResponseEncoder());
-        pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
+        //pipeline.addLast("chunkedWriter", new ChunkedWriteHandler());
         pipeline.addLast("cors", new CorsHandler(corsConfig));
         pipeline.addLast("handler", new RestChannelHandler(new DefaultRestProcessor(syncManager)));
 
