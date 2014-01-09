@@ -11,11 +11,12 @@
     });
 
     test('get document', function() {
-        var documentId = uuid();
+        var documentId = uuid(),
+            getDoc;
         putDocument(documentId, {model: 'ferrari'});
-        var doc = getDocument(documentId);
-        equal(doc.id, documentId, 'id should match the sent path id parameter.');
-        equal(doc.content.model, 'ferrari', 'id should match the sent path id parameter.');
+        getDoc = getDocument(documentId);
+        equal(getDoc.id, documentId, 'id should match the sent path id parameter.');
+        equal(getDoc.content.model, 'ferrari', 'id should match the sent path id parameter.');
     });
 
     test('update document', function() {
