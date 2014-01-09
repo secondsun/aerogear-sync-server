@@ -3,12 +3,21 @@
     module('Sync integration test');
 
     test('create (PUT) document', function() {
-        var req = new XMLHttpRequest();
-        req.open('PUT', 'http://localhost:8080/' + uuid(), false);
-        req.setRequestHeader('Content-Type', 'application/json');
-        req.send(JSON.stringify({content: {model: 'honda'}}));
-        equal(req.status, 200, 'PUT response status should be 200');
+        var documentId = uuid();
+        var response = httpRequest('PUT', documentId, 'honda');
+        equal(response.status, 200, 'Status should be 200');
+        equal(response.id, documentId, 'id should match the sent path id parameter.');
+        equal(response.content.model, 'honda', 'model property should be honda');
     });
+
+    function httpRequest(method, id, make) {
+        var req = new XMLHttpRequest();
+        req.open(method, 'http://localhost:8080/' + id, false);
+        req.setRequestHeader('Content-Type', 'application/json');
+        req.send(JSON.stringify({content: {model: make}}));
+        var json = JSON.parse(req.responseText);
+        return {status: req.status, id: json.id, rev: json.rev, content: JSON.parse(json.content)};
+    };
 
     function uuid()
     {
