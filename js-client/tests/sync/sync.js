@@ -37,6 +37,29 @@
         notEqual( updatedDoc.doc.rev, getDoc.rev, 'revisions should be different' );
     });
 
+    test('update document with conflict', function() {
+        var documentId = uuid(),
+            putDoc,
+            getDoc,
+            updatedDoc,
+            conflictUpdatedDoc;
+        // Create a new Document
+        putDoc = putDocument( documentId, { model: 'bmw' } );
+        // Get it
+        getDoc = getDocument( documentId );
+
+        getDoc.content.color = "black";
+        // Update it to get a new revision
+        updatedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
+
+        getDoc.content.color = "blue";
+
+        // Update it again with an old revision number
+        conflictUpdatedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
+
+        equal( conflictUpdatedDoc.status, 400, "Should return a 400 Bad Request because of a conflict" );
+    });
+
     function getDocument( id ) {
         var xhr = xhrObject( 'GET', id );
         xhr.send( null );
@@ -47,6 +70,9 @@
     function putDocument( id, content, rev ) {
         var xhr = xhrObject( 'PUT', id );
         xhr.send( JSON.stringify( {content: content, rev: rev} ) );
+        if( xhr.status >= 400 ) {
+            return { status: xhr.status };
+        }
         return {status: xhr.status, doc: Doc.fromJson( xhr.responseText )};
     };
 
