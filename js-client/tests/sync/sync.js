@@ -65,7 +65,7 @@
         xhr.send( null );
         console.log( xhr.responseText );
         return Doc.fromJson( xhr.responseText );
-    };
+    }
 
     function putDocument( id, content, rev ) {
         var xhr = xhrObject( 'PUT', id );
@@ -74,13 +74,13 @@
             return { status: xhr.status };
         }
         return {status: xhr.status, doc: Doc.fromJson( xhr.responseText )};
-    };
+    }
 
     function httpRequest( method, id, content ) {
         var xhr = xhrObject();
         xhr.send( JSON.stringify( {content: content} ) );
         return xhr;
-    };
+    }
 
     function xhrObject( method, id ) {
         var xhr = new XMLHttpRequest();
@@ -88,24 +88,24 @@
         xhr.setRequestHeader( 'Content-Type', 'application/json' );
         xhr.setRequestHeader( 'Accept', 'application/json' );
         return xhr;
-    };
+    }
 
     function Doc( id, rev, content ) {
         this.id = id;
         this.rev = rev;
         this.content = content;
-    };
+    }
 
     Doc.fromJson = function( str ) {
         var json = JSON.parse( str );
         return new Doc( json.id, json.rev, JSON.parse( json.content ) );
-    }
+    };
 
     Doc.prototype = {
         toString: function() {
             return "[id=" + this.id + ", rev=" + this.rev + ", content=" + content + "]";
         }
-    }
+    };
 
     function uuid()
     {
