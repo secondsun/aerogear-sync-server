@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.rest;
 
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMethod;
@@ -55,7 +56,7 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
             } else {
                 throw new IllegalStateException("Method not supported");
             }
-            ctx.writeAndFlush(response);
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         } else {
             ctx.fireChannelRead(msg);
         }
