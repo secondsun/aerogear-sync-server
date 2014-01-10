@@ -30,7 +30,7 @@ public final class Server {
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             final CorsConfig corsConfig = CorsConfig.anyOrigin()
-                    .allowedRequestMethods(HttpMethod.GET, HttpMethod.PUT, HttpMethod.POST)
+                    .allowedRequestMethods(HttpMethod.GET, HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE)
                     .allowedRequestHeaders("Content-Type")
                     .build();
             final SyncManager syncManager = new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test");
