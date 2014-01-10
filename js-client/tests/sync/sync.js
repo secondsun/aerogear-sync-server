@@ -55,22 +55,22 @@
         getDoc.content.color = "blue";
 
         // Update it again with an old revision number
-        conflictUpdatedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
-
-        equal( conflictUpdatedDoc.status, 400, "Should return a 400 Bad Request because of a conflict" );
+        conflictedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
+        equal( conflictedDoc.status, 409, "Should return a 409 Conflict" );
+        equal( conflictedDoc.doc.id, documentId, 'Conflicted document id should be the same ');
+        equal( conflictedDoc.doc.rev, updatedDoc.doc.rev, 'The latest revision that the server has should be the lastest update we made');
     });
 
     function getDocument( id ) {
         var xhr = xhrObject( 'GET', id );
         xhr.send( null );
-        console.log( xhr.responseText );
         return fromJson( xhr.responseText );
     }
 
     function putDocument( id, content, rev ) {
         var xhr = xhrObject( 'PUT', id );
         xhr.send( JSON.stringify( {content: content, rev: rev} ) );
-        if( xhr.status >= 400 ) {
+        if( xhr.status >= 400 && xhr.status != 409 ) {
             return { status: xhr.status };
         }
         return { status: xhr.status, doc: fromJson( xhr.responseText ) };

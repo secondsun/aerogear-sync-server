@@ -21,6 +21,10 @@ public class ConflictException extends Exception {
     private final Document requested;
     private final Document latest;
 
+    public ConflictException(final Document requested, final Document latest) {
+        this(requested, latest, null, null);
+    }
+
     public ConflictException(final Document requested, final Document latest, final Throwable cause) {
         this(requested, latest, null, cause);
     }

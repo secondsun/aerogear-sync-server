@@ -78,7 +78,7 @@ public class DefaultRestProcessor implements RestProcessor {
                     final Document updatedDoc = sync.update(updateDoc);
                     return responseWithContent(request.getProtocolVersion(), OK, toJson(updatedDoc));
                 } catch (final ConflictException e) {
-                    return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
+                    return responseWithContent(request.getProtocolVersion(), CONFLICT, toJson(e.latest()));
                 }
             }
         }

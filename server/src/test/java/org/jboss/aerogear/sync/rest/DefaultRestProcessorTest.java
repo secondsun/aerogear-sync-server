@@ -19,6 +19,11 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * This class uses Mock object as the underlying SyncManager implementation. When adding
+ * tests please bar this in mind as you may need to specify the behaviour that your tests
+ * expect.
+ */
 public class DefaultRestProcessorTest {
 
     private static final String REV_ONE_JSON = "{\"state\": \"create\"}";
@@ -36,13 +41,13 @@ public class DefaultRestProcessorTest {
     @Test
     public void processPutToCreate() throws Exception {
         final String id = UUID.randomUUID().toString();
-        final HttpResponse response = restProcessor().processPut(mockRequest(PUT, id, REV_ONE_JSON), mockContext());
+        final FullHttpResponse response = (FullHttpResponse) restProcessor().processPut(mockRequest(PUT, id, REV_ONE_JSON), mockContext());
         assertThat(response.getStatus(), is(OK));
-        assertThat(response, is(instanceOf(FullHttpResponse.class)));
-        final Document document = fromJson(((ByteBufHolder) response).content());
+        final Document document = fromJson(response.content());
         assertThat(document.id(), equalTo(REV_ONE_DOC.id()));
         assertThat(document.revision(), equalTo(REV_ONE_DOC.revision()));
         assertThat(document.content(), equalTo(REV_ONE_DOC.content()));
+        response.release();
     }
 
     @Test
@@ -54,25 +59,48 @@ public class DefaultRestProcessorTest {
         // update the document
         final String updateBody = JsonMapper.toJson(new DefaultDocument(id, "1", REV_TWO_JSON));
         final FullHttpRequest fullHttpRequest = mockRequest(PUT, id, updateBody);
-        final HttpResponse response = restProcessor.processPut(fullHttpRequest, mockContext());
+        final FullHttpResponse response = (FullHttpResponse) restProcessor.processPut(fullHttpRequest, mockContext());
         assertThat(response.getStatus(), is(OK));
-        assertThat(response, is(instanceOf(FullHttpResponse.class)));
-        final Document document = fromJson(((ByteBufHolder) response).content());
+        final Document document = fromJson(response.content());
         assertThat(document.id(), equalTo(REV_TWO_DOC.id()));
         assertThat(document.revision(), equalTo(REV_TWO_DOC.revision()));
         assertThat(document.content(), equalTo(REV_TWO_DOC.content()));
+        response.release();
+    }
+
+    @Test
+    public void processPutWithConflict() throws Exception {
+        final String id = UUID.randomUUID().toString();
+        final RestProcessor restProcessor = restProcessor();
+        // create the initial revision of the document
+        final FullHttpResponse putResponse = (FullHttpResponse) restProcessor.processPut(mockRequest(PUT, id, REV_ONE_JSON), mockContext());
+        assertThat(putResponse.getStatus(), is(OK));
+        putResponse.release();
+
+        // update the document with
+        final FullHttpRequest updateRequest = mockRequest(PUT, id, JsonMapper.toJson(new DefaultDocument(id, "2", REV_TWO_JSON)));
+        final FullHttpResponse updateResponse = (FullHttpResponse) restProcessor.processPut(updateRequest, mockContext());
+        assertThat(updateResponse.getStatus(), is(OK));
+        updateResponse.release();
+
+        // update the doument but this time with an older revision
+        final FullHttpRequest conflictRequest = mockRequest(PUT, id, JsonMapper.toJson(new DefaultDocument(id, "1", REV_TWO_JSON)));
+        final FullHttpResponse conflictResponse = (FullHttpResponse) restProcessor.processPut(conflictRequest, mockContext());
+        assertThat(conflictResponse.getStatus(), is(CONFLICT));
+        conflictResponse.release();
     }
 
     @Test
     public void processGet() throws Exception {
         final String id = UUID.randomUUID().toString();
         final Document doc = put(id, REV_ONE_JSON);
-        final HttpResponse response = restProcessor().processGet(mockRequest(GET, doc.id()), mockContext());
+        final FullHttpResponse response = (FullHttpResponse) restProcessor().processGet(mockRequest(GET, doc.id()), mockContext());
         assertThat(response.getStatus(), is(OK));
-        final Document document = fromJson(((ByteBufHolder) response).content());
+        final Document document = fromJson(response.content());
         assertThat(document.id(), equalTo(doc.id()));
         assertThat(document.revision(), equalTo(doc.revision()));
         assertThat(document.content(), equalTo(REV_ONE_JSON));
+        response.release();
     }
 
     @Test
@@ -81,12 +109,10 @@ public class DefaultRestProcessorTest {
         final Document doc = put(id, REV_ONE_JSON);
         final String deleteJson = "{\"rev\": \"" + doc.revision() + "\"}";
         final HttpRequest request = mockRequest(DELETE, doc.id(), deleteJson);
-        final HttpResponse response = restProcessor().processDelete(request, mockContext());
+        final FullHttpResponse response = (FullHttpResponse) restProcessor().processDelete(request, mockContext());
         assertThat(response.getStatus(), is(OK));
-        assertThat(response, is(instanceOf(FullHttpResponse.class)));
-        final FullHttpResponse fullHttpResponse = (FullHttpResponse) response;
-        assertThat(fullHttpResponse.content().isReadable(), is(true));
-        assertThat(fullHttpResponse.content().toString(UTF_8), equalTo(DELETED_REVISION));
+        assertThat(response.content().toString(UTF_8), equalTo(DELETED_REVISION));
+        response.release();
     }
 
     @Test
@@ -102,16 +128,22 @@ public class DefaultRestProcessorTest {
 
     /*
      * This method sets up a RestProcessor that uses a mocked SyncManager.
-     * The first call to the returned instance's update method will return
-     * REV_ONE_DOC and the subsequent call will return REV_TWO_DOC.
      */
     private static RestProcessor restProcessor() throws Exception {
+        return new DefaultRestProcessor(mockSyncManager()
+        );
+    }
+
+    private static SyncManager mockSyncManager() throws Exception {
         final SyncManager syncManager = mock(SyncManager.class);
         when(syncManager.create(anyString(), anyString())).thenReturn(REV_ONE_DOC);
         when(syncManager.read(anyString())).thenReturn(REV_ONE_DOC);
-        when(syncManager.update(Matchers.any(Document.class))).thenReturn(REV_ONE_DOC, REV_TWO_DOC);
+        when(syncManager.update(Matchers.any(Document.class)))
+                .thenReturn(REV_ONE_DOC)
+                .thenReturn(REV_TWO_DOC)
+                .thenThrow(new ConflictException(REV_TWO_DOC, REV_ONE_DOC));
         when(syncManager.delete(anyString(), anyString())).thenReturn(DELETED_REVISION);
-        return new DefaultRestProcessor(syncManager);
+        return syncManager;
     }
 
     public static HttpRequest mockRequest(final HttpMethod method) {
