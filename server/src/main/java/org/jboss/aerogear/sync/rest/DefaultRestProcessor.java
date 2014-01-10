@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -118,6 +119,8 @@ public class DefaultRestProcessor implements RestProcessor {
 
     private static FullHttpResponse responseWithContent(final HttpVersion version, final HttpResponseStatus status,
                                                         final String content) {
-        return new DefaultFullHttpResponse(version, status, copiedBuffer(content, UTF_8));
+        final DefaultFullHttpResponse response = new DefaultFullHttpResponse(version, status, copiedBuffer(content, UTF_8));
+        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
+        return response;
     }
 }
