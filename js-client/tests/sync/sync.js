@@ -10,6 +10,16 @@
         equal( response.doc.content.model, 'honda', 'model property should be honda' );
     });
 
+    test('create document - content is an array', function() {
+        var documentId = uuid();
+        var response = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
+        equal( response.status, 200, 'Status should be 200' );
+        equal( response.doc.id, documentId, 'id should match the sent path id parameter.' );
+        equal( isArray( response.doc.content ), true, 'content is an array' );
+        equal( response.doc.content.length, 2, 'content Array length is 2' );
+        equal( response.doc.content[ 0 ].model, 'honda', 'model property should be honda' );
+    });
+
     test('get document', function() {
         var documentId = uuid(),
             getDoc;
@@ -37,6 +47,24 @@
         notEqual( updatedDoc.doc.rev, getDoc.rev, 'revisions should be different' );
     });
 
+    test('update document - content is an array', function() {
+        var documentId = uuid(),
+            putDoc,
+            getDoc,
+            updatedDoc;
+        putDoc = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
+        getDoc = getDocument( documentId );
+
+        getDoc.content[ 0 ].color = "black";
+
+        updatedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
+
+        equal( updatedDoc.doc.id, documentId, 'id should match the sent path id parameter.');
+        equal( Object.keys( updatedDoc.doc.content[ 0 ] ).length, 2, 'the document should have 2 keys' );
+        equal( updatedDoc.doc.content[ 0 ].color, 'black', 'color field should equal black' );
+        notEqual( updatedDoc.doc.rev, getDoc.rev, 'revisions should be different' );
+    });
+
     test('update document with conflict', function() {
         var documentId = uuid(),
             putDoc,
@@ -53,6 +81,28 @@
         updatedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
 
         getDoc.content.color = "blue";
+
+        // Update it again with an old revision number
+        conflictedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
+        equal( conflictedDoc.status, 409, "Should return a 409 Conflict" );
+        equal( conflictedDoc.doc.id, documentId, 'Conflicted document id should be the same ');
+        equal( conflictedDoc.doc.rev, updatedDoc.doc.rev, 'The latest revision that the server has should be the lastest update we made');
+    });
+
+    test('update document with conflict - content as an array', function() {
+        var documentId = uuid(),
+            putDoc,
+            getDoc,
+            updatedDoc,
+            conflictUpdatedDoc;
+        putDoc = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
+        getDoc = getDocument( documentId );
+
+        getDoc.content[ 0 ].color = "black";
+
+        updatedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
+
+        getDoc.content[ 1 ].color = "blue";
 
         // Update it again with an old revision number
         conflictedDoc = putDocument( getDoc.id, getDoc.content, getDoc.rev );
@@ -93,6 +143,10 @@
     function fromJson( str ) {
         var json = JSON.parse( str );
         return { id: json.id, rev: json.rev, content: JSON.parse( json.content ) };
+    }
+
+    function isArray( obj ) {
+        return ({}).toString.call( obj ) === "[object Array]";
     }
 
     function uuid()
