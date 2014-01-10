@@ -90,6 +90,7 @@ public class RestServerITest {
             ch.closeFuture().sync();
 
             assertThat(clientHandler.getResponse().getStatus(), is(OK));
+            assertThat(clientHandler.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
             final Document document = JsonMapper.fromJson(clientHandler.body(), Document.class);
             assertThat(document.id(), equalTo(documentId));
             assertThat(document.revision(), is(notNullValue()));
