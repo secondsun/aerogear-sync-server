@@ -53,6 +53,7 @@ A successful response will return a HTTP ```200``` with a body:
 To delete a document a DELETE request is made:
 
     DELETE /document1234 HTTP/1.1
+    {"rev":"5"}
 
 A successful response will return a HTTP ```200``` with a body:
 

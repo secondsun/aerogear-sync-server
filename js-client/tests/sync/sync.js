@@ -111,6 +111,14 @@
         equal( conflictedDoc.doc.rev, updatedDoc.doc.rev, 'The latest revision that the server has should be the lastest update we made');
     });
 
+    test('delete document', function() {
+        var documentId = uuid();
+        var putDoc = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
+        var response = deleteDocument( documentId, putDoc.doc.rev);
+        equal( response.status, 200, 'Status should be 200' );
+        notEqual( response.rev, putDoc.doc.rev, 'Delete revision should be different' );
+    });
+
     function getDocument( id ) {
         var xhr = xhrObject( 'GET', id );
         xhr.send( null );
@@ -124,6 +132,15 @@
             return { status: xhr.status };
         }
         return { status: xhr.status, doc: fromJson( xhr.responseText ) };
+    }
+
+    function deleteDocument( id, rev ) {
+        var xhr = xhrObject( 'DELETE', id );
+        xhr.send( JSON.stringify( {rev: rev} ) );
+        if( xhr.status >= 400) {
+            return { status: xhr.status };
+        }
+        return { status: xhr.status, rev: xhr.responseText };
     }
 
     function httpRequest( method, id, content ) {
