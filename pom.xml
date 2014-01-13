@@ -41,6 +41,7 @@
 
     <modules>
         <module>protocol</module>
+        <module>common</module>
         <module>server</module>
     </modules>
 
@@ -49,6 +50,11 @@
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-protocol</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

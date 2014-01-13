@@ -130,6 +130,10 @@
             <artifactId>sync-protocol</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-common</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>
@@ -147,6 +151,11 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>1.3.174</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.java-diff-utils</groupId>
+            <artifactId>diffutils</artifactId>
+            <version>1.2.1</version>
         </dependency>
     </dependencies>
     
