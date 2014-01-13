@@ -1,13 +1,22 @@
 ## AeroGear Data Synchronization Project
-This project aims to specify a data synchronization protocol that can be used by AeroGear's client libraries.
+This project aims to prototype a data synchronization protocol that can be used by AeroGear's client libraries.
 
-Data synchronziation is an important feature for mobile clients to enable offline working. Mobile devices can
-work without a connection, and later when a connection becomes available, any changes made by the client should be
-synchronized with the source of the data.
+AeroGear Sync consists of the following modules:
 
-The master branch of this project is currently empty but will be populated we it has been decided on what approach 
-we will take. 
+* [restsync](./restsync)  
+Implementation that uses a simple approach of rejecting conflicts and delegating the responsibility to resolve conflicts
+to the client. This server uses HTTP and supports SPDY where available.
 
-There is a branch named [differential-synchronization](https://github.com/aerogear/aerogear-sync-server/tree/differential-synchronization)
-that is a proof-of-concept for an option moving forward.
+* [diffsync](./diffsync)  
+This module contains the core classes for data synchronization. These are intended to be used by server implementation.
+Based on Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html) by Neil Fraser.
+This server implementation is WebSocket based.
+
+* [common](./common)  
+Contains [google-diff-match-patch](https://code.google.com/p/google-diff-match-patch/) with some minor tweaks.
+
+* [js-client](./js-client)  
+Contains a JavaScript client library and tests for verifiying the servers funtionality.
+This will most likely be moved out of this project if we decide to move forward with it.
+
 

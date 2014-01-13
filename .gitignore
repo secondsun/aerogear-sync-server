@@ -1,3 +1,11 @@
 node_modules/
 build/
 dist/
+*.swp
+bower_components
+*.iml
+.idea
+**/target
+*.swo
+*.DS_Store
+/target/

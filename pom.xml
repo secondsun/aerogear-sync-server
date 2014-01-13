@@ -31,7 +31,7 @@
     <parent>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>aerogear-parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.3</version>
     </parent>
 
     <properties>
@@ -47,8 +47,9 @@
     </properties>
 
     <modules>
-        <module>protocol</module>
-        <module>server</module>
+        <module>common</module>
+        <module>restsync</module>
+        <module>diffsync</module>
     </modules>
 
     <dependencyManagement>
@@ -57,6 +58,46 @@
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-protocol</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>restsync-protocol</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>diffsync-api</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>diffsync-core</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>diffsync-server-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>diffsync-client-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>restsync-core</artifactId>
+              <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
@@ -92,19 +133,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate.javax.persistence</groupId>
-                <artifactId>hibernate-jpa-2.0-api</artifactId>
-                <version>${hibernate.javax.persistence.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2database.version}</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -136,6 +167,7 @@
                     <author>false</author>
                     <keywords>true</keywords>
                     <quiet>true</quiet>
+                    <bootclasspath>${java.home}/lib/rt.jar</bootclasspath>                    
                 </configuration>
             </plugin>
             <plugin>
