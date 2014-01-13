@@ -24,14 +24,14 @@ public interface SyncEngine<T> {
      * @param edit The edit.
      * @return
      */
-    Document<T> patchShadow(Edit edit);
+    ShadowDocument<T> patchShadow(Edit edit, ShadowDocument<T> shadowDocument);
 
     /**
      *
      * @param edit
      * @return
      */
-    Document<T> patchDocument(Edit edit);
+    Document<T> patchDocument(Edit edit, Document<T> document);
 
     /**
      * The first step in a sync is to produce a an edit for the changes.

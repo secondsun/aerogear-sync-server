@@ -53,4 +53,21 @@ public class DefaultSyncEngineTest {
         assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
         assertThat(diffs.get(2).text(), equalTo("!"));
     }
+
+    @Test
+    public void patchShadow() {
+        final Document<String> serverDoc = new DefaultDocument<String>("Do or do not, there is no try.");
+        final Document<String> clientDoc = new DefaultDocument<String>("Do or do not, there is no try.");
+        final ShadowDocument<String> serverShadow = new DefaultShadowDocument<String>(0, 0, serverDoc);
+        final ShadowDocument<String> clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
+        final Document<String> clientUpdate = new DefaultDocument<String>("Do or do not, there is no try!");
+        final SyncEngine syncEngine = new DefaultSyncEngine();
+        // Produce and edit that would be sent over the network to the server.
+        final Edit edit = syncEngine.diff(clientUpdate, clientShadow);
+        // On the server side, the server takes the edit and tries to patch the client's server side shadow.
+        final ShadowDocument<String> patched = syncEngine.patchShadow(edit, serverShadow);
+        assertThat(patched.clientVersion(), is(edit.version()));
+        assertThat(patched.serverVersion(), is(serverShadow.serverVersion()));
+        assertThat(patched.document().content(), equalTo("Do or do not, there is no try!"));
+    }
 }

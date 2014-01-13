@@ -2110,7 +2110,7 @@ public class DiffUtil {
                 } else {
                     // Imperfect match.  Run a diff to get a framework of equivalent
                     // indices.
-                    java.util.LinkedList<org.jboss.aerogear.sync.common.DiffUtil.Diff> diffs = diffMain(text1, text2, false);
+                    LinkedList<DiffUtil.Diff> diffs = diffMain(text1, text2, false);
                     if (text1.length() > this.matchMaxbits
                             && diffLevenshtein(diffs) / (float) text1.length()
                             > this.patchDeleteThreshold) {
