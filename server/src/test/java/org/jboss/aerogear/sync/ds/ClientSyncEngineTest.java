@@ -34,24 +34,40 @@ public class ClientSyncEngineTest {
     private Document<String> serverDoc;
     private Document<String> clientDoc;
     private ShadowDocument<String> clientShadow;
+    private DataStore<String> dataStore;
+    private ClientSyncEngine<String> syncEngine;
 
     @Before
     public void createDocuments() {
         serverDoc = new DefaultDocument<String>(DOC_ID, ORGINAL_TEXT);
         clientDoc = new DefaultDocument<String>(DOC_ID, serverDoc.content());
         clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
+        dataStore = new InMemoryDataStore();
+        syncEngine = new ClientSyncEngine<String>(new DefaultSynchronizer(), dataStore);
     }
 
     @Test
     public void clientDiff() {
-        final InMemoryDataStore dataStore = new InMemoryDataStore();
-        final ClientSyncEngine<String> syncEngine = new ClientSyncEngine<String>(new DefaultSynchronizer(), dataStore);
         final Document<String> updatedDoc = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
-        final Edits edits = syncEngine.clientDiff(updatedDoc, clientShadow);
-        assertEdit(edits);
+        syncEngine.clientDiff(updatedDoc, clientShadow);
+        assertEdit(dataStore.getEdit(DOC_ID));
         final ShadowDocument shadowDocument = dataStore.getShadowDocument(DOC_ID);
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.serverVersion(), is(0L));
+    }
+
+    @Test
+    public void patchShadow() {
+        final Document<String> serverUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        final Edits edits = syncEngine.clientDiff(serverUpdate, clientShadow);
+        syncEngine.patchShadow(edits);
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(DOC_ID);
+        assertThat(shadowDocument.clientVersion(), is(0L));
+        assertThat(shadowDocument.serverVersion(), is(1L));
+
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(DOC_ID);
+        assertThat(backupShadowDocument.version(), is(0L));
     }
 
     private void assertEdit(final Edits edits) {

@@ -72,4 +72,24 @@ public class ClientSyncEngine<T> {
         return new DefaultShadowDocument<T>(serverVersion, clientVersion, doc);
     }
 
+    /**
+     * Patches the client side shadow with updates from the server.
+     *
+     * @param edits the updates from the server.
+     */
+    public void patchShadow(final Edits edits) {
+        final ShadowDocument<T> patched = synchronizer.patchShadow(edits, dataStore.getShadowDocument(edits.id()));
+        saveShadow(incrementServerVersion(patched));
+        saveBackupShadow(patched);
+    }
+
+    private ShadowDocument<T> incrementServerVersion(final ShadowDocument<T> shadow) {
+        final long serverVersion = shadow.serverVersion() + 1;
+        return shadowDoc(serverVersion, shadow.clientVersion(), shadow.document());
+    }
+
+    private void saveBackupShadow(final ShadowDocument<T> newShadow) {
+        dataStore.saveBackupShadowDocument(new DefaultBackupShadowDocument<T>(newShadow.clientVersion(), newShadow));
+    }
+
 }
