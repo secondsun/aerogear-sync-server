@@ -23,7 +23,7 @@ package org.jboss.aerogear.sync.ds;
  *
  * @param <T> The type of the Document that this instance backups.
  */
-public interface BackupShadow<T> {
+public interface BackupShadowDocument<T> {
 
     /**
      * Represents the version of this backup shadow.

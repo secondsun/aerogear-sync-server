@@ -16,6 +16,12 @@
  */
 package org.jboss.aerogear.sync.ds;
 
+/**
+ * A instance of this class will be able to handle tasks needed to implement
+ * Differential Synchronization for a specific type of documents.
+ *
+ * @param <T> The type of documents that this engine can handle.
+ */
 public interface SyncEngine<T> {
 
     /**

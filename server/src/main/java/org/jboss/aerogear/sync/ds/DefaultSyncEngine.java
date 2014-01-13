@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import static org.jboss.aerogear.sync.common.DiffUtil.*;
 
 /**
- *
+ * A {@link SyncEngine} implementation that can handle text documents.
  */
 public class DefaultSyncEngine implements SyncEngine<String> {
 
