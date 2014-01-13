@@ -45,19 +45,23 @@ public class DefaultSyncEngine implements SyncEngine<String> {
 
     @Override
     public ShadowDocument<String> patchShadow(final Edit edit, final ShadowDocument<String> shadowDocument) {
-        final LinkedList<Patch> patches = diffUtil.patchMake(asDiffUtilDiffs(edit.diffs()));
+        final LinkedList<Patch> patches = patchesFrom(edit);
         final Object[] results = diffUtil.patchApply(patches, shadowDocument.document().content());
-        final String patchedText = (String) results[0];
+        final Document<String> patchedDocument = new DefaultDocument<String>((String) results[0]);
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        final boolean[] bx = (boolean[]) results[1];
-        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(),
-                edit.version(),
-                new DefaultDocument<String>(patchedText));
+        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edit.version(), patchedDocument);
     }
 
     @Override
     public Document<String> patchDocument(final Edit edit, final Document<String> document) {
-        return null;
+        final LinkedList<Patch> patches = patchesFrom(edit);
+        final Object[] results = diffUtil.patchApply(patches, document.content());
+        //TODO: results also contains a boolean array. Not sure what we should do with it.
+        return new DefaultDocument<String>((String) results[0]);
+    }
+
+    private LinkedList<Patch> patchesFrom(final Edit edit) {
+        return diffUtil.patchMake(asDiffUtilDiffs(edit.diffs()));
     }
 
     private static LinkedList<DiffUtil.Diff> asDiffUtilDiffs(final LinkedList<Diff> diffs) {
