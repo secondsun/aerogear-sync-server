@@ -33,6 +33,9 @@ import org.jboss.aerogear.sync.DocumentNotFoundException;
 import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.SyncManager;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static io.netty.buffer.Unpooled.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.util.CharsetUtil.*;
@@ -97,8 +100,9 @@ public class DefaultRestProcessor implements RestProcessor {
             final String id = extractId(request);
             final FullHttpRequest fullHttpRequest = (FullHttpRequest) request;
             final Document doc = partialDocument(id, contentAsString(fullHttpRequest));
-            final String revision = sync.delete(id, doc.revision());
-            return responseWithContent(request.getProtocolVersion(), OK, revision);
+            final Map<String, String> revision = new HashMap<String, String>();
+            revision.put("rev", sync.delete(id, doc.revision()));
+            return responseWithContent(request.getProtocolVersion(), OK, JsonMapper.toJson(revision));
         } else {
             return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
         }
