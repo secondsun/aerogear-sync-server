@@ -33,6 +33,10 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class was taken from https://code.google.com/p/java-diff-utils/source/checkout and
+ * slightly modified to follow some java coding styles.
+ */
 public class DiffUtil {
 
     /**

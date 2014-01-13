@@ -34,6 +34,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+/**
+ * This class was taken from https://code.google.com/p/java-diff-utils/source/checkout and
+ * slightly modified to follow some java coding styles.
+ */
 public class DiffUtilTest {
 
     private static final DiffUtil.Operation DELETE = DiffUtil.Operation.DELETE;
