@@ -18,10 +18,16 @@ package org.jboss.aerogear.sync.ds;
 
 public class DefaultDocument<T> implements Document<T>{
 
+    private final String id;
     private final T content;
 
-    public DefaultDocument(T content) {
+    public DefaultDocument(final String id, final T content) {
+        this.id = id;
         this.content = content;
+    }
+
+    public String id() {
+        return id;
     }
 
     @Override

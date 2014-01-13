@@ -54,11 +54,18 @@ public interface DataStore<T> {
     Document<T> getDocument(String documentId);
 
     /**
-     * Retreives the {@link Edit} for the specified document id.
+     * Saves edits for the document id.
+     *
+     * @param documentId the document identifier that the edits instance belongs to.
+     */
+    void saveEdits(final Edits edits, final String documentId);
+
+    /**
+     * Retreives the {@link Edits} for the specified document id.
      *
      * @param documentId the document identifier of the edit.
-     * @return {@link Edit} the edit for the document.
+     * @return {@link Edits} the edit for the document.
      */
-    Edit getEdit(String documentId);
+    Edits getEdit(String documentId);
 
 }

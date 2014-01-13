@@ -18,16 +18,23 @@ package org.jboss.aerogear.sync.ds;
 
 import java.util.LinkedList;
 
-public class DefaultEdit implements Edit {
+public class DefaultEdits implements Edits {
 
+    private final String id;
     private final long version;
     private final String checksum;
     private final LinkedList<Diff> diffs;
 
-    public DefaultEdit(final long version, final String checksum, final LinkedList<Diff> diffs) {
+    public DefaultEdits(final String id, final long version, final String checksum, final LinkedList<Diff> diffs) {
+        this.id = id;
         this.version = version;
         this.checksum = checksum;
         this.diffs = diffs;
+    }
+
+    @Override
+    public String id() {
+        return id;
     }
 
     @Override

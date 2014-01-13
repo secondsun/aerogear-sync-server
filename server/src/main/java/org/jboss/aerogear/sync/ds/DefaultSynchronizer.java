@@ -22,46 +22,47 @@ import java.util.LinkedList;
 import static org.jboss.aerogear.sync.common.DiffUtil.*;
 
 /**
- * A {@link SyncEngine} implementation that can handle text documents.
+ * A {@link Synchronizer} implementation that can handle text documents.
  */
-public class DefaultSyncEngine implements SyncEngine<String> {
+public class DefaultSynchronizer implements Synchronizer<String> {
 
     private final DiffUtil diffUtil;
 
-    public DefaultSyncEngine() {
+    public DefaultSynchronizer() {
         this(builder().build());
     }
 
-    public DefaultSyncEngine(final DiffUtil diffUtil) {
+    public DefaultSynchronizer(final DiffUtil diffUtil) {
         this.diffUtil = diffUtil;
     }
 
     @Override
-    public Edit diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public Edits diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffUtil.Diff> diffs = diffUtil.diffMain(shadowText, document.content());
-        return new DefaultEdit(shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
+        return new DefaultEdits(document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
     }
 
     @Override
-    public ShadowDocument<String> patchShadow(final Edit edit, final ShadowDocument<String> shadowDocument) {
-        final LinkedList<Patch> patches = patchesFrom(edit);
-        final Object[] results = diffUtil.patchApply(patches, shadowDocument.document().content());
-        final Document<String> patchedDocument = new DefaultDocument<String>((String) results[0]);
+    public ShadowDocument<String> patchShadow(final Edits edits, final ShadowDocument<String> shadowDocument) {
+        final LinkedList<Patch> patches = patchesFrom(edits);
+        final Document<String> doc = shadowDocument.document();
+        final Object[] results = diffUtil.patchApply(patches, doc.content());
+        final Document<String> patchedDocument = new DefaultDocument<String>(doc.id(), (String) results[0]);
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edit.version(), patchedDocument);
+        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edits.version(), patchedDocument);
     }
 
     @Override
-    public Document<String> patchDocument(final Edit edit, final Document<String> document) {
-        final LinkedList<Patch> patches = patchesFrom(edit);
+    public Document<String> patchDocument(final Edits edits, final Document<String> document) {
+        final LinkedList<Patch> patches = patchesFrom(edits);
         final Object[] results = diffUtil.patchApply(patches, document.content());
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        return new DefaultDocument<String>((String) results[0]);
+        return new DefaultDocument<String>(document.id(), (String) results[0]);
     }
 
-    private LinkedList<Patch> patchesFrom(final Edit edit) {
-        return diffUtil.patchMake(asDiffUtilDiffs(edit.diffs()));
+    private LinkedList<Patch> patchesFrom(final Edits edits) {
+        return diffUtil.patchMake(asDiffUtilDiffs(edits.diffs()));
     }
 
     private static LinkedList<DiffUtil.Diff> asDiffUtilDiffs(final LinkedList<Diff> diffs) {

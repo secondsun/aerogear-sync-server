@@ -24,12 +24,13 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
 import static org.jboss.aerogear.sync.common.DiffUtil.*;
 
-public class DefaultSyncEngineTest {
+public class DefaultSynchronizerTest {
 
     private static final String ORGINAL_TEXT = "Do or do not, there is no try.";
     private static final String UPDATED_TEXT = "Do or do not, there is no try!";
+    private static final String DOC_ID = "123456";
 
-    private SyncEngine<String> syncEngine;
+    private Synchronizer<String> synchronizer;
     private Document<String> clientDoc;
     private ShadowDocument<String> clientShadow;
     private Document<String> serverDoc;
@@ -37,21 +38,21 @@ public class DefaultSyncEngineTest {
 
     @Before
     public void createDocuments() {
-        serverDoc = new DefaultDocument<String>(ORGINAL_TEXT);
-        clientDoc = new DefaultDocument<String>(serverDoc.content());
+        serverDoc = new DefaultDocument<String>(DOC_ID, ORGINAL_TEXT);
+        clientDoc = new DefaultDocument<String>(DOC_ID, serverDoc.content());
         serverShadow = new DefaultShadowDocument<String>(0, 0, serverDoc);
         clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
-        syncEngine = new DefaultSyncEngine();
+        synchronizer = new DefaultSynchronizer();
     }
 
     @Test
     public void diff() {
-        final Document<String> updatedDoc = new DefaultDocument<String>(UPDATED_TEXT);
-        final Edit edit = syncEngine.diff(updatedDoc, clientShadow);
-        assertThat(edit.version(), is(0L));
-        assertThat(edit.checksum(), equalTo(checksum(clientShadow.document().content())));
-        assertThat(edit.diffs().size(), is(3));
-        final List<Diff> diffs = edit.diffs();
+        final Document<String> updatedDoc = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        final Edits edits = synchronizer.diff(updatedDoc, clientShadow);
+        assertThat(edits.version(), is(0L));
+        assertThat(edits.checksum(), equalTo(checksum(clientShadow.document().content())));
+        assertThat(edits.diffs().size(), is(3));
+        final List<Diff> diffs = edits.diffs();
         assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
@@ -62,12 +63,12 @@ public class DefaultSyncEngineTest {
 
     @Test
     public void patchShadow() {
-        final Document<String> clientUpdate = new DefaultDocument<String>(UPDATED_TEXT);
-        // Produce and edit that would be sent over the network to the server.
-        final Edit edit = syncEngine.diff(clientUpdate, clientShadow);
-        // On the server side, the server takes the edit and tries to patch the client's server side shadow.
-        final ShadowDocument<String> patched = syncEngine.patchShadow(edit, serverShadow);
-        assertThat(patched.clientVersion(), is(edit.version()));
+        final Document<String> clientUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        // Produce and edits that would be sent over the network to the server.
+        final Edits edits = synchronizer.diff(clientUpdate, clientShadow);
+        // On the server side, the server takes the edits and tries to patch the client's server side shadow.
+        final ShadowDocument<String> patched = synchronizer.patchShadow(edits, serverShadow);
+        assertThat(patched.clientVersion(), is(edits.version()));
         assertThat(patched.serverVersion(), is(serverShadow.serverVersion()));
         assertThat(patched.document().content(), equalTo(UPDATED_TEXT));
     }
@@ -75,9 +76,9 @@ public class DefaultSyncEngineTest {
     @Test
     public void patchDocument() {
         final ShadowDocument<String> clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
-        final Document<String> clientUpdate = new DefaultDocument<String>(UPDATED_TEXT);
-        final Edit edit = syncEngine.diff(clientUpdate, clientShadow);
-        final Document<String> patched = syncEngine.patchDocument(edit, serverDoc);
+        final Document<String> clientUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        final Edits edits = synchronizer.diff(clientUpdate, clientShadow);
+        final Document<String> patched = synchronizer.patchDocument(edits, serverDoc);
         assertThat(patched.content(), equalTo(UPDATED_TEXT));
     }
 }

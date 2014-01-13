@@ -24,6 +24,13 @@ package org.jboss.aerogear.sync.ds;
 public interface Document<T> {
 
     /**
+     * The identifier for a document.
+     *
+     * @return {@code String} the document identifier.
+     */
+    String id();
+
+    /**
      * The content of a document.
      *
      * @return {@code T} the content.

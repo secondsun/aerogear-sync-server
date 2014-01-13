@@ -21,7 +21,14 @@ import java.util.LinkedList;
 /**
  * Represents a single edit.
  */
-public interface Edit {
+public interface Edits {
+
+    /**
+     * Identifies the document that this edit is related to
+     *
+     * @return {@code String} the document id.
+     */
+    String id();
 
     /**
      * The version that edit is related to.
