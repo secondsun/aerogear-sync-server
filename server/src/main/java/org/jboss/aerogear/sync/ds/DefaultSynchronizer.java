@@ -16,30 +16,31 @@
  */
 package org.jboss.aerogear.sync.ds;
 
-import org.jboss.aerogear.sync.common.DiffUtil;
+import org.jboss.aerogear.sync.common.DiffMatchPatch;
+
 import java.util.LinkedList;
 
-import static org.jboss.aerogear.sync.common.DiffUtil.*;
+import static org.jboss.aerogear.sync.common.DiffMatchPatch.*;
 
 /**
  * A {@link Synchronizer} implementation that can handle text documents.
  */
 public class DefaultSynchronizer implements Synchronizer<String> {
 
-    private final DiffUtil diffUtil;
+    private final DiffMatchPatch diffMatchPatch;
 
     public DefaultSynchronizer() {
         this(builder().build());
     }
 
-    public DefaultSynchronizer(final DiffUtil diffUtil) {
-        this.diffUtil = diffUtil;
+    public DefaultSynchronizer(final DiffMatchPatch diffMatchPatch) {
+        this.diffMatchPatch = diffMatchPatch;
     }
 
     @Override
     public Edits diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
-        final LinkedList<DiffUtil.Diff> diffs = diffUtil.diffMain(shadowText, document.content());
+        final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
         return new DefaultEdits(document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
     }
 
@@ -47,7 +48,7 @@ public class DefaultSynchronizer implements Synchronizer<String> {
     public ShadowDocument<String> patchShadow(final Edits edits, final ShadowDocument<String> shadowDocument) {
         final LinkedList<Patch> patches = patchesFrom(edits);
         final Document<String> doc = shadowDocument.document();
-        final Object[] results = diffUtil.patchApply(patches, doc.content());
+        final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
         final Document<String> patchedDocument = new DefaultDocument<String>(doc.id(), (String) results[0]);
         //TODO: results also contains a boolean array. Not sure what we should do with it.
         return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edits.version(), patchedDocument);
@@ -56,26 +57,26 @@ public class DefaultSynchronizer implements Synchronizer<String> {
     @Override
     public Document<String> patchDocument(final Edits edits, final Document<String> document) {
         final LinkedList<Patch> patches = patchesFrom(edits);
-        final Object[] results = diffUtil.patchApply(patches, document.content());
+        final Object[] results = diffMatchPatch.patchApply(patches, document.content());
         //TODO: results also contains a boolean array. Not sure what we should do with it.
         return new DefaultDocument<String>(document.id(), (String) results[0]);
     }
 
     private LinkedList<Patch> patchesFrom(final Edits edits) {
-        return diffUtil.patchMake(asDiffUtilDiffs(edits.diffs()));
+        return diffMatchPatch.patchMake(asDiffUtilDiffs(edits.diffs()));
     }
 
-    private static LinkedList<DiffUtil.Diff> asDiffUtilDiffs(final LinkedList<Diff> diffs) {
-        final LinkedList<DiffUtil.Diff> dsf = new LinkedList<DiffUtil.Diff>();
+    private static LinkedList<DiffMatchPatch.Diff> asDiffUtilDiffs(final LinkedList<Diff> diffs) {
+        final LinkedList<DiffMatchPatch.Diff> dsf = new LinkedList<DiffMatchPatch.Diff>();
         for (Diff d : diffs) {
-            dsf.add(new DiffUtil.Diff(diffutilOp(d.operation()), d.text()));
+            dsf.add(new DiffMatchPatch.Diff(diffutilOp(d.operation()), d.text()));
         }
         return dsf;
     }
 
-    private static LinkedList<Diff> asAeroGearDiffs(final LinkedList<DiffUtil.Diff> diffs) {
+    private static LinkedList<Diff> asAeroGearDiffs(final LinkedList<DiffMatchPatch.Diff> diffs) {
         final LinkedList<Diff> syncDiffs = new LinkedList<Diff>();
-        for (DiffUtil.Diff diff : diffs) {
+        for (DiffMatchPatch.Diff diff : diffs) {
             syncDiffs.add(new DefaultDiff(aerogearOp(diff.operation), diff.text));
         }
         return syncDiffs;

@@ -16,7 +16,7 @@
  */
 package org.jboss.aerogear.sync.ds;
 
-import org.jboss.aerogear.sync.common.DiffUtil;
+import org.jboss.aerogear.sync.common.DiffMatchPatch;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -73,7 +73,7 @@ public class ClientSyncEngineTest {
     private void assertEdit(final Edits edits) {
         assertThat(edits.id(), is(DOC_ID));
         assertThat(edits.version(), is(0L));
-        assertThat(edits.checksum(), equalTo(DiffUtil.checksum(clientShadow.document().content())));
+        assertThat(edits.checksum(), equalTo(DiffMatchPatch.checksum(clientShadow.document().content())));
         assertThat(edits.diffs().size(), is(3));
         final List<Diff> diffs = edits.diffs();
         assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));

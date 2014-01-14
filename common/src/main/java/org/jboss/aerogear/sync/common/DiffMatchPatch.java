@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * This class was taken from https://code.google.com/p/java-diff-utils/source/checkout and
  * slightly modified to follow some java coding styles.
  */
-public class DiffUtil {
+public class DiffMatchPatch {
 
     /**
      * The data structure representing a diff is a Linked list of Diff objects:
@@ -63,7 +63,7 @@ public class DiffUtil {
     private final short patchMargin;
     private final short matchMaxbits;
 
-    private DiffUtil(final Builder builder) {
+    private DiffMatchPatch(final Builder builder) {
         diffTimeout = builder.patchTimeout;
         diffEditCost = builder.diffEditCost;
         matchThreshold = builder.matchThreshold;
@@ -194,8 +194,8 @@ public class DiffUtil {
             return this;
         }
 
-        public DiffUtil build() {
-            return new DiffUtil(this);
+        public DiffMatchPatch build() {
+            return new DiffMatchPatch(this);
         }
 
     }
@@ -2114,7 +2114,7 @@ public class DiffUtil {
                 } else {
                     // Imperfect match.  Run a diff to get a framework of equivalent
                     // indices.
-                    LinkedList<DiffUtil.Diff> diffs = diffMain(text1, text2, false);
+                    LinkedList<DiffMatchPatch.Diff> diffs = diffMain(text1, text2, false);
                     if (text1.length() > this.matchMaxbits
                             && diffLevenshtein(diffs) / (float) text1.length()
                             > this.patchDeleteThreshold) {
