@@ -16,12 +16,13 @@ public interface DataStore<T> {
     void saveShadowDocument(ShadowDocument<T> shadowDocument);
 
     /**
-     * Retrieves the {@link ShadowDocument} matching the passed-in document id.
+     * Retrieves the {@link ShadowDocument} matching the passed-in document documentId.
      *
-     * @param documentId the document identifier of the shadow document.
+     * @param clientId the client for which to retrieve the shadow document.
+     * @param documentId the document id of the shadow document.
      * @return {@link ShadowDocument} the shadow document matching the documentId.
      */
-    ShadowDocument<T> getShadowDocument(String documentId);
+    ShadowDocument<T> getShadowDocument(String clientId, String documentId);
 
     /**
      * Saves a backup shadow document
@@ -31,41 +32,44 @@ public interface DataStore<T> {
     void saveBackupShadowDocument(BackupShadowDocument<T> backupShadow);
 
     /**
-     * Retrieves the {@link BackupShadowDocument} matching the passed-in document id.
+     * Retrieves the {@link BackupShadowDocument} matching the passed-in document documentId.
      *
+     * @param clientId the client identifier for which to fetch the document.
      * @param documentId the document identifier of the backup shadow document.
      * @return {@link ShadowDocument} the backup shadow document matching the documentId.
      */
-    BackupShadowDocument<T> getBackupShadowDocument(String documentId);
+    BackupShadowDocument<T> getBackupShadowDocument(String clientId, String documentId);
 
     /**
      * Saves a shadow document.
      *
      * @param document the {@link Document} to save.
      */
-    void saveDocument(Document<T> document);
+    void saveDocument(ClientDocument<T> document);
 
     /**
-     * Retrieves the {@link Document} matching the passed-in document id.
+     * Retrieves the {@link Document} matching the passed-in document documentId.
      *
+     * @param clientId the client identifier for which to fetch the document.
      * @param documentId the document identifier of the shadow document.
      * @return {@link Document} the document matching the documentId.
      */
-    Document<T> getDocument(String documentId);
+    ClientDocument<T> getDocument(String clientId, String documentId);
 
     /**
-     * Saves edits for the document id.
+     * Saves edits for the document.
      *
-     * @param documentId the document identifier that the edits instance belongs to.
+     * @param document the document identifier that the edits instance belongs to.
      */
-    void saveEdits(final Edits edits, final String documentId);
+    void saveEdits(final Edits edits, final ClientDocument<T> document);
 
     /**
-     * Retreives the {@link Edits} for the specified document id.
+     * Retreives the {@link Edits} for the specified document documentId.
      *
+     * @param clientId the client identifier for which to fetch the document.
      * @param documentId the document identifier of the edit.
      * @return {@link Edits} the edit for the document.
      */
-    Edits getEdit(String documentId);
+    Edits getEdit(String clientId, String documentId);
 
 }

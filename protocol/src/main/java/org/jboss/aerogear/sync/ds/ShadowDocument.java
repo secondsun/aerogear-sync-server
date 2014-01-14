@@ -46,6 +46,6 @@ public interface ShadowDocument<T> {
      *
      * @return T the document.
      */
-    Document<T> document();
+    ClientDocument<T> document();
 
 }

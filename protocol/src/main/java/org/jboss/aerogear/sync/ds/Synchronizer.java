@@ -38,9 +38,9 @@ public interface Synchronizer<T> {
      * if run on the client side will patch the client document
      *
      * @param edits
-     * @return {@link Document} a new patched document.
+     * @return {@link ClientDocument} a new patched document.
      */
-    Document<T> patchDocument(Edits edits, Document<T> document);
+    ClientDocument<T> patchDocument(Edits edits, ClientDocument<T> document);
 
     /**
      * The first step in a sync is to produce a an edit for the changes.
@@ -50,7 +50,7 @@ public interface Synchronizer<T> {
      * @param shadowDocument the document shadow.
      * @return {@link Edits} the edit representing the diff between the document and it's shadow document.
      */
-    Edits diff(Document<T> document, ShadowDocument<T> shadowDocument);
+    Edits diff(ClientDocument<T> document, ShadowDocument<T> shadowDocument);
 
 
 

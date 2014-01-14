@@ -47,7 +47,7 @@ public class DefaultDocument implements Document {
 
     @Override
     public String toString() {
-        return "DefaultDocument[id=" + id + ", revision=" + revision + ", content=" + content + "]";
+        return "DefaultDocument[documentId=" + id + ", revision=" + revision + ", content=" + content + "]";
     }
 
 }

@@ -20,21 +20,28 @@ import java.util.LinkedList;
 
 public class DefaultEdits implements Edits {
 
-    private final String id;
+    private final String clientId;
+    private final String documentId;
     private final long version;
     private final String checksum;
     private final LinkedList<Diff> diffs;
 
-    public DefaultEdits(final String id, final long version, final String checksum, final LinkedList<Diff> diffs) {
-        this.id = id;
+    public DefaultEdits(final String clientId, final String documentId, final long version, final String checksum, final LinkedList<Diff> diffs) {
+        this.clientId = clientId;
+        this.documentId = documentId;
         this.version = version;
         this.checksum = checksum;
         this.diffs = diffs;
     }
 
     @Override
-    public String id() {
-        return id;
+    public String clientId() {
+        return clientId;
+    }
+
+    @Override
+    public String documentId() {
+        return documentId;
     }
 
     @Override

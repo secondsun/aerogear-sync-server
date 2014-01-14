@@ -24,11 +24,18 @@ import java.util.LinkedList;
 public interface Edits {
 
     /**
+     * Identifies the client that this edit instance belongs to.
+     *
+     * @return {@code String} the client identifier.
+     */
+    String clientId();
+
+    /**
      * Identifies the document that this edit is related to
      *
-     * @return {@code String} the document id.
+     * @return {@code String} the document documentId.
      */
-    String id();
+    String documentId();
 
     /**
      * The version that edit is related to.

@@ -38,29 +38,29 @@ public class DefaultSynchronizer implements Synchronizer<String> {
     }
 
     @Override
-    public Edits diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public Edits diff(final ClientDocument<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return new DefaultEdits(document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
+        return new DefaultEdits(document.clientId(), document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
     }
 
     @Override
     public ShadowDocument<String> patchShadow(final Edits edits, final ShadowDocument<String> shadowDocument) {
         final LinkedList<Patch> patches = patchesFrom(edits);
-        final Document<String> doc = shadowDocument.document();
+        final ClientDocument<String> doc = shadowDocument.document();
         final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
         final boolean[] patchResults = (boolean[]) results[1];
-        final Document<String> patchedDocument = new DefaultDocument<String>(doc.id(), (String) results[0]);
+        final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), (String) results[0], doc.clientId() );
         //TODO: results also contains a boolean array. Not sure what we should do with it.
         return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edits.version(), patchedDocument);
     }
 
     @Override
-    public Document<String> patchDocument(final Edits edits, final Document<String> document) {
+    public ClientDocument<String> patchDocument(final Edits edits, final ClientDocument<String> document) {
         final LinkedList<Patch> patches = patchesFrom(edits);
         final Object[] results = diffMatchPatch.patchApply(patches, document.content());
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        return new DefaultDocument<String>(document.id(), (String) results[0]);
+        return new DefaultClientDocument<String>(document.id(), (String) results[0], document.clientId());
     }
 
     private LinkedList<Patch> patchesFrom(final Edits edits) {

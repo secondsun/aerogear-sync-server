@@ -26,7 +26,7 @@ public interface SyncManager {
      *
      * @param id the documents identifier.
      * @param revision the document revision to read.
-     * @return {@link org.jboss.aerogear.sync.Document} the document matching the id and revision.
+     * @return {@link org.jboss.aerogear.sync.Document} the document matching the documentId and revision.
      * @throws DocumentNotFoundException if the document could not be found.
      */
     Document read(String id, String revision) throws DocumentNotFoundException;
@@ -35,13 +35,13 @@ public interface SyncManager {
      * Read the latest revision of a document.
      *
      * @param id the documents identifier.
-     * @return {@link org.jboss.aerogear.sync.Document} the document matching the id.
+     * @return {@link org.jboss.aerogear.sync.Document} the document matching the documentId.
      * @throws DocumentNotFoundException if the document could not be found.
      */
     Document read(String id) throws DocumentNotFoundException;
 
     /**
-     * Creates a new document with the id and json passed in.
+     * Creates a new document with the documentId and json passed in.
      *
      * @param id the new documents identifier.
      * @param json the contents of the new document

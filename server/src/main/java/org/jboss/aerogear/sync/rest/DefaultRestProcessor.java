@@ -46,13 +46,13 @@ import static org.jboss.aerogear.sync.JsonMapper.*;
  * Processes HTTP GET, PUT, and DELETE requests to synchronize documents.
  * <p>
  * HTTP PUT is used to create new documents and to update existing documents. The choice of PUT over POST
- * is due because the id for the document is specified by the calling client as a path parameter.
+ * is due because the documentId for the document is specified by the calling client as a path parameter.
  * For example:
  * <pre>
  * somepath/document22
  * </pre>
  * Since the client knows the location of the resource it can PUT the document directly. If the server
- * decided the location of the resource, is our case the document id, the a POST would have been
+ * decided the location of the resource, is our case the document documentId, the a POST would have been
  * more appropriate.
  */
 public class DefaultRestProcessor implements RestProcessor {

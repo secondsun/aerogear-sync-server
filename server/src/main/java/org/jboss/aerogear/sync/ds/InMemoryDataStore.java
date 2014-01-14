@@ -21,48 +21,95 @@ import java.util.concurrent.ConcurrentMap;
 
 public class InMemoryDataStore implements DataStore<String> {
 
-    private ConcurrentMap<String, Document<String>> documents = new ConcurrentHashMap<String, Document<String>>();
-    private ConcurrentMap<String, ShadowDocument<String>> shadows = new ConcurrentHashMap<String, ShadowDocument<String>>();
-    private ConcurrentMap<String, BackupShadowDocument<String>> backups = new ConcurrentHashMap<String, BackupShadowDocument<String>>();
-    private ConcurrentMap<String, Edits> edits = new ConcurrentHashMap<String, Edits>();
+    private final ConcurrentMap<Id, ClientDocument<String>> documents = new ConcurrentHashMap<Id, ClientDocument<String>>();
+    private final ConcurrentMap<Id, ShadowDocument<String>> shadows = new ConcurrentHashMap<Id, ShadowDocument<String>>();
+    private final ConcurrentMap<Id, BackupShadowDocument<String>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<String>>();
+    private final ConcurrentMap<Id, Edits> edits = new ConcurrentHashMap<Id, Edits>();
 
     @Override
     public void saveShadowDocument(final ShadowDocument<String> shadowDocument) {
-        shadows.put(shadowDocument.document().id(), shadowDocument);
+        shadows.put(id(shadowDocument.document()), shadowDocument);
     }
 
     @Override
-    public ShadowDocument getShadowDocument(final String documentId) {
-        return shadows.get(documentId);
+    public ShadowDocument<String> getShadowDocument(final String clientId, final String documentId) {
+        return shadows.get(id(clientId, documentId));
     }
 
     @Override
     public void saveBackupShadowDocument(final BackupShadowDocument<String> backupShadow) {
-        backups.put(backupShadow.shadow().document().id(), backupShadow);
+        backups.put(id(backupShadow.shadow().document()), backupShadow);
     }
 
     @Override
-    public BackupShadowDocument getBackupShadowDocument(final String documentId) {
-        return backups.get(documentId);
+    public BackupShadowDocument<String> getBackupShadowDocument(final String clientId, final String documentId) {
+        return backups.get(id(clientId, documentId));
     }
 
     @Override
-    public void saveDocument(final Document<String> document) {
-        documents.put(document.id(), document);
+    public void saveDocument(final ClientDocument<String> document) {
+        documents.put(id(document), document);
     }
 
     @Override
-    public Document getDocument(final String documentId) {
-        return documents.get(documentId);
+    public ClientDocument<String> getDocument(final String clientId, final String documentId) {
+        return documents.get(id(clientId, documentId));
     }
 
     @Override
-    public void saveEdits(final Edits edits, final String documentId) {
-        this.edits.put(documentId, edits);
+    public void saveEdits(final Edits edits, final ClientDocument<String> document) {
+        this.edits.put(id(document), edits);
     }
 
     @Override
-    public Edits getEdit(final String documentId) {
-        return edits.get(documentId);
+    public Edits getEdit(final String clientId, final String documentId) {
+        return edits.get(id(clientId, documentId));
+    }
+
+    private static Id id(final ClientDocument<String> document) {
+        return id(document.clientId(), document.id());
+    }
+
+    private static Id id(final String clientId, final String documentId) {
+        return new Id(clientId, documentId);
+    }
+
+    private static class Id {
+
+        private final String clientId;
+        private final String documentId;
+
+        public Id(final String clientId, final String documentId) {
+            this.clientId = clientId;
+            this.documentId = documentId;
+        }
+
+        public String clientId() {
+            return clientId;
+        }
+
+        public String getDocumentId() {
+            return documentId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Id)) return false;
+
+            Id id = (Id) o;
+
+            if (clientId != null ? !clientId.equals(id.clientId) : id.clientId != null) return false;
+            if (documentId != null ? !documentId.equals(id.documentId) : id.documentId != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = clientId != null ? clientId.hashCode() : 0;
+            result = 31 * result + (documentId != null ? documentId.hashCode() : 0);
+            return result;
+        }
     }
 }

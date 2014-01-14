@@ -20,9 +20,9 @@ public class DefaultShadowDocument<T> implements ShadowDocument<T> {
 
     private final long serverVersion;
     private final long clientVersion;
-    private final Document<T> document;
+    private final ClientDocument<T> document;
 
-    public DefaultShadowDocument(final long serverVersion, final long clientVersion, final Document<T> document) {
+    public DefaultShadowDocument(final long serverVersion, final long clientVersion, final ClientDocument<T> document) {
         this.serverVersion = serverVersion;
         this.clientVersion = clientVersion;
         this.document = document;
@@ -39,7 +39,7 @@ public class DefaultShadowDocument<T> implements ShadowDocument<T> {
     }
 
     @Override
-    public Document<T> document() {
+    public ClientDocument<T> document() {
         return document;
     }
 }

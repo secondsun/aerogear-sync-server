@@ -29,17 +29,18 @@ public class DefaultSynchronizerTest {
     private static final String ORGINAL_TEXT = "Do or do not, there is no try.";
     private static final String UPDATED_TEXT = "Do or do not, there is no try!";
     private static final String DOC_ID = "123456";
+    private static final String CLIENT_ID = "clientA";
 
     private Synchronizer<String> synchronizer;
-    private Document<String> clientDoc;
+    private ClientDocument<String> clientDoc;
     private ShadowDocument<String> clientShadow;
-    private Document<String> serverDoc;
+    private ClientDocument<String> serverDoc;
     private ShadowDocument<String> serverShadow;
 
     @Before
     public void createDocuments() {
-        serverDoc = new DefaultDocument<String>(DOC_ID, ORGINAL_TEXT);
-        clientDoc = new DefaultDocument<String>(DOC_ID, serverDoc.content());
+        serverDoc = new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, CLIENT_ID);
+        clientDoc = new DefaultClientDocument<String>(DOC_ID, serverDoc.content(), CLIENT_ID);
         serverShadow = new DefaultShadowDocument<String>(0, 0, serverDoc);
         clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
         synchronizer = new DefaultSynchronizer();
@@ -47,7 +48,7 @@ public class DefaultSynchronizerTest {
 
     @Test
     public void diff() {
-        final Document<String> updatedDoc = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        final ClientDocument<String> updatedDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         final Edits edits = synchronizer.diff(updatedDoc, clientShadow);
         assertThat(edits.version(), is(0L));
         assertThat(edits.checksum(), equalTo(checksum(clientShadow.document().content())));
@@ -63,7 +64,7 @@ public class DefaultSynchronizerTest {
 
     @Test
     public void patchShadow() {
-        final Document<String> clientUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         // Produce and edits that would be sent over the network to the server.
         final Edits edits = synchronizer.diff(clientUpdate, clientShadow);
         // On the server side, the server takes the edits and tries to patch the client's server side shadow.
@@ -76,7 +77,7 @@ public class DefaultSynchronizerTest {
     @Test
     public void patchDocument() {
         final ShadowDocument<String> clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
-        final Document<String> clientUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         final Edits edits = synchronizer.diff(clientUpdate, clientShadow);
         final Document<String> patched = synchronizer.patchDocument(edits, serverDoc);
         assertThat(patched.content(), equalTo(UPDATED_TEXT));

@@ -83,7 +83,7 @@ public final class JsonMapper {
     /**
      * Allows for the creation of an incomplete {@link org.jboss.aerogear.sync.Document instance}
      *
-     * @param id the documents id.
+     * @param id the documents documentId.
      * @param json the contents for the document.
      * @return {@code Document} the document which may not have a revision and/or a content field.
      */
@@ -127,7 +127,7 @@ public final class JsonMapper {
         public Document deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            return new DefaultDocument(node.get("id").asText(), node.get("rev").asText(), node.get("content").toString());
+            return new DefaultDocument(node.get("documentId").asText(), node.get("rev").asText(), node.get("content").asText());
         }
     }
 
@@ -138,7 +138,7 @@ public final class JsonMapper {
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
-            jgen.writeFieldName("id");
+            jgen.writeFieldName("documentId");
             jgen.writeString(document.id());
             jgen.writeFieldName("rev");
             jgen.writeString(document.revision());

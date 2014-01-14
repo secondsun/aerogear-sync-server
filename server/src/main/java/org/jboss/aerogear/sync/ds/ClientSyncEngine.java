@@ -36,7 +36,7 @@ public class ClientSyncEngine<T> {
      *
      * @param document the document to add.
      */
-    public void newSyncDocument(final Document<T> document) {
+    public void newSyncDocument(final ClientDocument<T> document) {
         saveDocument(document);
         saveBackupShadow(saveShadow(new DefaultShadowDocument<T>(0, 0, document)));
     }
@@ -53,29 +53,29 @@ public class ClientSyncEngine<T> {
      * @param document the updated document.
      * @return {@link Edits} containing the edits for the changes in the document.
      */
-    public Edits diff(final Document<T> document) {
-        final ShadowDocument<T> shadow = getShadowDocument(document.id());
+    public Edits diff(final ClientDocument<T> document) {
+        final ShadowDocument<T> shadow = getShadowDocument(document);
         final Edits newEdits = diff(document, shadow);
-        final Edits pendingEdits = getPendingEdits(document.id());
+        final Edits pendingEdits = getPendingEdits(document.clientId(), document.id());
         final Edits mergedEdits = merge(pendingEdits, newEdits);
-        saveEdits(mergedEdits, document.id());
+        saveEdits(mergedEdits, document);
         saveShadow(incrementClientVersion(shadow));
         return mergedEdits;
     }
 
-    private ShadowDocument<T> getShadowDocument(final String documentId) {
-        return dataStore.getShadowDocument(documentId);
+    private ShadowDocument<T> getShadowDocument(final ClientDocument<T> clientDoc) {
+        return dataStore.getShadowDocument(clientDoc.clientId(), clientDoc.id());
     }
 
-    private Edits getPendingEdits(final String documentId) {
-        return dataStore.getEdit(documentId);
+    private Edits getPendingEdits(final String clientId, final String documentId) {
+        return dataStore.getEdit(clientId, documentId);
     }
 
-    private Edits diff(final Document<T> doc, final ShadowDocument<T> shadow) {
+    private Edits diff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {
         return synchronizer.diff(doc, shadow);
     }
 
-    private Edits merge(final Edits pendingEdits, final Edits newEdits) {
+    private static Edits merge(final Edits pendingEdits, final Edits newEdits) {
         if (pendingEdits == null) {
             return newEdits;
         }
@@ -83,8 +83,8 @@ public class ClientSyncEngine<T> {
         return pendingEdits;
     }
 
-    private void saveEdits(final Edits edits, final String documentId) {
-        dataStore.saveEdits(edits, documentId);
+    private void saveEdits(final Edits edits, final ClientDocument<T> document) {
+        dataStore.saveEdits(edits, document);
     }
 
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {
@@ -97,7 +97,7 @@ public class ClientSyncEngine<T> {
         return newShadow;
     }
 
-    private ShadowDocument<T> shadowDoc(final long serverVersion, final long clientVersion, final Document<T> doc) {
+    private ShadowDocument<T> shadowDoc(final long serverVersion, final long clientVersion, final ClientDocument<T> doc) {
         return new DefaultShadowDocument<T>(serverVersion, clientVersion, doc);
     }
 
@@ -107,7 +107,7 @@ public class ClientSyncEngine<T> {
      * @param edits the updates from the server.
      */
     public ShadowDocument<T> patchShadow(final Edits edits) {
-        final ShadowDocument<T> patched = synchronizer.patchShadow(edits, dataStore.getShadowDocument(edits.id()));
+        final ShadowDocument<T> patched = synchronizer.patchShadow(edits, dataStore.getShadowDocument(edits.clientId(), edits.documentId()));
         saveShadow(incrementServerVersion(patched));
         saveBackupShadow(patched);
         clearPendingEdits(edits);
@@ -123,14 +123,14 @@ public class ClientSyncEngine<T> {
         dataStore.saveBackupShadowDocument(new DefaultBackupShadowDocument<T>(newShadow.clientVersion(), newShadow));
     }
 
-    public Document<T> patchDocument(final Edits edits) {
-        final Document<T> document = dataStore.getDocument(edits.id());
-        final Document<T> patched = synchronizer.patchDocument(edits, document);
+    public ClientDocument<T> patchDocument(final Edits edits) {
+        final ClientDocument<T> document = dataStore.getDocument(edits.clientId(), edits.documentId());
+        final ClientDocument<T> patched = synchronizer.patchDocument(edits, document);
         saveDocument(patched);
         return patched;
     }
 
-    private void saveDocument(final Document<T> document) {
+    private void saveDocument(final ClientDocument<T> document) {
         dataStore.saveDocument(document);
     }
 
