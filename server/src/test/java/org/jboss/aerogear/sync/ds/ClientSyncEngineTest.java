@@ -53,8 +53,7 @@ public class ClientSyncEngineTest {
 
     @Test
     public void clientDiff() {
-        final Edits edits = syncEngine.clientDiff(new DefaultDocument<String>(DOC_ID, UPDATED_TEXT));
-        assertEdits(edits);
+        syncEngine.diff(new DefaultDocument<String>(DOC_ID, UPDATED_TEXT));
         assertEdits(dataStore.getEdit(DOC_ID));
         final ShadowDocument shadowDocument = dataStore.getShadowDocument(DOC_ID);
         assertThat(shadowDocument.clientVersion(), is(1L));
@@ -63,7 +62,7 @@ public class ClientSyncEngineTest {
 
     @Test
     public void patchShadow() {
-        syncEngine.patchShadow(syncEngine.clientDiff(new DefaultDocument<String>(DOC_ID, UPDATED_TEXT)));
+        syncEngine.patchShadow(syncEngine.diff(new DefaultDocument<String>(DOC_ID, UPDATED_TEXT)));
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(DOC_ID);
         assertThat(shadowDocument.clientVersion(), is(0L));
         assertThat(shadowDocument.serverVersion(), is(1L));
@@ -74,7 +73,7 @@ public class ClientSyncEngineTest {
     @Test
     public void patchDocument() {
         final Document<String> serverUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
-        final Edits edits = syncEngine.clientDiff(serverUpdate);
+        final Edits edits = syncEngine.diff(serverUpdate);
         final Document<String> document = syncEngine.patchDocument(edits);
         assertThat(document.content(), equalTo(UPDATED_TEXT));
     }
@@ -91,6 +90,5 @@ public class ClientSyncEngineTest {
         assertThat(diffs.get(1).text(), equalTo("."));
         assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
         assertThat(diffs.get(2).text(), equalTo("!"));
-
     }
 }
