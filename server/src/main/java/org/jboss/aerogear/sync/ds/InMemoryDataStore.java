@@ -27,7 +27,7 @@ public class InMemoryDataStore implements DataStore<String> {
     private ConcurrentMap<String, Edits> edits = new ConcurrentHashMap<String, Edits>();
 
     @Override
-    public void saveShadowDocument(final ShadowDocument shadowDocument) {
+    public void saveShadowDocument(final ShadowDocument<String> shadowDocument) {
         shadows.put(shadowDocument.document().id(), shadowDocument);
     }
 
@@ -37,7 +37,7 @@ public class InMemoryDataStore implements DataStore<String> {
     }
 
     @Override
-    public void saveBackupShadowDocument(final BackupShadowDocument backupShadow) {
+    public void saveBackupShadowDocument(final BackupShadowDocument<String> backupShadow) {
         backups.put(backupShadow.shadow().document().id(), backupShadow);
     }
 
@@ -47,12 +47,13 @@ public class InMemoryDataStore implements DataStore<String> {
     }
 
     @Override
-    public void saveDocument(final Document document) {
+    public void saveDocument(final Document<String> document) {
+        documents.put(document.id(), document);
     }
 
     @Override
     public Document getDocument(final String documentId) {
-        return null;
+        return documents.get(documentId);
     }
 
     @Override

@@ -49,6 +49,7 @@ public class DefaultSynchronizer implements Synchronizer<String> {
         final LinkedList<Patch> patches = patchesFrom(edits);
         final Document<String> doc = shadowDocument.document();
         final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
+        final boolean[] patchResults = (boolean[]) results[1];
         final Document<String> patchedDocument = new DefaultDocument<String>(doc.id(), (String) results[0]);
         //TODO: results also contains a boolean array. Not sure what we should do with it.
         return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edits.version(), patchedDocument);

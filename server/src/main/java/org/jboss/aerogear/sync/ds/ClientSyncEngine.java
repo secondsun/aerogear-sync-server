@@ -32,17 +32,31 @@ public class ClientSyncEngine<T> {
     }
 
     /**
+     * Adds a new document to this sync engine.
+     *
+     * @param document the document to add.
+     */
+    public void newSyncDocument(final Document<T> document) {
+        saveDocument(document);
+        saveBackupShadow(saveShadow(new DefaultShadowDocument<T>(0, 0, document)));
+    }
+
+    /**
      * Performs the client side of a differential sync.
      *
      * @param document the updated document.
-     * @param shadow the documents shadow.
      * @return {@link Edits} containing the edits for the changes in the document.
      */
-    public Edits clientDiff(final Document<T> document, final ShadowDocument<T> shadow) {
+    public Edits clientDiff(final Document<T> document) {
+        final ShadowDocument<T> shadow = getShadowDocument(document.id());
         final Edits edits = diff(document, shadow);
         saveEdits(edits, document.id());
         saveShadow(incrementClientVersion(shadow));
         return edits;
+    }
+
+    private ShadowDocument<T> getShadowDocument(final String documentId) {
+        return dataStore.getShadowDocument(documentId);
     }
 
     private Edits diff(final Document<T> doc, final ShadowDocument<T> shadow) {
@@ -64,8 +78,9 @@ public class ClientSyncEngine<T> {
         return shadowDoc(shadow.serverVersion(), clientVersion, shadow.document());
     }
 
-    private void saveShadow(final ShadowDocument<T> newShadow) {
+    private ShadowDocument<T> saveShadow(final ShadowDocument<T> newShadow) {
         dataStore.saveShadowDocument(newShadow);
+        return newShadow;
     }
 
     private ShadowDocument<T> shadowDoc(final long serverVersion, final long clientVersion, final Document<T> doc) {
@@ -77,10 +92,11 @@ public class ClientSyncEngine<T> {
      *
      * @param edits the updates from the server.
      */
-    public void patchShadow(final Edits edits) {
+    public ShadowDocument<T> patchShadow(final Edits edits) {
         final ShadowDocument<T> patched = synchronizer.patchShadow(edits, dataStore.getShadowDocument(edits.id()));
         saveShadow(incrementServerVersion(patched));
         saveBackupShadow(patched);
+        return patched;
     }
 
     private ShadowDocument<T> incrementServerVersion(final ShadowDocument<T> shadow) {
@@ -90,6 +106,17 @@ public class ClientSyncEngine<T> {
 
     private void saveBackupShadow(final ShadowDocument<T> newShadow) {
         dataStore.saveBackupShadowDocument(new DefaultBackupShadowDocument<T>(newShadow.clientVersion(), newShadow));
+    }
+
+    public Document<T> patchDocument(final Edits edits) {
+        final Document<T> document = dataStore.getDocument(edits.id());
+        final Document<T> patched = synchronizer.patchDocument(edits, document);
+        saveDocument(patched);
+        return patched;
+    }
+
+    private void saveDocument(final Document<T> document) {
+        dataStore.saveDocument(document);
     }
 
 }

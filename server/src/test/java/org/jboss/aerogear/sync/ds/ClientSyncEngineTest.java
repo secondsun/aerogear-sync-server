@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.*;
 
 public class ClientSyncEngineTest {
@@ -31,26 +32,30 @@ public class ClientSyncEngineTest {
     private static final String ORGINAL_TEXT = "Do or do not, there is no try.";
     private static final String UPDATED_TEXT = "Do or do not, there is no try!";
     private static final String DOC_ID = "123456";
-    private Document<String> serverDoc;
     private Document<String> clientDoc;
-    private ShadowDocument<String> clientShadow;
     private DataStore<String> dataStore;
     private ClientSyncEngine<String> syncEngine;
 
     @Before
-    public void createDocuments() {
-        serverDoc = new DefaultDocument<String>(DOC_ID, ORGINAL_TEXT);
-        clientDoc = new DefaultDocument<String>(DOC_ID, serverDoc.content());
-        clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
+    public void setup() {
         dataStore = new InMemoryDataStore();
         syncEngine = new ClientSyncEngine<String>(new DefaultSynchronizer(), dataStore);
+        clientDoc = new DefaultDocument<String>(DOC_ID, ORGINAL_TEXT);
+        syncEngine.newSyncDocument(clientDoc);
+    }
+
+    @Test
+    public void newDocument() {
+        assertThat(dataStore.getDocument(clientDoc.id()), is(notNullValue()));
+        assertThat(dataStore.getShadowDocument(clientDoc.id()), is(notNullValue()));
+        assertThat(dataStore.getBackupShadowDocument(clientDoc.id()), is(notNullValue()));
     }
 
     @Test
     public void clientDiff() {
-        final Document<String> updatedDoc = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
-        syncEngine.clientDiff(updatedDoc, clientShadow);
-        assertEdit(dataStore.getEdit(DOC_ID));
+        final Edits edits = syncEngine.clientDiff(new DefaultDocument<String>(DOC_ID, UPDATED_TEXT));
+        assertEdits(edits);
+        assertEdits(dataStore.getEdit(DOC_ID));
         final ShadowDocument shadowDocument = dataStore.getShadowDocument(DOC_ID);
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.serverVersion(), is(0L));
@@ -58,22 +63,26 @@ public class ClientSyncEngineTest {
 
     @Test
     public void patchShadow() {
-        final Document<String> serverUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
-        final Edits edits = syncEngine.clientDiff(serverUpdate, clientShadow);
-        syncEngine.patchShadow(edits);
-
+        syncEngine.patchShadow(syncEngine.clientDiff(new DefaultDocument<String>(DOC_ID, UPDATED_TEXT)));
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(DOC_ID);
         assertThat(shadowDocument.clientVersion(), is(0L));
         assertThat(shadowDocument.serverVersion(), is(1L));
-
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(DOC_ID);
         assertThat(backupShadowDocument.version(), is(0L));
     }
 
-    private void assertEdit(final Edits edits) {
+    @Test
+    public void patchDocument() {
+        final Document<String> serverUpdate = new DefaultDocument<String>(DOC_ID, UPDATED_TEXT);
+        final Edits edits = syncEngine.clientDiff(serverUpdate);
+        final Document<String> document = syncEngine.patchDocument(edits);
+        assertThat(document.content(), equalTo(UPDATED_TEXT));
+    }
+
+    private void assertEdits(final Edits edits) {
         assertThat(edits.id(), is(DOC_ID));
         assertThat(edits.version(), is(0L));
-        assertThat(edits.checksum(), equalTo(DiffMatchPatch.checksum(clientShadow.document().content())));
+        assertThat(edits.checksum(), equalTo(DiffMatchPatch.checksum(dataStore.getShadowDocument(edits.id()).document().content())));
         assertThat(edits.diffs().size(), is(3));
         final List<Diff> diffs = edits.diffs();
         assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
