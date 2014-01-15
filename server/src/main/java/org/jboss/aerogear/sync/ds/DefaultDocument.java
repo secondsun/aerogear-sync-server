@@ -34,4 +34,9 @@ public class DefaultDocument<T> implements Document<T>{
     public T content() {
         return content;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultDocument[id=" + id + ", content=" + content + "]";
+    }
 }

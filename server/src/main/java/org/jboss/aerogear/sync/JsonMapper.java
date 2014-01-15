@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
@@ -119,6 +120,10 @@ public final class JsonMapper {
 
     public static ObjectNode newObjectNode() {
         return om.createObjectNode();
+    }
+
+    public static ArrayNode newArrayNode() {
+        return om.createArrayNode();
     }
 
     private static class DocumentDeserializer extends JsonDeserializer<Document> {
