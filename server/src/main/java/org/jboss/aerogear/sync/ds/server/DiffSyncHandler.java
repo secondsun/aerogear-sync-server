@@ -22,9 +22,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.ds.DefaultDocument;
-import org.jboss.aerogear.sync.ds.Diff;
-
-import java.util.LinkedList;
+import org.jboss.aerogear.sync.ds.Edits;
 
 public class DiffSyncHandler  extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
@@ -40,21 +38,20 @@ public class DiffSyncHandler  extends SimpleChannelInboundHandler<TextWebSocketF
         final String msgType = json.get("msgType").asText();
         if (msgType.equals("add")) {
             syncEngine.addDocument(new DefaultDocument<String>(json.get("docId").asText(), json.get("content").asText()));
-            responseCreated(ctx);
+            responseCreated(ctx, "CREATED");
         } else if (msgType.equals("shadow")) {
             syncEngine.addShadow(json.get("docId").asText(), json.get("clientId").asText());
-            responseCreated(ctx);
+            responseCreated(ctx, "CREATED");
         } else if (msgType.equals("edits")) {
-            final LinkedList<Diff> diffs = new LinkedList<Diff>();
-            final JsonNode diffArray = json.get("diffs");
-            //diffArray.isArray()
-            //syncEngine.patchDocument()
+            final Edits edits = JsonMapper.fromJson(json.toString(), Edits.class);
+            syncEngine.patchDocument(edits);
+            responseCreated(ctx, "PATCHED");
         } else {
             ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"result\": \"Unknown msgType '" + msgType + "'\"}"));
         }
     }
 
-    private static final void responseCreated(final ChannelHandlerContext ctx) {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"result\": \"CREATED\"}"));
+    private static final void responseCreated(final ChannelHandlerContext ctx, final String msg) {
+        ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"result\": \"" + msg + "\"}"));
     }
 }

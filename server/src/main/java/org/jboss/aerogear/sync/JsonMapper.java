@@ -30,9 +30,15 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jboss.aerogear.sync.common.DiffMatchPatch;
+import org.jboss.aerogear.sync.ds.DefaultDiff;
+import org.jboss.aerogear.sync.ds.DefaultEdits;
+import org.jboss.aerogear.sync.ds.Diff;
+import org.jboss.aerogear.sync.ds.Edits;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.LinkedList;
 
 public final class JsonMapper {
 
@@ -43,6 +49,8 @@ public final class JsonMapper {
         final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(Document.class, new DocumentDeserializer());
         module.addSerializer(DefaultDocument.class, new DocumentSerializer());
+        module.addDeserializer(Edits.class, new EditsDeserializer());
+        module.addSerializer(DefaultEdits.class, new EditsSerializer());
         om.registerModule(module);
         return om;
     }
@@ -148,6 +156,53 @@ public final class JsonMapper {
             jgen.writeFieldName("rev");
             jgen.writeString(document.revision());
             jgen.writeObjectField("content", asJsonNode(document.content()));
+            jgen.writeEndObject();
+        }
+    }
+
+    private static class EditsDeserializer extends JsonDeserializer<Edits> {
+
+        @Override
+        public Edits deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+            final ObjectCodec oc = jp.getCodec();
+            final JsonNode node = oc.readTree(jp);
+            final String clientId = node.get("clientId").asText();
+            final String documentId = node.get("docId").asText();
+            final long version = node.get("version").asLong();
+            final String checksum = node.get("checksum").asText();
+            final JsonNode diffsNode = node.get("diffs");
+            final LinkedList<Diff> diffs = new LinkedList<Diff>();
+            if (diffsNode.isArray()) {
+                for (JsonNode d : diffsNode) {
+                    diffs.add(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
+                }
+            }
+            return new DefaultEdits(clientId, documentId, version, checksum, diffs);
+        }
+    }
+
+    private static class EditsSerializer extends JsonSerializer<Edits> {
+
+        @Override
+        public void serialize(final Edits edits,
+                              final JsonGenerator jgen,
+                              final SerializerProvider provider) throws IOException {
+            jgen.writeStartObject();
+            jgen.writeStringField("msgType", "edits");
+            jgen.writeStringField("clientId", edits.clientId());
+            jgen.writeStringField("docId", edits.documentId());
+            jgen.writeNumberField("version", edits.version());
+            jgen.writeStringField("checksum", edits.checksum());
+            if (!edits.diffs().isEmpty()) {
+                jgen.writeArrayFieldStart("diffs");
+                for (Diff diff : edits.diffs()) {
+                    jgen.writeStartObject();
+                    jgen.writeStringField("operation", diff.operation().toString());
+                    jgen.writeStringField("text", diff.text());
+                    jgen.writeEndObject();
+                }
+                jgen.writeEndArray();
+            }
             jgen.writeEndObject();
         }
     }

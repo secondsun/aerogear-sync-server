@@ -64,7 +64,7 @@ public class DiffSyncHandlerTest {
         assertThat(json.get("result").asText(), equalTo("CREATED"));
     }
 
-    @Test @Ignore ("work in progress")
+    @Test
     public void edits() {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
@@ -78,20 +78,7 @@ public class DiffSyncHandlerTest {
     }
 
     private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {
-        final ObjectNode objectNode = JsonMapper.newObjectNode();
-        objectNode.put("msgType", "edits");
-        objectNode.put("docId", edits.documentId());
-        objectNode.put("version", edits.version());
-        objectNode.put("checksum", edits.checksum());
-        if (!edits.diffs().isEmpty()) {
-            final ArrayNode diffArray = objectNode.putArray("diffs");
-            for (Diff diff : edits.diffs()) {
-                final ObjectNode diffNode = diffArray.addObject();
-                diffNode.put(diff.operation().toString(), diff.text());
-            }
-        }
-        System.out.println(objectNode);
-        return writeTextFrame(objectNode.toString(), ch);
+        return writeTextFrame(JsonMapper.toJson(edits), ch);
     }
 
     private static JsonNode sendAddDocMsg(final String docId, final String content, final EmbeddedChannel ch) {
