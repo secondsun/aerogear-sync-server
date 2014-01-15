@@ -14,7 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.ds;
+package org.jboss.aerogear.sync.ds.server;
+
+import org.jboss.aerogear.sync.ds.ClientDocument;
+import org.jboss.aerogear.sync.ds.Document;
+import org.jboss.aerogear.sync.ds.Edits;
+import org.jboss.aerogear.sync.ds.ShadowDocument;
 
 /**
  * A instance of this class will be able to handle tasks needed to implement
@@ -22,7 +27,7 @@ package org.jboss.aerogear.sync.ds;
  *
  * @param <T> The type of documents that this engine can handle.
  */
-public interface Synchronizer<T> {
+public interface ServerSynchronizer<T> {
 
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.
@@ -34,13 +39,11 @@ public interface Synchronizer<T> {
 
     /**
      * Called when the document should be patched.
-     * If this engine is used on the server side this will patch the server document, and
-     * if run on the client side will patch the client document
      *
      * @param edits
-     * @return {@link ClientDocument} a new patched document.
+     * @return {@link Document} a new patched document.
      */
-    ClientDocument<T> patchDocument(Edits edits, ClientDocument<T> document);
+    Document<T> patchDocument(Edits edits, Document<T> document);
 
     /**
      * The first step in a sync is to produce a an edit for the changes.
@@ -50,9 +53,6 @@ public interface Synchronizer<T> {
      * @param shadowDocument the document shadow.
      * @return {@link Edits} the edit representing the diff between the document and it's shadow document.
      */
-    Edits diff(ClientDocument<T> document, ShadowDocument<T> shadowDocument);
-
-
-
+    Edits diff(Document<T> document, ShadowDocument<T> shadowDocument);
 
 }

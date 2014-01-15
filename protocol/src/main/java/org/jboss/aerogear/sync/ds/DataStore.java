@@ -41,27 +41,11 @@ public interface DataStore<T> {
     BackupShadowDocument<T> getBackupShadowDocument(String clientId, String documentId);
 
     /**
-     * Saves a shadow document.
-     *
-     * @param document the {@link Document} to save.
-     */
-    void saveDocument(ClientDocument<T> document);
-
-    /**
-     * Retrieves the {@link Document} matching the passed-in document documentId.
-     *
-     * @param clientId the client identifier for which to fetch the document.
-     * @param documentId the document identifier of the shadow document.
-     * @return {@link Document} the document matching the documentId.
-     */
-    ClientDocument<T> getDocument(String clientId, String documentId);
-
-    /**
      * Saves edits for the document.
      *
      * @param document the document identifier that the edits instance belongs to.
      */
-    void saveEdits(final Edits edits, final ClientDocument<T> document);
+    void saveEdits(final Edits edits, final Document<T> document);
 
     /**
      * Retreives the {@link Edits} for the specified document documentId.

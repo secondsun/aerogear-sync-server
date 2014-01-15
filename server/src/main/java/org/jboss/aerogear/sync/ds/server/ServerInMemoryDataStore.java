@@ -14,14 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.ds;
+package org.jboss.aerogear.sync.ds.server;
+
+import org.jboss.aerogear.sync.ds.BackupShadowDocument;
+import org.jboss.aerogear.sync.ds.ClientDocument;
+import org.jboss.aerogear.sync.ds.Document;
+import org.jboss.aerogear.sync.ds.Edits;
+import org.jboss.aerogear.sync.ds.ShadowDocument;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class InMemoryDataStore implements DataStore<String> {
+public class ServerInMemoryDataStore implements ServerDataStore<String> {
 
-    private final ConcurrentMap<Id, ClientDocument<String>> documents = new ConcurrentHashMap<Id, ClientDocument<String>>();
+    private final ConcurrentMap<String, Document<String>> documents = new ConcurrentHashMap<String, Document<String>>();
     private final ConcurrentMap<Id, ShadowDocument<String>> shadows = new ConcurrentHashMap<Id, ShadowDocument<String>>();
     private final ConcurrentMap<Id, BackupShadowDocument<String>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<String>>();
     private final ConcurrentMap<Id, Edits> edits = new ConcurrentHashMap<Id, Edits>();
@@ -47,18 +53,18 @@ public class InMemoryDataStore implements DataStore<String> {
     }
 
     @Override
-    public void saveDocument(final ClientDocument<String> document) {
-        documents.put(id(document), document);
+    public void saveDocument(final Document<String> document) {
+        documents.put(document.id(), document);
     }
 
     @Override
-    public ClientDocument<String> getDocument(final String clientId, final String documentId) {
-        return documents.get(id(clientId, documentId));
+    public Document<String> getDocument(final String documentId) {
+        return documents.get(documentId);
     }
 
     @Override
-    public void saveEdits(final Edits edits, final ClientDocument<String> document) {
-        this.edits.put(id(document), edits);
+    public void saveEdits(final Edits edits, final Document<String> document) {
+        this.edits.put(id(edits.clientId(), document.id()), edits);
     }
 
     @Override

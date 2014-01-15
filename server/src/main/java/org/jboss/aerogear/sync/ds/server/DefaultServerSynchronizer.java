@@ -14,34 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.ds;
+package org.jboss.aerogear.sync.ds.server;
 
 import org.jboss.aerogear.sync.common.DiffMatchPatch;
+import org.jboss.aerogear.sync.ds.ClientDocument;
+import org.jboss.aerogear.sync.ds.DefaultClientDocument;
+import org.jboss.aerogear.sync.ds.DefaultDiff;
+import org.jboss.aerogear.sync.ds.DefaultDocument;
+import org.jboss.aerogear.sync.ds.DefaultEdits;
+import org.jboss.aerogear.sync.ds.DefaultShadowDocument;
+import org.jboss.aerogear.sync.ds.Diff;
+import org.jboss.aerogear.sync.ds.Document;
+import org.jboss.aerogear.sync.ds.Edits;
+import org.jboss.aerogear.sync.ds.ShadowDocument;
 
 import java.util.LinkedList;
 
-import static org.jboss.aerogear.sync.common.DiffMatchPatch.*;
+import static org.jboss.aerogear.sync.common.DiffMatchPatch.Operation;
+import static org.jboss.aerogear.sync.common.DiffMatchPatch.Patch;
+import static org.jboss.aerogear.sync.common.DiffMatchPatch.builder;
+import static org.jboss.aerogear.sync.common.DiffMatchPatch.checksum;
 
 /**
- * A {@link Synchronizer} implementation that can handle text documents.
+ * A {@link ServerSynchronizer} implementation that can handle text documents.
  */
-public class DefaultSynchronizer implements Synchronizer<String> {
+public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
 
     private final DiffMatchPatch diffMatchPatch;
 
-    public DefaultSynchronizer() {
+    public DefaultServerSynchronizer() {
         this(builder().build());
     }
 
-    public DefaultSynchronizer(final DiffMatchPatch diffMatchPatch) {
+    public DefaultServerSynchronizer(final DiffMatchPatch diffMatchPatch) {
         this.diffMatchPatch = diffMatchPatch;
     }
 
     @Override
-    public Edits diff(final ClientDocument<String> document, final ShadowDocument<String> shadowDocument) {
+    public Edits diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return new DefaultEdits(document.clientId(), document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
+        return new DefaultEdits(shadowDocument.document().clientId(), document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
     }
 
     @Override
@@ -56,11 +69,11 @@ public class DefaultSynchronizer implements Synchronizer<String> {
     }
 
     @Override
-    public ClientDocument<String> patchDocument(final Edits edits, final ClientDocument<String> document) {
+    public Document<String> patchDocument(final Edits edits, final Document<String> document) {
         final LinkedList<Patch> patches = patchesFrom(edits);
         final Object[] results = diffMatchPatch.patchApply(patches, document.content());
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        return new DefaultClientDocument<String>(document.id(), (String) results[0], document.clientId());
+        return new DefaultDocument<String>(document.id(), (String) results[0]);
     }
 
     private LinkedList<Patch> patchesFrom(final Edits edits) {

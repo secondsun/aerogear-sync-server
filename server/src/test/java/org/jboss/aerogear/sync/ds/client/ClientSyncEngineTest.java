@@ -14,9 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.ds;
+package org.jboss.aerogear.sync.ds.client;
 
 import org.jboss.aerogear.sync.common.DiffMatchPatch;
+import org.jboss.aerogear.sync.ds.BackupShadowDocument;
+import org.jboss.aerogear.sync.ds.ClientDocument;
+import org.jboss.aerogear.sync.ds.DefaultClientDocument;
+import org.jboss.aerogear.sync.ds.Diff;
+import org.jboss.aerogear.sync.ds.Document;
+import org.jboss.aerogear.sync.ds.Edits;
+import org.jboss.aerogear.sync.ds.ShadowDocument;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,36 +41,36 @@ public class ClientSyncEngineTest {
     private static final String DOC_ID = "123456";
     private static final String CLIENT_ID = "clientA";
     private ClientDocument<String> clientDoc;
-    private DataStore<String> dataStore;
+    private ClientDataStore<String> dataStore;
     private ClientSyncEngine<String> syncEngine;
 
     @Before
     public void setup() {
-        dataStore = new InMemoryDataStore();
-        syncEngine = new ClientSyncEngine<String>(new DefaultSynchronizer(), dataStore);
+        dataStore = new ClientInMemoryDataStore();
+        syncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), dataStore);
         clientDoc = new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, CLIENT_ID);
-        syncEngine.newSyncDocument(clientDoc);
+        syncEngine.addDocument(clientDoc);
     }
 
     @Test
-    public void newDocument() {
-        assertThat(dataStore.getDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
+    public void addDocument() {
+        assertThat(dataStore.getClientDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
         assertThat(dataStore.getShadowDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
         assertThat(dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
     }
 
     @Test
-    public void newDocumentForMultipleClients() {
+    public void addDocumentWithMultipleClients() {
         final String clientId1 = "client1";
         final String clientId2 = "client2";
-        syncEngine.newSyncDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId1));
-        syncEngine.newSyncDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId2));
+        syncEngine.addDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId1));
+        syncEngine.addDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId2));
 
-        assertThat(dataStore.getDocument(clientId1, DOC_ID).id(), equalTo(DOC_ID));
+        assertThat(dataStore.getClientDocument(clientId1, DOC_ID).id(), equalTo(DOC_ID));
         assertThat(dataStore.getShadowDocument(clientId1, DOC_ID).document().clientId(), equalTo(clientId1));
         assertThat(dataStore.getBackupShadowDocument(clientId1, DOC_ID), is(notNullValue()));
 
-        assertThat(dataStore.getDocument(clientId2, DOC_ID).id(), equalTo(DOC_ID));
+        assertThat(dataStore.getClientDocument(clientId2, DOC_ID).id(), equalTo(DOC_ID));
         assertThat(dataStore.getShadowDocument(clientId2, DOC_ID).document().clientId(), equalTo(clientId2));
         assertThat(dataStore.getBackupShadowDocument(clientId2, DOC_ID), is(notNullValue()));
     }
@@ -79,7 +86,7 @@ public class ClientSyncEngineTest {
 
     @Test
     public void patchShadow() {
-        final DefaultClientDocument<String> clientDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
+        final ClientDocument<String> clientDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         syncEngine.patchShadow(syncEngine.diff(clientDoc));
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(clientDoc.clientId(), clientDoc.id());
         assertThat(shadowDocument.clientVersion(), is(0L));
