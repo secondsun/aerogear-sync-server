@@ -32,7 +32,6 @@ public class DefaultRestProcessorTest {
     private static final Document REV_TWO_DOC = new DefaultDocument("1", "2", REV_TWO_JSON);
     private static final String DELETED_REVISION = "mockDeletedRevision";
     private static final String DELETED_REVISION_RESPONSE = "{\"rev\":\"mockDeletedRevision\"}";
-	
 
     @Test
     public void processPutNoContent() throws Exception {

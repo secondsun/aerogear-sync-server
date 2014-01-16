@@ -116,7 +116,7 @@
         var putDoc = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
         var response = deleteDocument( documentId, putDoc.doc.rev);
         equal( response.status, 200, 'Status should be 200' );
-        notEqual( response.rev, putDoc.doc.rev, 'Delete revision should be different' );
+        notEqual( response.doc.rev, putDoc.doc.rev, 'Delete revision should be different' );
     });
 
     function getDocument( id ) {
@@ -140,7 +140,7 @@
         if( xhr.status >= 400) {
             return { status: xhr.status };
         }
-        return { status: xhr.status, rev: xhr.responseText };
+        return { status: xhr.status, doc: JSON.parse( xhr.responseText ) };
     }
 
     function httpRequest( method, id, content ) {

@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.rest;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -100,9 +101,9 @@ public class DefaultRestProcessor implements RestProcessor {
             final String id = extractId(request);
             final FullHttpRequest fullHttpRequest = (FullHttpRequest) request;
             final Document doc = partialDocument(id, contentAsString(fullHttpRequest));
-            final Map<String, String> revision = new HashMap<String, String>();
+            final ObjectNode revision = newObjectNode();
             revision.put("rev", sync.delete(id, doc.revision()));
-            return responseWithContent(request.getProtocolVersion(), OK, JsonMapper.toJson(revision));
+            return responseWithContent(request.getProtocolVersion(), OK, revision.toString());
         } else {
             return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
         }
