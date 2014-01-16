@@ -49,7 +49,7 @@ public class DiffSyncHandlerTest {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
         final JsonNode json = sendAddDocMsg(docId, "Once upon a time", channel);
-        assertThat(json.get("result").asText(), equalTo("CREATED"));
+        assertThat(json.get("result").asText(), equalTo("ADDED"));
     }
 
     @Test
@@ -59,7 +59,7 @@ public class DiffSyncHandlerTest {
         final String clientId = "client1";
         sendAddDocMsg(docId, "Once upon a time", channel);
         final JsonNode json = sendAddShadowMsg(docId, clientId, channel);
-        assertThat(json.get("result").asText(), equalTo("CREATED"));
+        assertThat(json.get("result").asText(), equalTo("ADDED"));
     }
 
     @Test
@@ -67,10 +67,11 @@ public class DiffSyncHandlerTest {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
-        final String originalContent = "Once upon a time";
+        final String originalContent = "Do or do not, there is no try.";
         sendAddDocMsg(docId, originalContent, channel);
         sendAddShadowMsg(docId, clientId, channel);
-        final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId, "Once upon a time,");
+        final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId, "Do or do not, there is no try!");
+        System.out.println(JsonMapper.toJson(clientEdits));
         final JsonNode json = sendEditMsg(clientEdits, channel);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
         final TextWebSocketFrame serverUpdate = channel.readOutbound();

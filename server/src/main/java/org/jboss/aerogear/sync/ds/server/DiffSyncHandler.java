@@ -46,16 +46,16 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<TextWebSocketFr
         final String msgType = json.get("msgType").asText();
         if (msgType.equals("add")) {
             syncEngine.addDocument(new DefaultDocument<String>(json.get("docId").asText(), json.get("content").asText()));
-            responseCreated(ctx, "CREATED");
+            respond(ctx, "ADDED");
         } else if (msgType.equals("shadow")) {
             final String documentId = json.get("docId").asText();
             syncEngine.addShadow(documentId, json.get("clientId").asText());
             addListener(documentId, ctx);
-            responseCreated(ctx, "CREATED");
+            respond(ctx, "ADDED");
         } else if (msgType.equals("edits")) {
             final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
             final Edits edits = syncEngine.patch(clientEdits);
-            responseCreated(ctx, "PATCHED");
+            respond(ctx, "PATCHED");
             notifyListeners(edits);
         } else if (msgType.equals("detach")) {
             // detach the client from a specific document.
@@ -84,7 +84,13 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<TextWebSocketFr
         }
     }
 
-    private static void responseCreated(final ChannelHandlerContext ctx, final String msg) {
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"result\": \"" + cause.getMessage() + "\"}"));
+    }
+
+    private static void respond(final ChannelHandlerContext ctx, final String msg) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"result\": \"" + msg + "\"}"));
     }
 }
