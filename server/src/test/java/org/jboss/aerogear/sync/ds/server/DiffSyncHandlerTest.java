@@ -35,6 +35,7 @@ import org.junit.Test;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DiffSyncHandlerTest {
@@ -65,16 +66,21 @@ public class DiffSyncHandlerTest {
     }
 
     @Test
-    public void edits() {
+    public void patch() {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
         final String originalContent = "Once upon a time";
         sendAddDocMsg(docId, originalContent, channel);
         sendAddShadowMsg(docId, clientId, channel);
-        final Edits edits = generateClientSideEdits(docId, originalContent, clientId, "Once upon a time,");
-        final JsonNode json = sendEditMsg(edits, channel);
+        final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId, "Once upon a time,");
+        final JsonNode json = sendEditMsg(clientEdits, channel);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
+        final TextWebSocketFrame serverUpdate = channel.readOutbound();
+        final Edits serverUpdates = JsonMapper.fromJson(serverUpdate.text(), Edits.class);
+        assertThat(serverUpdates.documentId(), equalTo(docId));
+        assertThat(serverUpdates.clientId(), equalTo(clientId));
+        assertThat(serverUpdates.version(), is(1L));
     }
 
     private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {
@@ -107,7 +113,6 @@ public class DiffSyncHandlerTest {
         final TextWebSocketFrame textFrame = ch.readOutbound();
         return JsonMapper.asJsonNode(textFrame.text());
     }
-
 
     private static TextWebSocketFrame textFrame(final String content) {
         return new TextWebSocketFrame(content);

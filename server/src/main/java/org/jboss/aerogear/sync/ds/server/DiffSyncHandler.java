@@ -24,8 +24,14 @@ import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.ds.DefaultDocument;
 import org.jboss.aerogear.sync.ds.Edits;
 
-public class DiffSyncHandler  extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+public class DiffSyncHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+
+    private static final ConcurrentHashMap<String, Set<ChannelHandlerContext>> clients =
+            new ConcurrentHashMap<String, Set<ChannelHandlerContext>>();
     private final ServerSyncEngine<String> syncEngine;
 
     public DiffSyncHandler(final ServerSyncEngine<String> syncEngine) {
@@ -40,18 +46,43 @@ public class DiffSyncHandler  extends SimpleChannelInboundHandler<TextWebSocketF
             syncEngine.addDocument(new DefaultDocument<String>(json.get("docId").asText(), json.get("content").asText()));
             responseCreated(ctx, "CREATED");
         } else if (msgType.equals("shadow")) {
-            syncEngine.addShadow(json.get("docId").asText(), json.get("clientId").asText());
+            final String documentId = json.get("docId").asText();
+            syncEngine.addShadow(documentId, json.get("clientId").asText());
+            addListener(documentId, ctx);
             responseCreated(ctx, "CREATED");
         } else if (msgType.equals("edits")) {
-            final Edits edits = JsonMapper.fromJson(json.toString(), Edits.class);
-            syncEngine.patchDocument(edits);
+            final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
+            final Edits edits = syncEngine.patch(clientEdits);
             responseCreated(ctx, "PATCHED");
+            notifyListeners(edits);
+        } else if (msgType.equals("detach")) {
+            // detach the client from a specific document.
         } else {
             ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"result\": \"Unknown msgType '" + msgType + "'\"}"));
         }
     }
 
-    private static final void responseCreated(final ChannelHandlerContext ctx, final String msg) {
+    private static void addListener(final String documentId, final ChannelHandlerContext ctx) {
+        if (!clients.containsKey(documentId)) {
+            final Set<ChannelHandlerContext> contexts = new HashSet<ChannelHandlerContext>();
+            contexts.add(ctx);
+            clients.put(documentId, contexts);
+        } else {
+            synchronized (clients) {
+                final Set<ChannelHandlerContext> contexts = clients.get(documentId);
+                contexts.add(ctx);
+            }
+        }
+    }
+
+    private void notifyListeners(final Edits edits) {
+        final Set<ChannelHandlerContext> contexts = clients.get(edits.documentId());
+        for (ChannelHandlerContext ctx : contexts) {
+            ctx.channel().writeAndFlush(new TextWebSocketFrame(JsonMapper.toJson(edits)));
+        }
+    }
+
+    private static void responseCreated(final ChannelHandlerContext ctx, final String msg) {
         ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"result\": \"" + msg + "\"}"));
     }
 }

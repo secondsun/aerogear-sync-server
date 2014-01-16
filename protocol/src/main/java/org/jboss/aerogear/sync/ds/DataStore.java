@@ -18,11 +18,12 @@ public interface DataStore<T> {
     /**
      * Retrieves the {@link ShadowDocument} matching the passed-in document documentId.
      *
-     * @param clientId the client for which to retrieve the shadow document.
+     *
      * @param documentId the document id of the shadow document.
+     * @param clientId the client for which to retrieve the shadow document.
      * @return {@link ShadowDocument} the shadow document matching the documentId.
      */
-    ShadowDocument<T> getShadowDocument(String clientId, String documentId);
+    ShadowDocument<T> getShadowDocument(String documentId, String clientId);
 
     /**
      * Saves a backup shadow document

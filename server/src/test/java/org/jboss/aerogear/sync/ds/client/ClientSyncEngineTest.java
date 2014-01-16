@@ -55,7 +55,7 @@ public class ClientSyncEngineTest {
     @Test
     public void addDocument() {
         assertThat(dataStore.getClientDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
-        assertThat(dataStore.getShadowDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
+        assertThat(dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId()), is(notNullValue()));
         assertThat(dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
     }
 
@@ -67,11 +67,11 @@ public class ClientSyncEngineTest {
         syncEngine.addDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId2));
 
         assertThat(dataStore.getClientDocument(clientId1, DOC_ID).id(), equalTo(DOC_ID));
-        assertThat(dataStore.getShadowDocument(clientId1, DOC_ID).document().clientId(), equalTo(clientId1));
+        assertThat(dataStore.getShadowDocument(DOC_ID, clientId1).document().clientId(), equalTo(clientId1));
         assertThat(dataStore.getBackupShadowDocument(clientId1, DOC_ID), is(notNullValue()));
 
         assertThat(dataStore.getClientDocument(clientId2, DOC_ID).id(), equalTo(DOC_ID));
-        assertThat(dataStore.getShadowDocument(clientId2, DOC_ID).document().clientId(), equalTo(clientId2));
+        assertThat(dataStore.getShadowDocument(DOC_ID, clientId2).document().clientId(), equalTo(clientId2));
         assertThat(dataStore.getBackupShadowDocument(clientId2, DOC_ID), is(notNullValue()));
     }
 
@@ -79,7 +79,7 @@ public class ClientSyncEngineTest {
     public void diff() {
         final Edits edits = syncEngine.diff(new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID));
         assertEdits(dataStore.getEdit(edits.clientId(), edits.documentId()));
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edits.clientId(), edits.documentId());
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edits.documentId(), edits.clientId());
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.serverVersion(), is(0L));
     }
@@ -88,7 +88,7 @@ public class ClientSyncEngineTest {
     public void patchShadow() {
         final ClientDocument<String> clientDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         syncEngine.patchShadow(syncEngine.diff(clientDoc));
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(clientDoc.clientId(), clientDoc.id());
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId());
         assertThat(shadowDocument.clientVersion(), is(0L));
         assertThat(shadowDocument.serverVersion(), is(1L));
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id());
@@ -106,7 +106,7 @@ public class ClientSyncEngineTest {
     private void assertEdits(final Edits edits) {
         assertThat(edits.documentId(), is(DOC_ID));
         assertThat(edits.version(), is(0L));
-        final ClientDocument<String> document = dataStore.getShadowDocument(edits.clientId(), edits.documentId()).document();
+        final ClientDocument<String> document = dataStore.getShadowDocument(edits.documentId(), edits.clientId()).document();
         assertThat(edits.checksum(), equalTo(DiffMatchPatch.checksum(document.content())));
         assertThat(edits.diffs().size(), is(3));
         final List<Diff> diffs = edits.diffs();

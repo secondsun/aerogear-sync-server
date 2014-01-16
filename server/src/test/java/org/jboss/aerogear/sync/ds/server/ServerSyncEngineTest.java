@@ -16,8 +16,6 @@
  */
 package org.jboss.aerogear.sync.ds.server;
 
-import org.jboss.aerogear.sync.common.DiffMatchPatch;
-import org.jboss.aerogear.sync.ds.ClientDocument;
 import org.jboss.aerogear.sync.ds.DefaultClientDocument;
 import org.jboss.aerogear.sync.ds.DefaultDocument;
 import org.jboss.aerogear.sync.ds.Diff;
@@ -30,8 +28,7 @@ import org.jboss.aerogear.sync.ds.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.ds.client.DefaultClientSynchronizer;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -39,11 +36,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ServerSyncEngineTest {
 
-    private static final String ORGINAL_TEXT = "Do or do not, there is no try.";
-    private static final String UPDATED_TEXT = "Do or do not, there is no try!";
-    private static final String DOC_ID = "123456";
-    private static final String CLIENT_ID = "clientA";
-    private Document<String> serverDoc;
     private ServerDataStore<String> dataStore;
     private ServerSyncEngine<String> syncEngine;
 
@@ -51,69 +43,57 @@ public class ServerSyncEngineTest {
     public void setup() {
         dataStore = new ServerInMemoryDataStore();
         syncEngine = new ServerSyncEngine<String>(new DefaultServerSynchronizer(), dataStore);
-        serverDoc = newDoc(DOC_ID, ORGINAL_TEXT);
     }
 
     @Test
     public void addDocument() {
-        syncEngine.addDocument(serverDoc);
-        final Document<String> document = dataStore.getDocument(serverDoc.id());
-        assertThat(document.id(), equalTo(DOC_ID));
-        assertThat(document.content(), equalTo(ORGINAL_TEXT));
+        final String documentId = UUID.randomUUID().toString();
+        syncEngine.addDocument(newDoc(documentId, "What!"));
+        final Document<String> document = dataStore.getDocument(documentId);
+        assertThat(document.id(), equalTo(documentId));
+        assertThat(document.content(), equalTo("What!"));
     }
 
     @Test
     public void addShadow() {
-        syncEngine.addDocument(serverDoc);
-        syncEngine.addShadow(serverDoc.id(), CLIENT_ID);
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(CLIENT_ID, serverDoc.id());
+        final String documentId = UUID.randomUUID().toString();
+        final String clientId = "shadowTest";
+        syncEngine.addDocument(newDoc(documentId, "What!"));
+        syncEngine.addShadow(documentId, clientId);
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.serverVersion(), is(0L));
         assertThat(shadowDocument.clientVersion(), is(0L));
-        assertThat(shadowDocument.document().id(), equalTo(DOC_ID));
+        assertThat(shadowDocument.document().id(), equalTo(documentId));
     }
 
     @Test
-    public void diff() {
-        final String clientId = "diffTest";
-        syncEngine.addDocument(serverDoc);
-        syncEngine.addShadow(serverDoc.id(), clientId);
-        final Edits edits = syncEngine.diff(newDoc(DOC_ID, UPDATED_TEXT), clientId);
-        assertEdits(dataStore.getEdit(edits.clientId(), edits.documentId()));
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edits.clientId(), edits.documentId());
-        assertThat(shadowDocument.clientVersion(), is(0L));
-        assertThat(shadowDocument.serverVersion(), is(1L));
-    }
+    public void patch() {
+        final String documentId = UUID.randomUUID().toString();
+        final String clientId = "patchTest";
+        final String originalText = "Do or do not, there is no try.";
+        final String updatedText = "Do or do not, there is no try!";
+        final DefaultDocument<String> serverDocument = newDoc(documentId, originalText);
+        syncEngine.addDocument(serverDocument);
+        syncEngine.addShadow(documentId, clientId);
 
-    @Test
-    public void patchShadow() {
-        syncEngine.addDocument(serverDoc);
-        syncEngine.addShadow(serverDoc.id(), CLIENT_ID);
-        final Edits edits = generateClientSideEdits(DOC_ID, ORGINAL_TEXT, CLIENT_ID, UPDATED_TEXT);
-        assertThat(edits.version(), is(0L));
+        final ShadowDocument<String> shadowBefore = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowBefore.clientVersion(), is(0L));
+        assertThat(shadowBefore.serverVersion(), is(0L));
 
-        final ShadowDocument<String> shadowDocument = syncEngine.patchShadow(edits);
-        assertThat(shadowDocument.clientVersion(), is(1L));
-        // Server version is only updated when the server docuement is patched, not the shadow document.
-        assertThat(shadowDocument.serverVersion(), is(0L));
-    }
+        final Edits clientEdits = generateClientSideEdits(documentId, originalText, clientId, updatedText);
+        assertThat(clientEdits.version(), is(0L));
+        assertThat(clientEdits.diffs().size(), is(3));
 
-    @Test
-    public void patchDocument() {
-        syncEngine.addDocument(serverDoc);
-        syncEngine.addShadow(serverDoc.id(), CLIENT_ID);
-        final Edits edits = generateClientSideEdits(DOC_ID, ORGINAL_TEXT, CLIENT_ID, UPDATED_TEXT);
-        // patchShadow is always done before patchDocument.
-        syncEngine.patchShadow(edits);
-        ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(CLIENT_ID, edits.documentId());
-        assertThat(shadowDocument.clientVersion(), is(1L));
+        final Edits edits = syncEngine.patch(clientEdits);
+        assertThat(edits.version(), is(1L));
+        assertThat(edits.clientId(), equalTo(clientId));
+        assertThat(edits.diffs().size(), is(1));
+        assertThat(edits.diffs().get(0).text(), equalTo(updatedText));
+        assertThat(edits.diffs().get(0).operation(), is(Diff.Operation.UNCHANGED));
 
-        final Document<String> document = syncEngine.patchDocument(edits);
-        assertThat(document.content(), equalTo(UPDATED_TEXT));
-        // The server version is only updated when the server docuement is patched, not the shadow document.
-        shadowDocument = dataStore.getShadowDocument(CLIENT_ID, document.id());
-        assertThat(shadowDocument.clientVersion(), is(1L));
-        assertThat(shadowDocument.serverVersion(), is(1L));
-        assertThat(shadowDocument.document().content(), equalTo(UPDATED_TEXT));
+        final ShadowDocument<String> shadowAfter = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowAfter.clientVersion(), is(1L));
+        assertThat(shadowAfter.serverVersion(), is(1L));
     }
 
     private static Edits generateClientSideEdits(final String documentId,
@@ -130,18 +110,4 @@ public class ServerSyncEngineTest {
         return new DefaultDocument<String>(documentId, content);
     }
 
-    private void assertEdits(final Edits edits) {
-        assertThat(edits.documentId(), is(DOC_ID));
-        assertThat(edits.version(), is(0L));
-        final ClientDocument<String> document = dataStore.getShadowDocument(edits.clientId(), edits.documentId()).document();
-        assertThat(edits.checksum(), equalTo(DiffMatchPatch.checksum(document.content())));
-        assertThat(edits.diffs().size(), is(3));
-        final List<Diff> diffs = edits.diffs();
-        assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
-        assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
-        assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
-        assertThat(diffs.get(1).text(), equalTo("."));
-        assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
-        assertThat(diffs.get(2).text(), equalTo("!"));
-    }
 }

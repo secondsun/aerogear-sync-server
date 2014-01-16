@@ -38,7 +38,7 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     }
 
     @Override
-    public ShadowDocument<String> getShadowDocument(final String clientId, final String documentId) {
+    public ShadowDocument<String> getShadowDocument(final String documentId, final String clientId) {
         return shadows.get(id(clientId, documentId));
     }
 
