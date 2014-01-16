@@ -17,19 +17,16 @@
 package org.jboss.aerogear.sync.ds.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.ds.DefaultClientDocument;
-import org.jboss.aerogear.sync.ds.Diff;
 import org.jboss.aerogear.sync.ds.Edits;
 import org.jboss.aerogear.sync.ds.client.ClientDataStore;
 import org.jboss.aerogear.sync.ds.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.ds.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.ds.client.DefaultClientSynchronizer;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.UUID;

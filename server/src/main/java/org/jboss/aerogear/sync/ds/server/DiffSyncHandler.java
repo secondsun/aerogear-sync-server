@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync.ds.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ChannelHandler.Sharable
 public class DiffSyncHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     private static final ConcurrentHashMap<String, Set<ChannelHandlerContext>> clients =

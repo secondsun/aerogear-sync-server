@@ -65,27 +65,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <configuration>
-                    <mainClass>org.jboss.aerogear.sync.Server</mainClass>
-                    <!-- Make host and port configurable.
-                    <arguments>
-                        <argument>8080</argument>
-                    </arguments>
-                    -->
-                    <systemProperties>
-                        <property>
-                            <key>io.netty.leakDetectionLevel</key>
-                            <value>advanced</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
     <profiles>
@@ -101,6 +80,48 @@
                             <excludes>
                                 <exclude>**/*$*</exclude>
                             </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>server</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <configuration>
+                            <mainClass>org.jboss.aerogear.sync.Server</mainClass>
+                            <systemProperties>
+                                <property>
+                                    <key>io.netty.leakDetectionLevel</key>
+                                    <value>advanced</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>diffserver</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <configuration>
+                            <mainClass>org.jboss.aerogear.sync.ds.server.DiffSyncServer</mainClass>
+                            <systemProperties>
+                                <property>
+                                    <key>io.netty.leakDetectionLevel</key>
+                                    <value>advanced</value>
+                                </property>
+                            </systemProperties>
                         </configuration>
                     </plugin>
                 </plugins>

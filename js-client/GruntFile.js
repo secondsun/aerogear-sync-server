@@ -17,7 +17,13 @@ module.exports = function(grunt) {
                 options: {
                     stdout: true
                 },
-                command: ['cd  ../server', 'mvn exec:java'].join('&&')
+                command: ['cd  ../server', 'mvn exec:java -Pserver'].join('&&')
+            },
+            diffserver: {
+                options: {
+                    stdout: true
+                },
+                command: ['cd  ../server', 'mvn exec:java -Pdiffserver'].join('&&')
             }
         }
     });
