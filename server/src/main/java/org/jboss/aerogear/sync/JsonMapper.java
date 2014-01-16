@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -99,6 +101,10 @@ public final class JsonMapper {
         } catch (final Exception e) {
             throw new RuntimeException("error trying to parse json [" + json + ']', e);
         }
+    }
+
+    public static ObjectNode newObjectNode() {
+        return om.createObjectNode();
     }
 
     private static class DocumentDeserializer extends JsonDeserializer<Document> {

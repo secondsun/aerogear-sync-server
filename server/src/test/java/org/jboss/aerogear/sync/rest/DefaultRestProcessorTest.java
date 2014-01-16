@@ -31,6 +31,7 @@ public class DefaultRestProcessorTest {
     private static final Document REV_ONE_DOC = new DefaultDocument("1", "1", REV_ONE_JSON);
     private static final Document REV_TWO_DOC = new DefaultDocument("1", "2", REV_TWO_JSON);
     private static final String DELETED_REVISION = "mockDeletedRevision";
+    private static final String DELETED_REVISION_RESPONSE = "{\"rev\":\"mockDeletedRevision\"}";
 
     @Test
     public void processPutNoContent() throws Exception {
@@ -111,7 +112,7 @@ public class DefaultRestProcessorTest {
         final HttpRequest request = mockRequest(DELETE, doc.id(), deleteJson);
         final FullHttpResponse response = (FullHttpResponse) restProcessor().processDelete(request, mockContext());
         assertThat(response.getStatus(), is(OK));
-        assertThat(response.content().toString(UTF_8), equalTo(DELETED_REVISION));
+        assertThat(response.content().toString(UTF_8), equalTo(DELETED_REVISION_RESPONSE));
         response.release();
     }
 
