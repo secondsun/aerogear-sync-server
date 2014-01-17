@@ -19,6 +19,7 @@ package org.jboss.aerogear.sync.ds.client;
 import org.jboss.aerogear.sync.ds.ClientDocument;
 import org.jboss.aerogear.sync.ds.DefaultBackupShadowDocument;
 import org.jboss.aerogear.sync.ds.DefaultShadowDocument;
+import org.jboss.aerogear.sync.ds.Document;
 import org.jboss.aerogear.sync.ds.Edits;
 import org.jboss.aerogear.sync.ds.ShadowDocument;
 
@@ -74,21 +75,21 @@ public class ClientSyncEngine<T> {
      *
      * @param edits the updates from the server.
      */
-    public ShadowDocument<T> patchShadow(final Edits edits) {
-        final ShadowDocument<T> patched = clientSynchronizer.patchShadow(edits, dataStore.getShadowDocument(edits.documentId(), edits.clientId()));
-        saveShadow(incrementServerVersion(patched));
-        saveBackupShadow(patched);
+    public ClientDocument<T> patch(final Edits edits) {
+        final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edits, dataStore.getShadowDocument(edits.documentId(), edits.clientId()));
+        saveShadow(incrementServerVersion(patchedShadow));
+        saveBackupShadow(patchedShadow);
         clearPendingEdits(edits);
-        return patched;
+        return patchDocument(edits);
     }
 
-    /**
+    /*
      * Patches the clients document with the edits from the server.
      *
      * @param edits edits containing changes from the server.
      * @return {@code ClientDocument} the patched client document.
      */
-    public ClientDocument<T> patchDocument(final Edits edits) {
+    private ClientDocument<T> patchDocument(final Edits edits) {
         final ClientDocument<T> document = dataStore.getClientDocument(edits.clientId(), edits.documentId());
         final ClientDocument<T> patched = clientSynchronizer.patchDocument(edits, document);
         saveDocument(patched);

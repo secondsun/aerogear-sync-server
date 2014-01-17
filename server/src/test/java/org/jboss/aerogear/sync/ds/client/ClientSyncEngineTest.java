@@ -85,22 +85,15 @@ public class ClientSyncEngineTest {
     }
 
     @Test
-    public void patchShadow() {
+    public void patch() {
         final ClientDocument<String> clientDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
-        syncEngine.patchShadow(syncEngine.diff(clientDoc));
+        final ClientDocument<String> patched = syncEngine.patch(syncEngine.diff(clientDoc));
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId());
         assertThat(shadowDocument.clientVersion(), is(0L));
         assertThat(shadowDocument.serverVersion(), is(1L));
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id());
         assertThat(backupShadowDocument.version(), is(0L));
-    }
-
-    @Test
-    public void patchDocument() {
-        final ClientDocument<String> serverUpdate = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
-        final Edits edits = syncEngine.diff(serverUpdate);
-        final Document<String> document = syncEngine.patchDocument(edits);
-        assertThat(document.content(), equalTo(UPDATED_TEXT));
+        assertThat(patched.content(), equalTo(UPDATED_TEXT));
     }
 
     private void assertEdits(final Edits edits) {
