@@ -115,7 +115,7 @@ public class DefaultRestProcessor implements RestProcessor {
 
     private static String extractId(final HttpRequest request) {
         final String path = new QueryStringDecoder(request.getUri()).path();
-        return path.substring(1);
+        return path.substring(path.lastIndexOf('/') + 1);
     }
 
     private static String toJson(final Document doc) {

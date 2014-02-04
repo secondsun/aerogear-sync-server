@@ -19,11 +19,15 @@ package org.jboss.aerogear.sync.rest;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 
-import static io.netty.handler.codec.http.HttpMethod.*;
+import static io.netty.handler.codec.http.HttpMethod.DELETE;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpMethod.POST;
+import static io.netty.handler.codec.http.HttpMethod.PUT;
 
 /**
  * Handler that handles RESTful HTTP requests and to the RestProcessor
@@ -61,4 +65,5 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
             ctx.fireChannelRead(msg);
         }
     }
+
 }

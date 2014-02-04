@@ -163,7 +163,7 @@
 
     function xhrObject( method, id ) {
         var xhr = new XMLHttpRequest();
-        xhr.open( method, 'http://localhost:8080/' + id, false );
+        xhr.open( method, 'http://localhost:8080/docs/' + id, false );
         xhr.setRequestHeader( 'Content-Type', 'application/json' );
         xhr.setRequestHeader( 'Accept', 'application/json' );
         return xhr;
@@ -171,7 +171,7 @@
 
     function fromJson( str ) {
         var json = JSON.parse( str );
-        return { id: json.id, rev: json.rev, content: JSON.parse( json.content ) };
+        return { id: json.id, rev: json.rev, content: json.content };
     }
 
     function isArray( obj ) {

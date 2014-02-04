@@ -22,15 +22,20 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import org.jboss.aerogear.sync.*;
+import org.jboss.aerogear.sync.CouchDBSyncManager;
+import org.jboss.aerogear.sync.DefaultDocument;
+import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.HttpServerInitializer;
+import org.jboss.aerogear.sync.JsonMapper;
+import org.jboss.aerogear.sync.SyncManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.util.UUID;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
@@ -40,8 +45,10 @@ import static io.netty.handler.codec.http.HttpVersion.*;
 import static io.netty.util.CharsetUtil.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.*;
+import static org.jboss.aerogear.sync.JsonMapper.*;
 
 /**
  * Integration tests that requires a running CouchDB instance listening
@@ -78,26 +85,133 @@ public class RestServerITest {
     public void createDocument() throws Exception {
         final String documentId = UUID.randomUUID().toString();
         final String content = "{\"model\":\"honda\"}";
-        final FullHttpRequest request = httpRequest(PUT, documentId, content);
-
-        final ClientHandler clientHandler = new ClientHandler();
-        final EventLoopGroup group = new NioEventLoopGroup();
+        final NettyClient client = new NettyClient("localhost", port);
         try {
-            final Bootstrap b = new Bootstrap();
-            b.group(group).channel(NioSocketChannel.class) .handler(new ClientInitializer(clientHandler));
-            final Channel ch = b.connect("localhost", port).sync().channel();
-            ch.writeAndFlush(request);
-            ch.closeFuture().sync();
-
-            assertThat(clientHandler.getResponse().getStatus(), is(OK));
-            assertThat(clientHandler.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
-            final Document document = JsonMapper.fromJson(clientHandler.body(), Document.class);
+            client.send(putRequest(documentId, content));
+            assertThat(client.getResponse().getStatus(), is(OK));
+            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            final Document document = fromJson(client.getBody(), Document.class);
             assertThat(document.id(), equalTo(documentId));
             assertThat(document.revision(), is(notNullValue()));
             assertThat(document.content(), equalTo(content));
         } finally {
+            client.shutdown();
+        }
+    }
+
+    @Test
+    public void getDocument() throws Exception {
+        final String documentId = UUID.randomUUID().toString();
+        final String content = "{\"model\":\"honda\"}";
+        final NettyClient client = new NettyClient("localhost", port);
+        try {
+            client.send(putRequest(documentId, content)).send(getRequest(documentId));
+            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            final Document document = fromJson(client.getBody(), Document.class);
+            assertThat(document.id(), equalTo(documentId));
+            assertThat(document.revision(), is(notNullValue()));
+            assertThat(document.content(), equalTo(content));
+        } finally {
+            client.shutdown();
+        }
+    }
+
+    @Test
+    public void getDocumentWithContextPath() throws Exception {
+        final String contextPath = "/buddies/";
+        final String documentId = UUID.randomUUID().toString();
+        final String content = "{\"model\":\"honda\"}";
+        final NettyClient client = new NettyClient("localhost", port);
+        try {
+            client.send(putRequest(contextPath, documentId, content)).send(getRequest(contextPath, documentId, ""));
+            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            final Document document = fromJson(client.getBody(), Document.class);
+            assertThat(document.id(), equalTo(documentId));
+            assertThat(document.revision(), is(notNullValue()));
+            assertThat(document.content(), equalTo(content));
+        } finally {
+            client.shutdown();
+        }
+    }
+
+    @Test
+    public void updateDocumentWithConflict() throws Exception {
+        final String documentId = UUID.randomUUID().toString();
+        final String content = "{\"model\":\"honda\"}";
+        final NettyClient client = new NettyClient("localhost", port);
+        try {
+            client.send(putRequest(documentId, content)).send(getRequest(documentId));
+            final Document original = fromJson(client.getBody(), Document.class);
+            final Document update = new DefaultDocument(original.id(), original.revision(), "{\"model\":\"bmw\"}");
+            client.send(putRequest(update));
+            final Document updated = fromJson(client.getBody(), Document.class);
+            final Document conflict = new DefaultDocument(updated.id(), original.revision(), "{\"model\":\"mazda\"}");
+            client.send(putRequest(conflict));
+            assertThat(client.getResponse().getStatus(), is(CONFLICT));
+            assertThat(fromJson(client.getBody(), Document.class).revision(), equalTo(updated.revision()));
+        } finally {
+            client.shutdown();
+        }
+    }
+
+    @Test
+    public void deleteDocument() throws Exception {
+        final String documentId = UUID.randomUUID().toString();
+        final String content = "{\"model\":\"honda\"}";
+        final NettyClient client = new NettyClient("localhost", port);
+        try {
+            client.send(putRequest(documentId, content));
+            final Document doc = fromJson(client.getBody(), Document.class);
+            client.send(deleteRequest(documentId, "/", jsonRev(doc.revision())));
+            assertThat(client.getResponse().getStatus(), equalTo(OK));
+            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            assertThat(asJsonNode(client.getBody()).get("rev").asText(), not(equalTo(doc.revision())));
+        } finally {
+            client.shutdown();
+        }
+    }
+
+    private static String jsonRev(final String revision) {
+        return JsonMapper.newObjectNode().put("rev", revision).toString();
+    }
+
+    private static class NettyClient {
+
+        private final String host;
+        private final int port;
+        private final ClientHandler clientHandler;
+        private final NioEventLoopGroup group;
+        private final Bootstrap bootstrap;
+        private Channel ch;
+
+        private NettyClient(final String host, final int port) {
+            this.host = host;
+            this.port = port;
+            clientHandler = new ClientHandler();
+            group = new NioEventLoopGroup();
+            bootstrap = new Bootstrap();
+            bootstrap.group(group).channel(NioSocketChannel.class).handler(new ClientInitializer(clientHandler));
+        }
+
+        public NettyClient send(final FullHttpRequest request) throws InterruptedException {
+            ch = bootstrap.connect(host, port).sync().channel();
+            ch.writeAndFlush(request).sync();
+            ch.closeFuture().sync();
+            return this;
+        }
+
+        public HttpResponse getResponse() {
+            return clientHandler.getResponse();
+        }
+
+        public String getBody() {
+            return clientHandler.body();
+        }
+
+        public void shutdown() {
             group.shutdownGracefully();
         }
+
     }
 
     private static class ClientInitializer extends ChannelInitializer<SocketChannel> {
@@ -109,23 +223,70 @@ public class RestServerITest {
         }
 
         @Override
-        protected void initChannel(SocketChannel ch) throws Exception {
+        protected void initChannel(final SocketChannel ch) throws Exception {
             final ChannelPipeline p = ch.pipeline();
             p.addLast("http-codec", new HttpClientCodec());
             p.addLast("handler", handler);
         }
     }
 
-    private static FullHttpRequest httpRequest(final HttpMethod method, final String documentId, final String content) {
+    private static FullHttpRequest getRequest(final String documentId) {
+        return getRequest("/", documentId, "");
+    }
+
+    private static FullHttpRequest getRequest(final String contextPath,
+                                              final String documentId,
+                                              final String revision) {
+        return httpRequest(contextPath + documentId, GET, revision(revision));
+    }
+
+    private static FullHttpRequest putRequest(final String documentId, final String payload) {
+        return putRequest("/", documentId, payload);
+    }
+
+    private static FullHttpRequest putRequest(final Document doc) {
+        return httpRequest('/' + doc.id(), PUT, contentWithRev(doc.revision(), doc.content()));
+    }
+
+    private static FullHttpRequest putRequest(final String contextPath,
+                                               final String documentId,
+                                               final String payload) {
+        return httpRequest(contextPath + documentId, PUT, content(payload));
+    }
+
+    private static ByteBuf content(final String content) {
         final String payload = "{\"content\":" + content + '}';
-        final ByteBuf byteBuf = Unpooled.copiedBuffer(payload, UTF_8);
-        final FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, method, '/' + documentId, byteBuf);
-        request.headers().set(HOST, "localhost");
-        request.headers().set(CONTENT_LENGTH, byteBuf.readableBytes());
-        request.headers().set(CONTENT_TYPE, "application/json");
+        return Unpooled.copiedBuffer(payload, UTF_8);
+    }
+
+    private static ByteBuf revision(final String rev) {
+        return Unpooled.copiedBuffer(jsonRev(rev), UTF_8);
+    }
+
+    private static ByteBuf contentWithRev(final String rev, final String content) {
+        final String payload = "{\"rev\":\"" + rev + "\", \"content\":" + content + '}';
+        return Unpooled.copiedBuffer(payload, UTF_8);
+    }
+
+    private static FullHttpRequest deleteRequest(final String documentId, final String contextPath,
+                                                 final String content) {
+        return httpRequest(contextPath + documentId, DELETE, Unpooled.copiedBuffer(content, UTF_8));
+    }
+
+    private static FullHttpRequest httpRequest(final String path, final HttpMethod method, final ByteBuf payload) {
+        final String url = "http://localhost:" + port + path;
+        final DefaultFullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, method, url, payload);
+        addHeaders(request, payload.readableBytes());
         return request;
     }
 
+    private static void addHeaders(final HttpRequest request, final int contentSize) {
+        request.headers().set(HOST, "localhost");
+        request.headers().set(CONTENT_LENGTH, contentSize);
+        request.headers().set(CONTENT_TYPE, "application/json");
+    }
+
+    @ChannelHandler.Sharable
     private static class ClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
         private HttpResponse response;
