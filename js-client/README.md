@@ -11,12 +11,29 @@ Install the required plugins before running the build the first time, or after a
 
     npm install
 
+    bowser install
+
 ## Testing
-First, start the sync server:
+
+### Testing the RESTful Sync Client
+First, start the REST Sync Server:
 
     grunt shell:server
 
 Next, open the qunit test in a browser:
 
-    open tests/sync/sync.html
+    open tests/sync/rest-sync.html
+
+
+### Testing the RESTful Sync Client
+First, start the Diff Sync Server:
+
+    grunt shell:diffserver
+    
+Next, open the qunit test in a browser:
+
+    open tests/sync/diff-sync-client.html
+
+    open tests/sync/diff-sync-engine.html
+
 

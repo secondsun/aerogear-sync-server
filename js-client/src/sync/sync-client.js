@@ -1,8 +1,7 @@
 this.Sync = {}; 
 
 Sync.Client = function ( config ) {
-    var sendQueue = []; 
-    var ws;
+    var sendQueue = [], ws;
 
     if ( ! ( this instanceof Sync.Client ) ) {
         return new Sync.Client( config );

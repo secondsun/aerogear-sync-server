@@ -10,7 +10,7 @@ module.exports = function(grunt) {
             }
         },
         qunit: {
-            files: ['tests/sync/sync.html']
+            files: ['tests/sync/rest-sync.html']
         }, 
         shell: {
             server: {

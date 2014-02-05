@@ -1,6 +1,6 @@
 (function() {
 
-    module( 'Sync integration test' );
+    module( 'Diff Sync integration test' );
 
 
     asyncTest( 'patch - simulate a sync update/patch', function () {
