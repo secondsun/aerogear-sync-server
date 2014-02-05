@@ -1,9 +1,9 @@
 this.Sync = {}; 
 
-Sync.Engine = function () {
+Sync.Engine = function ( syncstore ) {
 
     if ( ! ( this instanceof Sync.Engine ) ) {
-        return new Sync.Engine();
+        return new Sync.Engine( syncstore );
     }   
 
     /**
@@ -37,14 +37,15 @@ Sync.Engine = function () {
     };
 
     var saveDocument = function( doc ) {
-        console.log( 'save doc: ' + doc );
+        console.log( 'save doc: ' + JSON.stringify( doc) );
+        syncstore.save( doc );
     };
 
     var saveShadow = function( doc ) {
-        console.log( 'save doc: ' + doc );
+        console.log( 'save shadow: ' + JSON.stringify( doc ) );
     };
 
     var saveShadowBackup = function( doc ) {
-        console.log( 'save doc: ' + doc );
+        console.log( 'save backupshadow: ' + JSON.stringify( doc ) );
     };
 };

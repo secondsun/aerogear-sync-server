@@ -8,9 +8,12 @@
     });
 
     test( 'saveDocument', function() {
-        var engine = Sync.Engine();
+        var engine, doc, syncstore = AeroGear.DataManager( { name: 'syncstore', recordId: 'docId' } ).stores.syncstore;
+        equal( syncstore.getRecordId(), 'docId', 'RecordId should be docId' );
+        engine = Sync.Engine( syncstore );
         engine.addDocument( { docId: 1234, content: { name: 'Fletch' } } );
-        ok( true );
+        doc = syncstore.read( 1234 )[0];
+        equal( doc.docId, 1234, 'Document id should match' );
     });
 
     function uuid()
