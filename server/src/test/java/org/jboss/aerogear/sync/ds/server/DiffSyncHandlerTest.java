@@ -48,17 +48,8 @@ public class DiffSyncHandlerTest {
     public void addDocument() {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
-        final JsonNode json = sendAddDocMsg(docId, "Once upon a time", channel);
-        assertThat(json.get("result").asText(), equalTo("ADDED"));
-    }
-
-    @Test
-    public void addShadowDocument() {
-        final EmbeddedChannel channel = embeddedChannel();
-        final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
-        sendAddDocMsg(docId, "Once upon a time", channel);
-        final JsonNode json = sendAddShadowMsg(docId, clientId, channel);
+        final JsonNode json = sendAddDocMsg(docId, clientId, "Once upon a time", channel);
         assertThat(json.get("result").asText(), equalTo("ADDED"));
     }
 
@@ -68,10 +59,8 @@ public class DiffSyncHandlerTest {
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
         final String originalContent = "Do or do not, there is no try.";
-        sendAddDocMsg(docId, originalContent, channel);
-        sendAddShadowMsg(docId, clientId, channel);
+        sendAddDocMsg(docId, clientId, originalContent, channel);
         final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId, "Do or do not, there is no try!");
-        System.out.println(JsonMapper.toJson(clientEdits));
         final JsonNode json = sendEditMsg(clientEdits, channel);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
         final TextWebSocketFrame serverUpdate = channel.readOutbound();
@@ -85,10 +74,14 @@ public class DiffSyncHandlerTest {
         return writeTextFrame(JsonMapper.toJson(edits), ch);
     }
 
-    private static JsonNode sendAddDocMsg(final String docId, final String content, final EmbeddedChannel ch) {
+    private static JsonNode sendAddDocMsg(final String docId,
+                                          final String clientId,
+                                          final String content,
+                                          final EmbeddedChannel ch) {
         final ObjectNode docMsg = message("add");
         docMsg.put("msgType", "add");
         docMsg.put("docId", docId);
+        docMsg.put("clientId", clientId);
         docMsg.put("content", content);
         return writeTextFrame(docMsg.toString(), ch);
     }

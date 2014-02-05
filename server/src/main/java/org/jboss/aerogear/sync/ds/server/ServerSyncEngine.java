@@ -40,6 +40,16 @@ public class ServerSyncEngine<T> {
     }
 
     /**
+     * Determines if a document exists in this sync engine.
+     *
+     * @param id the document id.
+     * @return {@code true} if the document exists in this engine
+     */
+    public boolean contains(final String id) {
+       return dataStore.getDocument(id) != null;
+    }
+
+    /**
      * Adds a new document which is "synchonrizable".
      *
      * A server does not create a new document itself, this would be create by a client

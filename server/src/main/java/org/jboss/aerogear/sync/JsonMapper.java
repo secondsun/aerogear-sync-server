@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.jboss.aerogear.sync.common.DiffMatchPatch;
 import org.jboss.aerogear.sync.ds.DefaultDiff;
 import org.jboss.aerogear.sync.ds.DefaultEdits;
 import org.jboss.aerogear.sync.ds.Diff;

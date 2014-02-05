@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.ds.server;
 
+import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.ds.DefaultClientDocument;
 import org.jboss.aerogear.sync.ds.DefaultDocument;
 import org.jboss.aerogear.sync.ds.Diff;
@@ -55,6 +56,18 @@ public class ServerSyncEngineTest {
     }
 
     @Test
+    public void containsDocument() {
+        final String documentId = UUID.randomUUID().toString();
+        syncEngine.addDocument(newDoc(documentId, "What!"));
+        assertThat(syncEngine.contains(documentId), is(true));
+    }
+
+    @Test
+    public void containsDocumentNonExistent() {
+        assertThat(syncEngine.contains("bogusId"), is(false));
+    }
+
+    @Test
     public void addShadow() {
         final String documentId = UUID.randomUUID().toString();
         final String clientId = "shadowTest";
@@ -85,6 +98,7 @@ public class ServerSyncEngineTest {
         assertThat(clientEdits.diffs().size(), is(3));
 
         final Edits edits = syncEngine.patch(clientEdits);
+        System.out.println(JsonMapper.toJson(edits));
         assertThat(edits.version(), is(1L));
         assertThat(edits.clientId(), equalTo(clientId));
         assertThat(edits.diffs().size(), is(1));
