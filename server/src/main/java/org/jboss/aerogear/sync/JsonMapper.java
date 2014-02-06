@@ -139,7 +139,7 @@ public final class JsonMapper {
         public Document deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            return new DefaultDocument(node.get("documentId").asText(), node.get("rev").asText(), node.get("content").asText());
+            return new DefaultDocument(node.get("docId").asText(), node.get("rev").asText(), node.get("content").asText());
         }
     }
 
@@ -150,11 +150,12 @@ public final class JsonMapper {
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
-            jgen.writeFieldName("documentId");
+            jgen.writeFieldName("docId");
             jgen.writeString(document.id());
             jgen.writeFieldName("rev");
             jgen.writeString(document.revision());
-            jgen.writeObjectField("content", asJsonNode(document.content()));
+            jgen.writeFieldName("content");
+            jgen.writeString(document.content());
             jgen.writeEndObject();
         }
     }
