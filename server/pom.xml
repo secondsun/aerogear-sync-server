@@ -77,6 +77,12 @@
                         <argument>8080</argument>
                     </arguments>
                     -->
+                    <systemProperties>
+                        <property>
+                            <key>io.netty.leakDetectionLevel</key>
+                            <value>advanced</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>

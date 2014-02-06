@@ -77,14 +77,18 @@ public class DefaultRestProcessor implements RestProcessor {
     public HttpResponse processPut(final HttpRequest request, final ChannelHandlerContext ctx) {
         if (request instanceof FullHttpRequest) {
             final FullHttpRequest fullHttpRequest = (FullHttpRequest) request;
-            if (fullHttpRequest.content().isReadable()) {
-                try {
-                    final Document updateDoc = partialDocument(extractId(request), contentAsString(fullHttpRequest));
-                    final Document updatedDoc = sync.update(updateDoc);
-                    return responseWithContent(request.getProtocolVersion(), OK, toJson(updatedDoc));
-                } catch (final ConflictException e) {
-                    return responseWithContent(request.getProtocolVersion(), CONFLICT, toJson(e.latest()));
+            try {
+                if (fullHttpRequest.content().isReadable()) {
+                    try {
+                        final Document updateDoc = partialDocument(extractId(request), contentAsString(fullHttpRequest));
+                        final Document updatedDoc = sync.update(updateDoc);
+                        return responseWithContent(request.getProtocolVersion(), OK, toJson(updatedDoc));
+                    } catch (final ConflictException e) {
+                        return responseWithContent(request.getProtocolVersion(), CONFLICT, toJson(e.latest()));
+                    }
                 }
+            } finally {
+                fullHttpRequest.release();
             }
         }
         return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
@@ -98,12 +102,16 @@ public class DefaultRestProcessor implements RestProcessor {
     @Override
     public HttpResponse processDelete(final HttpRequest request, final ChannelHandlerContext ctx) {
         if (request instanceof FullHttpRequest) {
-            final String id = extractId(request);
             final FullHttpRequest fullHttpRequest = (FullHttpRequest) request;
-            final Document doc = partialDocument(id, contentAsString(fullHttpRequest));
-            final ObjectNode revision = newObjectNode();
-            revision.put("rev", sync.delete(id, doc.revision()));
-            return responseWithContent(request.getProtocolVersion(), OK, revision.toString());
+            try {
+                final String id = extractId(request);
+                final Document doc = partialDocument(id, contentAsString(fullHttpRequest));
+                final ObjectNode revision = newObjectNode();
+                revision.put("rev", sync.delete(id, doc.revision()));
+                return responseWithContent(request.getProtocolVersion(), OK, revision.toString());
+            } finally {
+                fullHttpRequest.release();
+            }
         } else {
             return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
         }
