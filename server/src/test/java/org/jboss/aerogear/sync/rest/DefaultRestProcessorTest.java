@@ -26,8 +26,8 @@ import static org.mockito.Mockito.*;
  */
 public class DefaultRestProcessorTest {
 
-    private static final String REV_ONE_JSON = "{\"state\": \"create\"}";
-    private static final String REV_TWO_JSON = "{\"state\": \"update\"}";
+    private static final String REV_ONE_JSON = "{\"state\":\"create\"}";
+    private static final String REV_TWO_JSON = "{\"state\":\"update\"}";
     private static final Document REV_ONE_DOC = new DefaultDocument("1", "1", REV_ONE_JSON);
     private static final Document REV_TWO_DOC = new DefaultDocument("1", "2", REV_TWO_JSON);
     private static final String DELETED_REVISION = "mockDeletedRevision";
@@ -160,7 +160,8 @@ public class DefaultRestProcessorTest {
         if (body == null) {
             return new DefaultFullHttpRequest(HTTP_1_1, method, path);
         }
-        return new DefaultFullHttpRequest(HTTP_1_1, method, path, Unpooled.copiedBuffer(body, UTF_8));
+        final String payload = "{\"content\":" + body + '}';
+        return new DefaultFullHttpRequest(HTTP_1_1, method, path, Unpooled.copiedBuffer(payload, UTF_8));
     }
 
     public static ChannelHandlerContext mockContext() {

@@ -35,7 +35,7 @@
     </parent>
 
     <properties>
-        <version.io.netty>5.0.0.Alpha1-SNAPSHOT</version.io.netty>
+        <version.io.netty>5.0.0.Alpha2-SNAPSHOT</version.io.netty>
         <version.ektorp>1.4.1</version.ektorp>
     </properties>
 

@@ -103,6 +103,20 @@ public final class JsonMapper {
         }
     }
 
+    /**
+     * Return a {@link JsonNode} for the passed in JSON string.
+     *
+     * @param json the string to be parsed.
+     * @return JsonNode the JsonNode representing the passed-in JSON string.
+     */
+    public static JsonNode asJsonNode(final String json) {
+        try {
+            return om.readTree(json);
+        } catch (final IOException e) {
+            throw new RuntimeException("error trying to parse json [" + json + ']', e);
+        }
+    }
+
     public static ObjectNode newObjectNode() {
         return om.createObjectNode();
     }
@@ -113,7 +127,7 @@ public final class JsonMapper {
         public Document deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            return new DefaultDocument(node.get("id").asText(), node.get("rev").asText(), node.get("content").asText());
+            return new DefaultDocument(node.get("id").asText(), node.get("rev").asText(), node.get("content").toString());
         }
     }
 
@@ -128,8 +142,7 @@ public final class JsonMapper {
             jgen.writeString(document.id());
             jgen.writeFieldName("rev");
             jgen.writeString(document.revision());
-            jgen.writeFieldName("content");
-            jgen.writeString(document.content());
+            jgen.writeObjectField("content", asJsonNode(document.content()));
             jgen.writeEndObject();
         }
     }
