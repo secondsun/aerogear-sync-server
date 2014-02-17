@@ -65,12 +65,13 @@ public class DefaultRestProcessor implements RestProcessor {
 
     @Override
     public HttpResponse processGet(final HttpRequest request, final ChannelHandlerContext ctx) {
-        try {
-            final Document document = sync.read(extractId(request));
-            return responseWithContent(request.getProtocolVersion(), OK, toJson(document));
-        } catch (final DocumentNotFoundException e) {
-            return new DefaultHttpResponse(request.getProtocolVersion(), NOT_FOUND);
-        }
+        //try {
+            //final Document document = sync.read(extractId(request));
+            //return responseWithContent(request.getProtocolVersion(), OK, toJson(document));
+            return responseWithContent(request.getProtocolVersion(), OK, "{\"status\": \"OK\"}");
+        //} catch (final DocumentNotFoundException e) {
+        //    return new DefaultHttpResponse(request.getProtocolVersion(), NOT_FOUND);
+        //}
     }
 
     @Override

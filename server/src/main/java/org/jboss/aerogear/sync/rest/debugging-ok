@@ -1,0 +1,153 @@
+classes$ ssldump -i lo0 -A -d -k ./privatekey -p syncstore port 8080
+New TCP connection #1: localhost(58369) <-> localhost(8080)
+1 1  0.0007 (0.0007)  C>SV3.1(194)  Handshake
+      ClientHello
+        Version 3.3 
+        random[32]=
+          52 fc ae 9a 7c 2a 17 24 ed 00 23 02 d3 80 e6 2d 
+          59 6d 7b c5 bf 66 17 5a c6 ce 6a 22 63 1b 7d c0 
+        cipher suites
+        Unknown value 0xc02b
+        Unknown value 0xc02f
+        Unknown value 0x9e
+        Unknown value 0x9c
+        Unknown value 0xc00a
+        Unknown value 0xc014
+        Unknown value 0x39
+        Unknown value 0x35
+        Unknown value 0xc007
+        Unknown value 0xc009
+        Unknown value 0xc011
+        Unknown value 0xc013
+        Unknown value 0x33
+        Unknown value 0x32
+        TLS_RSA_WITH_RC4_128_SHA
+        TLS_RSA_WITH_RC4_128_MD5
+        Unknown value 0x2f
+        TLS_RSA_WITH_3DES_EDE_CBC_SHA
+        compression methods
+                  NULL
+New TCP connection #2: localhost(58371) <-> localhost(8080)
+2 1  0.0005 (0.0005)  C>SV3.1(190)  Handshake
+      ClientHello
+        Version 3.3 
+        random[32]=
+          52 fc ae 9a 1b 61 f3 9a c8 56 7b ae b4 21 cf a0 
+          58 7b de 09 49 a2 28 ae 76 17 12 8b 20 bb fc d3 
+        cipher suites
+        Unknown value 0xc02b
+        Unknown value 0xc02f
+        Unknown value 0x9e
+        Unknown value 0x9c
+        Unknown value 0xc00a
+        Unknown value 0xc014
+        Unknown value 0x39
+        Unknown value 0x35
+        Unknown value 0xc007
+        Unknown value 0xc009
+        Unknown value 0xc011
+        Unknown value 0xc013
+        Unknown value 0x33
+        Unknown value 0x32
+        TLS_RSA_WITH_RC4_128_SHA
+        TLS_RSA_WITH_RC4_128_MD5
+        Unknown value 0x2f
+        TLS_RSA_WITH_3DES_EDE_CBC_SHA
+        compression methods
+                  NULL
+1 2  0.9585 (0.9578)  S>CV3.3(1007)  Handshake
+      ServerHello
+        Version 3.3 
+        random[32]=
+          52 fc ae 9b dd 0f 51 df 48 06 6f d8 03 01 2c c8 
+          99 10 97 48 d2 7b b4 cd b1 68 3e 0d 20 87 19 f4 
+        session_id[32]=
+          52 fc ae 9b 53 9b cb e5 19 b1 db 98 a0 9b 8d bb 
+          fe 89 af 78 3a ed f3 15 97 5f 9d d1 11 de 47 5e 
+        cipherSuite         Unknown value 0x33
+        compressionMethod                   NULL
+      Certificate
+      ServerKeyExchange
+      ServerHelloDone
+1 3  0.9615 (0.0029)  C>SV3.3(102)  Handshake
+      ClientKeyExchange
+1 4  0.9615 (0.0000)  C>SV3.3(1)  ChangeCipherSpec
+1 5  0.9615 (0.0000)  C>SV3.3(96)  Handshake
+1    0.9616 (0.0001)  C>S  TCP FIN
+2 2  0.9010 (0.9005)  S>CV3.3(1007)  Handshake
+      ServerHello
+        Version 3.3 
+        random[32]=
+          52 fc ae 9b 7e a5 d2 c4 d8 af 6d d8 d9 17 83 bb 
+          f4 3a e8 ca b8 c8 92 5f 34 fb 6f 29 da 10 94 f4 
+        session_id[32]=
+          52 fc ae 9b b0 20 0c 01 27 a5 d0 12 f5 cc f2 69 
+          4c 25 71 ca 5f 91 fe d9 f4 1e c4 e1 6a 67 c2 0e 
+        cipherSuite         Unknown value 0x33
+        compressionMethod                   NULL
+      Certificate
+      ServerKeyExchange
+      ServerHelloDone
+2 3  0.9039 (0.0029)  C>SV3.3(102)  Handshake
+      ClientKeyExchange
+2 4  0.9039 (0.0000)  C>SV3.3(1)  ChangeCipherSpec
+2 5  0.9039 (0.0000)  C>SV3.3(96)  Handshake
+2    0.9042 (0.0002)  C>S  TCP FIN
+
+New TCP connection #3: localhost(58373) <-> localhost(8080)
+3 1  0.0004 (0.0004)  C>SV3.1(190)  Handshake
+      ClientHello
+        Version 3.3 
+        random[32]=
+          52 fc ae 9b 4c da be 9e 81 60 dd c0 28 91 ae a2 
+          ce 14 eb 0b 32 ac 23 27 bc 38 50 30 dc a2 32 40 
+        cipher suites
+        Unknown value 0xc02b
+        Unknown value 0xc02f
+        Unknown value 0x9e
+        Unknown value 0x9c
+        Unknown value 0xc00a
+        Unknown value 0xc014
+        Unknown value 0x39
+        Unknown value 0x35
+        Unknown value 0xc007
+        Unknown value 0xc009
+        Unknown value 0xc011
+        Unknown value 0xc013
+        Unknown value 0x33
+        Unknown value 0x32
+        TLS_RSA_WITH_RC4_128_SHA
+        TLS_RSA_WITH_RC4_128_MD5
+        Unknown value 0x2f
+        TLS_RSA_WITH_3DES_EDE_CBC_SHA
+        compression methods
+                  NULL
+2 6  1.0180 (0.1138)  S>CV3.3(1)  ChangeCipherSpec
+2 7  1.0180 (0.0000)  S>CV3.3(64)  Handshake
+1 6  1.1094 (0.1478)  S>CV3.3(1)  ChangeCipherSpec
+1 7  1.1094 (0.0000)  S>CV3.3(64)  Handshake
+3 2  0.1360 (0.1355)  S>CV3.3(1007)  Handshake
+      ServerHello
+        Version 3.3 
+        random[32]=
+          52 fc ae 9b 67 56 dd 79 15 c9 2d 6e b6 c1 0a d7 
+          34 4f 0d 27 b7 a8 b4 ae d5 8d a7 da 02 8e 47 9c 
+        session_id[32]=
+          52 fc ae 9b 0f aa e8 44 14 8f 32 40 a0 27 c4 d1 
+          a9 07 14 74 3f bd 0d 56 1c 05 a0 0f 13 4e 54 fa 
+        cipherSuite         Unknown value 0x33
+        compressionMethod                   NULL
+      Certificate
+      ServerKeyExchange
+      ServerHelloDone
+3 3  0.1389 (0.0029)  C>SV3.3(102)  Handshake
+      ClientKeyExchange
+3 4  0.1389 (0.0000)  C>SV3.3(1)  ChangeCipherSpec
+3 5  0.1389 (0.0000)  C>SV3.3(96)  Handshake
+3 6  0.1396 (0.0006)  C>SV3.3(80)  application_data
+3 7  0.1396 (0.0000)  C>SV3.3(64)  application_data
+3 8  0.1401 (0.0004)  C>SV3.3(368)  application_data
+3 9  0.1529 (0.0128)  S>CV3.3(1)  ChangeCipherSpec
+3 10 0.1529 (0.0000)  S>CV3.3(64)  Handshake
+3 11 0.3285 (0.1755)  S>CV3.3(128)  application_data
+3 12 0.3285 (0.0000)  S>CV3.3(64)  application_data

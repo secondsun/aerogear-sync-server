@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -29,14 +30,15 @@ public final class Server {
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
+            final ServerBootstrap b = new ServerBootstrap();
+            b.option(ChannelOption.SO_BACKLOG, 1024);
+            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
             final CorsConfig corsConfig = CorsConfig.anyOrigin()
                     .allowedRequestMethods(HttpMethod.GET, HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE)
                     .allowedRequestHeaders("Content-Type")
                     .build();
-            final SyncManager syncManager = new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test");
-            final ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
-            b.childHandler(new HttpServerInitializer(corsConfig, syncManager));
+            b.childHandler(new HttpServerInitializer(corsConfig, new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test")));
+
             System.out.println("Binding to localhost [8080]");
             b.bind("localhost", 8080).sync().channel().closeFuture().sync();
         } finally {

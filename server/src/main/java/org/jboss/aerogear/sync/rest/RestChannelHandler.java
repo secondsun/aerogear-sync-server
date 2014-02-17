@@ -19,11 +19,14 @@ package org.jboss.aerogear.sync.rest;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import static io.netty.handler.codec.http.HttpHeaders.*;
 import static io.netty.handler.codec.http.HttpMethod.DELETE;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.POST;
@@ -33,6 +36,8 @@ import static io.netty.handler.codec.http.HttpMethod.PUT;
  * Handler that handles RESTful HTTP requests and to the RestProcessor
  */
 public class RestChannelHandler extends ChannelHandlerAdapter {
+
+    private Logger logger = LoggerFactory.getLogger(RestChannelHandler.class);
 
     private final RestProcessor restProcessor;
 
@@ -49,6 +54,7 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
             final HttpRequest request = (HttpRequest) msg;
             final HttpMethod method = request.getMethod();
             final HttpResponse response;
+            logger.info("HTTP Method: " + method);
             if (method.equals(GET)) {
                 response = restProcessor.processGet(request, ctx);
             } else if (method.equals(PUT)) {
@@ -60,10 +66,28 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
             } else {
                 throw new IllegalStateException("Method not supported");
             }
-            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+
+            boolean keepAlive = isKeepAlive(request);
+            if (!keepAlive) {
+                ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+            } else {
+                response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                ctx.write(response);
+            }
         } else {
             ctx.fireChannelRead(msg);
         }
     }
 
+    /*
+    @Override
+    public void channelReadComplete(final ChannelHandlerContext ctx) {
+        ctx.flush();
+    }
+    */
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();;
+    }
 }

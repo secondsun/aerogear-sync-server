@@ -1,0 +1,1451 @@
+***
+found key for : sync
+***
+found key for : sync
+chain [0] = [
+[
+  Version: V3
+  Subject: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  Signature Algorithm: SHA256withRSA, OID = 1.2.840.113549.1.1.11
+
+  Key:  Sun RSA public key, 2048 bits
+  modulus: 17121749394535136124875457776385597159475145202575927117723167132489767408913816862081297294431358629734682967605016774563990839880497485379696514279826600159849817800122227731445515140505754664223730492667542146012877953886613866444146103656498220834824405388009499366749217131502972681885054808633839331020660485587193360575908398037768968459835805306727084316570681334999131813897053754114737545141536160077636656720693768735029857163676750155472764502999263069979763612734087873395011484034860427700000438218985329788707554510577024036678891924286774179301723067433640907110053014845590437094763271386156512522153
+  public exponent: 65537
+  Validity: [From: Wed Feb 12 14:39:51 CET 2014,
+               To: Sat Feb 07 14:39:51 CET 2015]
+  Issuer: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  SerialNumber: [    693bd861]
+
+Certificate Extensions: 1
+[1]: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: AF EF 21 71 5E EF 92 6D   8F 87 0D 3A B1 CE 49 59  ..!q^..m...:..IY
+0010: 97 F1 E3 AA                                        ....
+]
+]
+
+]
+  Algorithm: [SHA256withRSA]
+  Signature:
+0000: 08 23 00 85 C1 AC 48 5D   C1 73 4E 8F 07 C6 34 8A  .#....H].sN...4.
+0010: 12 11 AE 1C B4 59 1C F8   EC 8F B1 36 15 7F 99 51  .....Y.....6...Q
+0020: E0 9B 9C 7B 27 6B 8B 43   45 77 0A B4 D9 0E F4 A3  ....'k.CEw......
+0030: ED DD 1A BC 5C F7 D3 DD   1E 99 6E FF D1 EF 37 D5  ....\.....n...7.
+0040: F9 00 F1 F9 AD 53 C4 2F   9B C3 13 B6 F3 89 CC AA  .....S./........
+0050: 12 B2 2B 84 D2 B3 40 9B   65 AC AB FC 78 8F F6 C7  ..+...@.e...x...
+0060: 0D DD C5 A1 52 1B 7D 72   0C 24 49 83 B8 6C E5 17  ....R..r.$I..l..
+0070: A4 75 4C 29 C3 A3 3F E5   8C 92 5A C9 3A 31 16 2A  .uL)..?...Z.:1.*
+0080: EB 51 0B 49 37 DE 24 A5   14 60 26 30 7F 76 26 7A  .Q.I7.$..`&0.v&z
+0090: 00 C4 43 F5 26 9B AA 79   81 82 E5 EF C0 3F 7A 14  ..C.&..y.....?z.
+00A0: 60 BB 1A DF 3B 75 4E 87   99 2A BB F7 9B E3 3F 4F  `...;uN..*....?O
+00B0: 1B 3D CD D9 BF F2 75 3D   34 5C A3 95 BC 88 48 D4  .=....u=4\....H.
+00C0: AC 87 B3 BC 59 30 80 B4   6C D4 AD 77 EA 44 95 B4  ....Y0..l..w.D..
+00D0: 7C 95 9A C5 80 2F 26 9E   6C 49 98 40 ED D4 E3 10  ...../&.lI.@....
+00E0: 99 5B 7E BF FA BA 30 F2   D0 52 EC F5 4E 20 26 7A  .[....0..R..N &z
+00F0: 4B 19 F6 11 A5 D6 44 F1   1A 90 4F AC A7 00 CE 0B  K.....D...O.....
+
+]
+***
+chain [0] = [
+[
+  Version: V3
+  Subject: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  Signature Algorithm: SHA256withRSA, OID = 1.2.840.113549.1.1.11
+
+  Key:  Sun RSA public key, 2048 bits
+  modulus: 17121749394535136124875457776385597159475145202575927117723167132489767408913816862081297294431358629734682967605016774563990839880497485379696514279826600159849817800122227731445515140505754664223730492667542146012877953886613866444146103656498220834824405388009499366749217131502972681885054808633839331020660485587193360575908398037768968459835805306727084316570681334999131813897053754114737545141536160077636656720693768735029857163676750155472764502999263069979763612734087873395011484034860427700000438218985329788707554510577024036678891924286774179301723067433640907110053014845590437094763271386156512522153
+  public exponent: 65537
+  Validity: [From: Wed Feb 12 14:39:51 CET 2014,
+               To: Sat Feb 07 14:39:51 CET 2015]
+  Issuer: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  SerialNumber: [    693bd861]
+
+Certificate Extensions: 1
+[1]: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: AF EF 21 71 5E EF 92 6D   8F 87 0D 3A B1 CE 49 59  ..!q^..m...:..IY
+0010: 97 F1 E3 AA                                        ....
+]
+]
+
+]
+  Algorithm: [SHA256withRSA]
+  Signature:
+0000: 08 23 00 85 C1 AC 48 5D   C1 73 4E 8F 07 C6 34 8A  .#....H].sN...4.
+0010: 12 11 AE 1C B4 59 1C F8   EC 8F B1 36 15 7F 99 51  .....Y.....6...Q
+0020: E0 9B 9C 7B 27 6B 8B 43   45 77 0A B4 D9 0E F4 A3  ....'k.CEw......
+0030: ED DD 1A BC 5C F7 D3 DD   1E 99 6E FF D1 EF 37 D5  ....\.....n...7.
+0040: F9 00 F1 F9 AD 53 C4 2F   9B C3 13 B6 F3 89 CC AA  .....S./........
+0050: 12 B2 2B 84 D2 B3 40 9B   65 AC AB FC 78 8F F6 C7  ..+...@.e...x...
+0060: 0D DD C5 A1 52 1B 7D 72   0C 24 49 83 B8 6C E5 17  ....R..r.$I..l..
+0070: A4 75 4C 29 C3 A3 3F E5   8C 92 5A C9 3A 31 16 2A  .uL)..?...Z.:1.*
+0080: EB 51 0B 49 37 DE 24 A5   14 60 26 30 7F 76 26 7A  .Q.I7.$..`&0.v&z
+0090: 00 C4 43 F5 26 9B AA 79   81 82 E5 EF C0 3F 7A 14  ..C.&..y.....?z.
+00A0: 60 BB 1A DF 3B 75 4E 87   99 2A BB F7 9B E3 3F 4F  `...;uN..*....?O
+00B0: 1B 3D CD D9 BF F2 75 3D   34 5C A3 95 BC 88 48 D4  .=....u=4\....H.
+00C0: AC 87 B3 BC 59 30 80 B4   6C D4 AD 77 EA 44 95 B4  ....Y0..l..w.D..
+00D0: 7C 95 9A C5 80 2F 26 9E   6C 49 98 40 ED D4 E3 10  ...../&.lI.@....
+00E0: 99 5B 7E BF FA BA 30 F2   D0 52 EC F5 4E 20 26 7A  .[....0..R..N &z
+00F0: 4B 19 F6 11 A5 D6 44 F1   1A 90 4F AC A7 00 CE 0B  K.....D...O.....
+
+]
+***
+trustStore is: /Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home/jre/lib/security/cacerts
+trustStore type is : jks
+trustStore provider is :
+trustStore is: /Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home/jre/lib/security/cacerts
+init truststore
+trustStore type is : jks
+trustStore provider is :
+init truststore
+adding as trusted cert:
+  Subject: CN=SwissSign Platinum CA - G2, O=SwissSign AG, C=CH
+  Issuer:  CN=SwissSign Platinum CA - G2, O=SwissSign AG, C=CH
+  Algorithm: RSA; Serial number: 0x4eb200670c035d4f
+  Valid from Wed Oct 25 10:36:00 CEST 2006 until Sat Oct 25 10:36:00 CEST 2036
+
+adding as trusted cert:
+  Subject: EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 1 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Issuer:  EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 1 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Sat Jun 26 00:23:48 CEST 1999 until Wed Jun 26 00:23:48 CEST 2019
+
+adding as trusted cert:
+adding as trusted cert:
+  Subject: CN=SwissSign Platinum CA - G2, O=SwissSign AG, C=CH
+  Issuer:  CN=SwissSign Platinum CA - G2, O=SwissSign AG, C=CH
+  Algorithm: RSA; Serial number: 0x4eb200670c035d4f
+  Valid from Wed Oct 25 10:36:00 CEST 2006 until Sat Oct 25 10:36:00 CEST 2036
+
+adding as trusted cert:
+  Subject: EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 1 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Issuer:  EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 1 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Sat Jun 26 00:23:48 CEST 1999 until Wed Jun 26 00:23:48 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=thawte Primary Root CA, OU="(c) 2006 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Subject: CN=thawte Primary Root CA, OU="(c) 2006 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Issuer:  CN=thawte Primary Root CA, OU="(c) 2006 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x344ed55720d5edec49f42fce37db2b6d
+  Valid from Fri Nov 17 01:00:00 CET 2006 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Issuer:  CN=thawte Primary Root CA, OU="(c) 2006 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x344ed55720d5edec49f42fce37db2b6d
+  Valid from Fri Nov 17 01:00:00 CET 2006 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=Entrust Root Certification Authority, OU="(c) 2006 Entrust, Inc.", OU=www.entrust.net/CPS is incorporated by reference, O="Entrust, Inc.", C=US
+  Issuer:  CN=Entrust Root Certification Authority, OU="(c) 2006 Entrust, Inc.", OU=www.entrust.net/CPS is incorporated by reference, O="Entrust, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x456b5054
+  Valid from Mon Nov 27 21:23:42 CET 2006 until Fri Nov 27 21:53:42 CET 2026
+
+adding as trusted cert:
+  Subject: CN=KEYNECTIS ROOT CA, OU=ROOT, O=KEYNECTIS, C=FR
+  Issuer:  CN=KEYNECTIS ROOT CA, OU=ROOT, O=KEYNECTIS, C=FR
+  Algorithm: RSA; Serial number: 0x1121bc276c5547af584eefd4ced629b2a285
+  Valid from Tue May 26 02:00:00 CEST 2009 until Tue May 26 02:00:00 CEST 2020
+
+adding as trusted cert:
+  Subject: CN=Global Chambersign Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Issuer:  CN=Global Chambersign Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Algorithm: RSA; Serial number: 0xc9cdd3e9d57d23ce
+  Valid from Fri Aug 01 14:31:40 CEST 2008 until Sat Jul 31 14:31:40 CEST 2038
+
+adding as trusted cert:
+  Subject: CN=America Online Root Certification Authority 2, O=America Online Inc., C=US
+  Subject: CN=Entrust Root Certification Authority, OU="(c) 2006 Entrust, Inc.", OU=www.entrust.net/CPS is incorporated by reference, O="Entrust, Inc.", C=US
+  Issuer:  CN=America Online Root Certification Authority 2, O=America Online Inc., C=US
+  Issuer:  CN=Entrust Root Certification Authority, OU="(c) 2006 Entrust, Inc.", OU=www.entrust.net/CPS is incorporated by reference, O="Entrust, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x1
+  Algorithm: RSA; Serial number: 0x456b5054
+  Valid from Tue May 28 08:00:00 CEST 2002 until Tue Sep 29 16:08:00 CEST 2037
+
+adding as trusted cert:
+  Valid from Mon Nov 27 21:23:42 CET 2006 until Fri Nov 27 21:53:42 CET 2026
+
+adding as trusted cert:
+  Subject: CN=KEYNECTIS ROOT CA, OU=ROOT, O=KEYNECTIS, C=FR
+  Subject: CN=AddTrust Qualified CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Issuer:  CN=KEYNECTIS ROOT CA, OU=ROOT, O=KEYNECTIS, C=FR
+  Algorithm: RSA; Serial number: 0x1121bc276c5547af584eefd4ced629b2a285
+  Valid from Tue May 26 02:00:00 CEST 2009 until Tue May 26 02:00:00 CEST 2020
+
+adding as trusted cert:
+  Subject: CN=Global Chambersign Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Issuer:  CN=Global Chambersign Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Algorithm: RSA; Serial number: 0xc9cdd3e9d57d23ce
+  Valid from Fri Aug 01 14:31:40 CEST 2008 until Sat Jul 31 14:31:40 CEST 2038
+
+adding as trusted cert:
+  Issuer:  CN=AddTrust Qualified CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 30 12:44:50 CEST 2000 until Sat May 30 12:44:50 CEST 2020
+
+adding as trusted cert:
+  Subject: CN=QuoVadis Root Certification Authority, OU=Root Certification Authority, O=QuoVadis Limited, C=BM
+  Issuer:  CN=QuoVadis Root Certification Authority, OU=Root Certification Authority, O=QuoVadis Limited, C=BM
+  Algorithm: RSA; Serial number: 0x3ab6508b
+  Valid from Mon Mar 19 19:33:33 CET 2001 until Wed Mar 17 19:33:33 CET 2021
+
+adding as trusted cert:
+  Subject: CN=America Online Root Certification Authority 2, O=America Online Inc., C=US
+  Subject: CN=SwissSign Silver CA - G2, O=SwissSign AG, C=CH
+  Issuer:  CN=America Online Root Certification Authority 2, O=America Online Inc., C=US
+  Issuer:  CN=SwissSign Silver CA - G2, O=SwissSign AG, C=CH
+  Algorithm: RSA; Serial number: 0x1
+  Algorithm: RSA; Serial number: 0x4f1bd42f54bb2f4b
+  Valid from Tue May 28 08:00:00 CEST 2002 until Tue Sep 29 16:08:00 CEST 2037
+
+adding as trusted cert:
+  Valid from Wed Oct 25 10:32:46 CEST 2006 until Sat Oct 25 10:32:46 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=AddTrust Qualified CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Issuer:  CN=AddTrust Qualified CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 30 12:44:50 CEST 2000 until Sat May 30 12:44:50 CEST 2020
+
+adding as trusted cert:
+  Subject: OU=Security Communication EV RootCA1, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Subject: CN=QuoVadis Root Certification Authority, OU=Root Certification Authority, O=QuoVadis Limited, C=BM
+  Issuer:  OU=Security Communication EV RootCA1, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Algorithm: RSA; Serial number: 0x0
+  Issuer:  CN=QuoVadis Root Certification Authority, OU=Root Certification Authority, O=QuoVadis Limited, C=BM
+  Algorithm: RSA; Serial number: 0x3ab6508b
+  Valid from Wed Jun 06 04:12:32 CEST 2007 until Sat Jun 06 04:12:32 CEST 2037
+
+adding as trusted cert:
+  Valid from Mon Mar 19 19:33:33 CET 2001 until Wed Mar 17 19:33:33 CET 2021
+
+adding as trusted cert:
+  Subject: CN=SwissSign Silver CA - G2, O=SwissSign AG, C=CH
+  Subject: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Issuer:  CN=SwissSign Silver CA - G2, O=SwissSign AG, C=CH
+  Algorithm: RSA; Serial number: 0x4f1bd42f54bb2f4b
+  Issuer:  CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Wed Oct 25 10:32:46 CEST 2006 until Sat Oct 25 10:32:46 CEST 2036
+
+adding as trusted cert:
+  Valid from Mon Jun 21 06:00:00 CEST 1999 until Sun Jun 21 06:00:00 CEST 2020
+
+adding as trusted cert:
+  Subject: OU=Security Communication EV RootCA1, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Subject: CN=SwissSign Gold CA - G2, O=SwissSign AG, C=CH
+  Issuer:  OU=Security Communication EV RootCA1, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Algorithm: RSA; Serial number: 0x0
+  Issuer:  CN=SwissSign Gold CA - G2, O=SwissSign AG, C=CH
+  Algorithm: RSA; Serial number: 0xbb401c43f55e4fb0
+  Valid from Wed Oct 25 10:30:35 CEST 2006 until Sat Oct 25 10:30:35 CEST 2036
+
+adding as trusted cert:
+  Subject: EMAILADDRESS=personal-freemail@thawte.com, CN=Thawte Personal Freemail CA, OU=Certification Services Division, O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
+  Issuer:  EMAILADDRESS=personal-freemail@thawte.com, CN=Thawte Personal Freemail CA, OU=Certification Services Division, O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
+  Algorithm: RSA; Serial number: 0x123df0e7da2a2247a43889e08aeec967
+  Valid from Mon Jan 01 01:00:00 CET 1996 until Sat Jan 02 00:59:59 CET 2021
+
+adding as trusted cert:
+  Subject: CN=thawte Primary Root CA - G3, OU="(c) 2008 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Issuer:  CN=thawte Primary Root CA - G3, OU="(c) 2008 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x600197b746a7eab4b49ad64b2ff790fb
+  Valid from Wed Apr 02 02:00:00 CEST 2008 until Wed Dec 02 00:59:59 CET 2037
+
+adding as trusted cert:
+  Subject: CN=GTE CyberTrust Global Root, OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
+  Issuer:  CN=GTE CyberTrust Global Root, OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
+  Algorithm: RSA; Serial number: 0x1a5
+  Valid from Thu Aug 13 02:29:00 CEST 1998 until Tue Aug 14 01:59:00 CEST 2018
+
+adding as trusted cert:
+  Subject: CN=Baltimore CyberTrust Root, OU=CyberTrust, O=Baltimore, C=IE
+  Issuer:  CN=Baltimore CyberTrust Root, OU=CyberTrust, O=Baltimore, C=IE
+  Algorithm: RSA; Serial number: 0x20000b9
+  Valid from Fri May 12 20:46:00 CEST 2000 until Tue May 13 01:59:00 CEST 2025
+
+adding as trusted cert:
+  Valid from Wed Jun 06 04:12:32 CEST 2007 until Sat Jun 06 04:12:32 CEST 2037
+
+adding as trusted cert:
+  Subject: OU=Class 1 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Subject: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Issuer:  OU=Class 1 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Issuer:  CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Algorithm: RSA; Serial number: 0x1
+  Algorithm: RSA; Serial number: 0x3f691e819cf09a4af373ffb948a2e4dd
+  Valid from Mon Jun 21 06:00:00 CEST 1999 until Sun Jun 21 06:00:00 CEST 2020
+
+  Valid from Mon Jan 29 01:00:00 CET 1996 until Thu Aug 03 01:59:59 CEST 2028
+
+adding as trusted cert:
+adding as trusted cert:
+  Subject: CN=SwissSign Gold CA - G2, O=SwissSign AG, C=CH
+  Issuer:  CN=SwissSign Gold CA - G2, O=SwissSign AG, C=CH
+  Subject: CN=DigiCert High Assurance EV Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Algorithm: RSA; Serial number: 0xbb401c43f55e4fb0
+  Issuer:  CN=DigiCert High Assurance EV Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Valid from Wed Oct 25 10:30:35 CEST 2006 until Sat Oct 25 10:30:35 CEST 2036
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x2ac5c266a0b409b8f0b79f2ae462577
+  Subject: EMAILADDRESS=personal-freemail@thawte.com, CN=Thawte Personal Freemail CA, OU=Certification Services Division, O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
+  Issuer:  EMAILADDRESS=personal-freemail@thawte.com, CN=Thawte Personal Freemail CA, OU=Certification Services Division, O=Thawte Consulting, L=Cape Town, ST=Western Cape, C=ZA
+  Valid from Fri Nov 10 01:00:00 CET 2006 until Mon Nov 10 01:00:00 CET 2031
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x123df0e7da2a2247a43889e08aeec967
+  Subject: CN=QuoVadis Root CA 2, O=QuoVadis Limited, C=BM
+  Valid from Mon Jan 01 01:00:00 CET 1996 until Sat Jan 02 00:59:59 CET 2021
+
+adding as trusted cert:
+  Issuer:  CN=QuoVadis Root CA 2, O=QuoVadis Limited, C=BM
+  Algorithm: RSA; Serial number: 0x509
+  Subject: CN=thawte Primary Root CA - G3, OU="(c) 2008 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Valid from Fri Nov 24 19:27:00 CET 2006 until Mon Nov 24 19:23:33 CET 2031
+
+adding as trusted cert:
+  Issuer:  CN=thawte Primary Root CA - G3, OU="(c) 2008 thawte, Inc. - For authorized use only", OU=Certification Services Division, O="thawte, Inc.", C=US
+  Subject: CN=Baltimore CyberTrust Code Signing Root, OU=CyberTrust, O=Baltimore, C=IE
+  Algorithm: RSA; Serial number: 0x600197b746a7eab4b49ad64b2ff790fb
+  Issuer:  CN=Baltimore CyberTrust Code Signing Root, OU=CyberTrust, O=Baltimore, C=IE
+  Valid from Wed Apr 02 02:00:00 CEST 2008 until Wed Dec 02 00:59:59 CET 2037
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x20000bf
+  Subject: CN=GTE CyberTrust Global Root, OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
+  Issuer:  CN=GTE CyberTrust Global Root, OU="GTE CyberTrust Solutions, Inc.", O=GTE Corporation, C=US
+  Valid from Wed May 17 16:01:00 CEST 2000 until Sun May 18 01:59:00 CEST 2025
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x1a5
+  Valid from Thu Aug 13 02:29:00 CEST 1998 until Tue Aug 14 01:59:00 CEST 2018
+
+  Subject: CN=T-TeleSec GlobalRoot Class 3, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+adding as trusted cert:
+  Subject: CN=Baltimore CyberTrust Root, OU=CyberTrust, O=Baltimore, C=IE
+  Issuer:  CN=Baltimore CyberTrust Root, OU=CyberTrust, O=Baltimore, C=IE
+  Issuer:  CN=T-TeleSec GlobalRoot Class 3, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x20000b9
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Fri May 12 20:46:00 CEST 2000 until Tue May 13 01:59:00 CEST 2025
+
+adding as trusted cert:
+  Subject: OU=Class 1 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Issuer:  OU=Class 1 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x3f691e819cf09a4af373ffb948a2e4dd
+  Valid from Mon Jan 29 01:00:00 CET 1996 until Thu Aug 03 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Subject: CN=DigiCert High Assurance EV Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Issuer:  CN=DigiCert High Assurance EV Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Algorithm: RSA; Serial number: 0x2ac5c266a0b409b8f0b79f2ae462577
+  Valid from Wed Oct 01 12:29:56 CEST 2008 until Sun Oct 02 01:59:59 CEST 2033
+
+adding as trusted cert:
+  Valid from Fri Nov 10 01:00:00 CET 2006 until Mon Nov 10 01:00:00 CET 2031
+
+adding as trusted cert:
+  Subject: CN=QuoVadis Root CA 2, O=QuoVadis Limited, C=BM
+  Issuer:  CN=QuoVadis Root CA 2, O=QuoVadis Limited, C=BM
+  Algorithm: RSA; Serial number: 0x509
+  Subject: CN=Entrust.net Certification Authority (2048), OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.), O=Entrust.net
+  Valid from Fri Nov 24 19:27:00 CET 2006 until Mon Nov 24 19:23:33 CET 2031
+
+adding as trusted cert:
+  Subject: CN=Baltimore CyberTrust Code Signing Root, OU=CyberTrust, O=Baltimore, C=IE
+  Issuer:  CN=Baltimore CyberTrust Code Signing Root, OU=CyberTrust, O=Baltimore, C=IE
+  Algorithm: RSA; Serial number: 0x20000bf
+  Valid from Wed May 17 16:01:00 CEST 2000 until Sun May 18 01:59:00 CEST 2025
+
+adding as trusted cert:
+  Subject: CN=T-TeleSec GlobalRoot Class 3, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+  Issuer:  CN=T-TeleSec GlobalRoot Class 3, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Wed Oct 01 12:29:56 CEST 2008 until Sun Oct 02 01:59:59 CEST 2033
+
+adding as trusted cert:
+  Subject: CN=Entrust.net Certification Authority (2048), OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.), O=Entrust.net
+  Issuer:  CN=Entrust.net Certification Authority (2048), OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.), O=Entrust.net
+  Algorithm: RSA; Serial number: 0x3863def8
+  Valid from Fri Dec 24 18:50:51 CET 1999 until Tue Jul 24 16:15:12 CEST 2029
+
+adding as trusted cert:
+  Subject: CN=TC TrustCenter Class 4 CA II, OU=TC TrustCenter Class 4 CA, O=TC TrustCenter GmbH, C=DE
+  Issuer:  CN=TC TrustCenter Class 4 CA II, OU=TC TrustCenter Class 4 CA, O=TC TrustCenter GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x5c00001000241d0060a4dce7510
+  Valid from Thu Mar 23 15:10:23 CET 2006 until Wed Dec 31 23:59:59 CET 2025
+
+adding as trusted cert:
+  Subject: OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 2 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Issuer:  CN=Entrust.net Certification Authority (2048), OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS_2048 incorp. by ref. (limits liab.), O=Entrust.net
+  Algorithm: RSA; Serial number: 0x3863def8
+  Issuer:  OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 2 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Valid from Fri Dec 24 18:50:51 CET 1999 until Tue Jul 24 16:15:12 CEST 2029
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0xb92f60cc889fa17a4609b85b706c8aaf
+  Subject: CN=TC TrustCenter Class 4 CA II, OU=TC TrustCenter Class 4 CA, O=TC TrustCenter GmbH, C=DE
+  Issuer:  CN=TC TrustCenter Class 4 CA II, OU=TC TrustCenter Class 4 CA, O=TC TrustCenter GmbH, C=DE
+  Valid from Mon May 18 02:00:00 CEST 1998 until Wed Aug 02 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x5c00001000241d0060a4dce7510
+  Subject: CN=thawte Primary Root CA - G2, OU="(c) 2007 thawte, Inc. - For authorized use only", O="thawte, Inc.", C=US
+  Valid from Thu Mar 23 15:10:23 CET 2006 until Wed Dec 31 23:59:59 CET 2025
+
+adding as trusted cert:
+  Issuer:  CN=thawte Primary Root CA - G2, OU="(c) 2007 thawte, Inc. - For authorized use only", O="thawte, Inc.", C=US
+  Subject: OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 2 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Issuer:  OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 2 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Algorithm: EC; Serial number: 0x35fc265cd9844fc93d263d579baed756
+  Algorithm: RSA; Serial number: 0xb92f60cc889fa17a4609b85b706c8aaf
+  Valid from Mon May 18 02:00:00 CEST 1998 until Wed Aug 02 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Valid from Mon Nov 05 01:00:00 CET 2007 until Tue Jan 19 00:59:59 CET 2038
+
+adding as trusted cert:
+  Subject: CN=thawte Primary Root CA - G2, OU="(c) 2007 thawte, Inc. - For authorized use only", O="thawte, Inc.", C=US
+  Issuer:  CN=thawte Primary Root CA - G2, OU="(c) 2007 thawte, Inc. - For authorized use only", O="thawte, Inc.", C=US
+  Algorithm: EC; Serial number: 0x35fc265cd9844fc93d263d579baed756
+  Valid from Mon Nov 05 01:00:00 CET 2007 until Tue Jan 19 00:59:59 CET 2038
+
+adding as trusted cert:
+  Subject: EMAILADDRESS=server-certs@thawte.com, CN=Thawte Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Subject: EMAILADDRESS=server-certs@thawte.com, CN=Thawte Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Issuer:  EMAILADDRESS=server-certs@thawte.com, CN=Thawte Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Issuer:  EMAILADDRESS=server-certs@thawte.com, CN=Thawte Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Algorithm: RSA; Serial number: 0x34a4fff630af4ca53c331742a1946675
+  Algorithm: RSA; Serial number: 0x34a4fff630af4ca53c331742a1946675
+  Valid from Thu Aug 01 02:00:00 CEST 1996 until Sat Jan 02 00:59:59 CET 2021
+
+adding as trusted cert:
+  Valid from Thu Aug 01 02:00:00 CEST 1996 until Sat Jan 02 00:59:59 CET 2021
+
+adding as trusted cert:
+  Subject: CN=Deutsche Telekom Root CA 2, OU=T-TeleSec Trust Center, O=Deutsche Telekom AG, C=DE
+  Issuer:  CN=Deutsche Telekom Root CA 2, OU=T-TeleSec Trust Center, O=Deutsche Telekom AG, C=DE
+  Algorithm: RSA; Serial number: 0x26
+  Subject: CN=Deutsche Telekom Root CA 2, OU=T-TeleSec Trust Center, O=Deutsche Telekom AG, C=DE
+  Issuer:  CN=Deutsche Telekom Root CA 2, OU=T-TeleSec Trust Center, O=Deutsche Telekom AG, C=DE
+  Valid from Fri Jul 09 14:11:00 CEST 1999 until Wed Jul 10 01:59:00 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=Entrust.net Secure Server Certification Authority, OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS incorp. by ref. (limits liab.), O=Entrust.net, C=US
+  Algorithm: RSA; Serial number: 0x26
+  Issuer:  CN=Entrust.net Secure Server Certification Authority, OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS incorp. by ref. (limits liab.), O=Entrust.net, C=US
+  Valid from Fri Jul 09 14:11:00 CEST 1999 until Wed Jul 10 01:59:00 CEST 2019
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x374ad243
+  Subject: CN=Entrust.net Secure Server Certification Authority, OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS incorp. by ref. (limits liab.), O=Entrust.net, C=US
+  Issuer:  CN=Entrust.net Secure Server Certification Authority, OU=(c) 1999 Entrust.net Limited, OU=www.entrust.net/CPS incorp. by ref. (limits liab.), O=Entrust.net, C=US
+  Valid from Tue May 25 18:09:40 CEST 1999 until Sat May 25 18:39:40 CEST 2019
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x374ad243
+  Subject: CN=GeoTrust Universal CA, O=GeoTrust Inc., C=US
+  Valid from Tue May 25 18:09:40 CEST 1999 until Sat May 25 18:39:40 CEST 2019
+
+adding as trusted cert:
+  Issuer:  CN=GeoTrust Universal CA, O=GeoTrust Inc., C=US
+  Subject: CN=GeoTrust Universal CA, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x1
+  Issuer:  CN=GeoTrust Universal CA, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Thu Mar 04 06:00:00 CET 2004 until Sun Mar 04 06:00:00 CET 2029
+
+adding as trusted cert:
+  Valid from Thu Mar 04 06:00:00 CET 2004 until Sun Mar 04 06:00:00 CET 2029
+
+adding as trusted cert:
+  Subject: CN=TC TrustCenter Universal CA I, OU=TC TrustCenter Universal CA, O=TC TrustCenter GmbH, C=DE
+  Issuer:  CN=TC TrustCenter Universal CA I, OU=TC TrustCenter Universal CA, O=TC TrustCenter GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x1da200010002ecb76080788db606
+  Valid from Wed Mar 22 16:54:28 CET 2006 until Wed Dec 31 23:59:59 CET 2025
+
+adding as trusted cert:
+  Subject: CN=T-TeleSec GlobalRoot Class 2, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+  Subject: CN=TC TrustCenter Universal CA I, OU=TC TrustCenter Universal CA, O=TC TrustCenter GmbH, C=DE
+  Issuer:  CN=TC TrustCenter Universal CA I, OU=TC TrustCenter Universal CA, O=TC TrustCenter GmbH, C=DE
+  Issuer:  CN=T-TeleSec GlobalRoot Class 2, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x1da200010002ecb76080788db606
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Wed Mar 22 16:54:28 CET 2006 until Wed Dec 31 23:59:59 CET 2025
+
+adding as trusted cert:
+  Valid from Wed Oct 01 12:40:14 CEST 2008 until Sun Oct 02 01:59:59 CEST 2033
+
+adding as trusted cert:
+  Subject: CN=T-TeleSec GlobalRoot Class 2, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+  Subject: CN=VeriSign Class 3 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=T-TeleSec GlobalRoot Class 2, OU=T-Systems Trust Center, O=T-Systems Enterprise Services GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x1
+  Issuer:  CN=VeriSign Class 3 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Valid from Wed Oct 01 12:40:14 CEST 2008 until Sun Oct 02 01:59:59 CEST 2033
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x9b7e0649a33e62b9d5ee90487129ef57
+  Subject: CN=VeriSign Class 3 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 3 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Valid from Fri Oct 01 02:00:00 CEST 1999 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 2 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Issuer:  EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 2 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Algorithm: RSA; Serial number: 0x1
+  Algorithm: RSA; Serial number: 0x9b7e0649a33e62b9d5ee90487129ef57
+  Valid from Sat Jun 26 02:19:54 CEST 1999 until Wed Jun 26 02:19:54 CEST 2019
+
+  Valid from Fri Oct 01 02:00:00 CEST 1999 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+adding as trusted cert:
+  Subject: EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 2 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Issuer:  EMAILADDRESS=info@valicert.com, CN=http://www.valicert.com/, OU=ValiCert Class 2 Policy Validation Authority, O="ValiCert, Inc.", L=ValiCert Validation Network
+  Subject: CN=DigiCert Global Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Algorithm: RSA; Serial number: 0x1
+  Issuer:  CN=DigiCert Global Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Valid from Sat Jun 26 02:19:54 CEST 1999 until Wed Jun 26 02:19:54 CEST 2019
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x83be056904246b1a1756ac95991c74a
+  Subject: CN=DigiCert Global Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Issuer:  CN=DigiCert Global Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Valid from Fri Nov 10 01:00:00 CET 2006 until Mon Nov 10 01:00:00 CET 2031
+
+adding as trusted cert:
+  Algorithm: RSA; Serial number: 0x83be056904246b1a1756ac95991c74a
+  Subject: CN=AddTrust Class 1 CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Valid from Fri Nov 10 01:00:00 CET 2006 until Mon Nov 10 01:00:00 CET 2031
+
+adding as trusted cert:
+  Subject: CN=AddTrust Class 1 CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Issuer:  CN=AddTrust Class 1 CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 30 12:38:31 CEST 2000 until Sat May 30 12:38:31 CEST 2020
+
+adding as trusted cert:
+  Subject: CN=AddTrust External CA Root, OU=AddTrust External TTP Network, O=AddTrust AB, C=SE
+  Issuer:  CN=AddTrust External CA Root, OU=AddTrust External TTP Network, O=AddTrust AB, C=SE
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 30 12:48:38 CEST 2000 until Sat May 30 12:48:38 CEST 2020
+
+adding as trusted cert:
+  Subject: CN=Class 2 Primary CA, O=Certplus, C=FR
+  Issuer:  CN=Class 2 Primary CA, O=Certplus, C=FR
+  Algorithm: RSA; Serial number: 0x85bd4bf3d8dae369f694d75fc3a54423
+  Valid from Wed Jul 07 19:05:00 CEST 1999 until Sun Jul 07 01:59:59 CEST 2019
+
+adding as trusted cert:
+  Subject: OU=Equifax Secure Certificate Authority, O=Equifax, C=US
+  Issuer:  OU=Equifax Secure Certificate Authority, O=Equifax, C=US
+  Algorithm: RSA; Serial number: 0x35def4cf
+  Valid from Sat Aug 22 18:41:51 CEST 1998 until Wed Aug 22 18:41:51 CEST 2018
+
+adding as trusted cert:
+  Subject: CN=Chambers of Commerce Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Issuer:  CN=Chambers of Commerce Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Algorithm: RSA; Serial number: 0xa3da427ea4b1aeda
+  Valid from Fri Aug 01 14:29:50 CEST 2008 until Sat Jul 31 14:29:50 CEST 2038
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 2 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 2 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x6170cb498c5f984529e7b0a6d9505b7a
+  Valid from Fri Oct 01 02:00:00 CEST 1999 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=AAA Certificate Services, O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+  Issuer:  CN=AAA Certificate Services, O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Thu Jan 01 01:00:00 CET 2004 until Mon Jan 01 00:59:59 CET 2029
+
+adding as trusted cert:
+  Subject: CN=Equifax Secure eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Issuer:  CN=Equifax Secure eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Algorithm: RSA; Serial number: 0x4
+  Valid from Mon Jun 21 06:00:00 CEST 1999 until Sun Jun 21 06:00:00 CEST 2020
+
+adding as trusted cert:
+  Subject: OU=Starfield Class 2 Certification Authority, O="Starfield Technologies, Inc.", C=US
+  Issuer:  OU=Starfield Class 2 Certification Authority, O="Starfield Technologies, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Jun 29 19:39:16 CEST 2004 until Thu Jun 29 19:39:16 CEST 2034
+
+adding as trusted cert:
+  Subject: OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 1 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Issuer:  OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 1 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x4cc7eaaa983e71d39310f83d3a899192
+  Valid from Mon May 18 02:00:00 CEST 1998 until Wed Aug 02 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Subject: CN=DigiCert Assured ID Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Issuer:  CN=DigiCert Assured ID Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Algorithm: RSA; Serial number: 0xce7e0e517d846fe8fe560fc1bf03039
+  Valid from Fri Nov 10 01:00:00 CET 2006 until Mon Nov 10 01:00:00 CET 2031
+
+adding as trusted cert:
+  Subject: CN=GlobalSign Root CA, OU=Root CA, O=GlobalSign nv-sa, C=BE
+  Issuer:  CN=GlobalSign Root CA, OU=Root CA, O=GlobalSign nv-sa, C=BE
+  Algorithm: RSA; Serial number: 0x40000000001154b5ac394
+  Valid from Tue Sep 01 14:00:00 CEST 1998 until Fri Jan 28 13:00:00 CET 2028
+
+adding as trusted cert:
+  Subject: OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 3 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Issuer:  OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 3 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x7dd9fe07cfa81eb7107967fba78934c6
+  Valid from Mon May 18 02:00:00 CEST 1998 until Wed Aug 02 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Subject: CN=QuoVadis Root CA 3, O=QuoVadis Limited, C=BM
+  Issuer:  CN=QuoVadis Root CA 3, O=QuoVadis Limited, C=BM
+  Algorithm: RSA; Serial number: 0x5c6
+  Valid from Fri Nov 24 20:11:23 CET 2006 until Mon Nov 24 20:06:44 CET 2031
+
+adding as trusted cert:
+  Subject: CN=Certum CA, O=Unizeto Sp. z o.o., C=PL
+  Issuer:  CN=Certum CA, O=Unizeto Sp. z o.o., C=PL
+  Algorithm: RSA; Serial number: 0x10020
+  Valid from Tue Jun 11 12:46:39 CEST 2002 until Fri Jun 11 12:46:39 CEST 2027
+
+adding as trusted cert:
+  Subject: CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R2
+  Issuer:  CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R2
+  Algorithm: RSA; Serial number: 0x400000000010f8626e60d
+  Valid from Fri Dec 15 09:00:00 CET 2006 until Wed Dec 15 09:00:00 CET 2021
+
+adding as trusted cert:
+  Subject: EMAILADDRESS=premium-server@thawte.com, CN=Thawte Premium Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Issuer:  EMAILADDRESS=premium-server@thawte.com, CN=Thawte Premium Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Algorithm: RSA; Serial number: 0x36122296c5e338a520a1d25f4cd70954
+  Valid from Thu Aug 01 02:00:00 CEST 1996 until Sat Jan 02 00:59:59 CET 2021
+
+adding as trusted cert:
+  Subject: CN=Chambers of Commerce Root, OU=http://www.chambersign.org, O=AC Camerfirma SA CIF A82743287, C=EU
+  Issuer:  CN=Chambers of Commerce Root, OU=http://www.chambersign.org, O=AC Camerfirma SA CIF A82743287, C=EU
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Sep 30 18:13:43 CEST 2003 until Wed Sep 30 18:13:44 CEST 2037
+
+adding as trusted cert:
+  Subject: CN=Entrust Root Certification Authority - G2, OU="(c) 2009 Entrust, Inc. - for authorized use only", OU=See www.entrust.net/legal-terms, O="Entrust, Inc.", C=US
+  Issuer:  CN=Entrust Root Certification Authority - G2, OU="(c) 2009 Entrust, Inc. - for authorized use only", OU=See www.entrust.net/legal-terms, O="Entrust, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x4a538c28
+  Valid from Tue Jul 07 19:25:54 CEST 2009 until Sat Dec 07 18:55:54 CET 2030
+
+adding as trusted cert:
+  Subject: CN=Class 3P Primary CA, O=Certplus, C=FR
+  Issuer:  CN=Class 3P Primary CA, O=Certplus, C=FR
+  Algorithm: RSA; Serial number: 0xbf5cdbb6f21c6ec04deb7a023b36e879
+  Valid from Wed Jul 07 19:10:00 CEST 1999 until Sun Jul 07 01:59:59 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 3 Public Primary Certification Authority - G5, OU="(c) 2006 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 3 Public Primary Certification Authority - G5, OU="(c) 2006 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x18dad19e267de8bb4a2158cdcc6b3b4a
+  Valid from Wed Nov 08 01:00:00 CET 2006 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=VeriSign Universal Root Certification Authority, OU="(c) 2008 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Universal Root Certification Authority, OU="(c) 2008 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x401ac46421b31321030ebbe4121ac51d
+  Valid from Wed Apr 02 02:00:00 CEST 2008 until Wed Dec 02 00:59:59 CET 2037
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Global CA, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Global CA, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x23456
+  Valid from Tue May 21 06:00:00 CEST 2002 until Sat May 21 06:00:00 CEST 2022
+
+adding as trusted cert:
+  Subject: OU=Class 3 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Issuer:  OU=Class 3 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x3c9131cb1ff6d01b0e9ab8d044bf12be
+  Valid from Mon Jan 29 01:00:00 CET 1996 until Thu Aug 03 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Subject: CN=Certum Trusted Network CA, OU=Certum Certification Authority, O=Unizeto Technologies S.A., C=PL
+  Issuer:  CN=Certum Trusted Network CA, OU=Certum Certification Authority, O=Unizeto Technologies S.A., C=PL
+  Algorithm: RSA; Serial number: 0x444c0
+  Valid from Wed Oct 22 14:07:37 CEST 2008 until Mon Dec 31 13:07:37 CET 2029
+
+adding as trusted cert:
+  Subject: OU=Security Communication RootCA1, O=SECOM Trust.net, C=JP
+  Issuer:  OU=Security Communication RootCA1, O=SECOM Trust.net, C=JP
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Sep 30 06:20:49 CEST 2003 until Sat Sep 30 06:20:49 CEST 2023
+
+adding as trusted cert:
+  Subject: CN=Sonera Class1 CA, O=Sonera, C=FI
+  Issuer:  CN=Sonera Class1 CA, O=Sonera, C=FI
+  Issuer:  CN=AddTrust Class 1 CA Root, OU=AddTrust TTP Network, O=AddTrust AB, C=SE
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 30 12:38:31 CEST 2000 until Sat May 30 12:38:31 CEST 2020
+
+adding as trusted cert:
+  Subject: CN=AddTrust External CA Root, OU=AddTrust External TTP Network, O=AddTrust AB, C=SE
+  Issuer:  CN=AddTrust External CA Root, OU=AddTrust External TTP Network, O=AddTrust AB, C=SE
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 30 12:48:38 CEST 2000 until Sat May 30 12:48:38 CEST 2020
+
+adding as trusted cert:
+  Subject: CN=Class 2 Primary CA, O=Certplus, C=FR
+  Issuer:  CN=Class 2 Primary CA, O=Certplus, C=FR
+  Algorithm: RSA; Serial number: 0x85bd4bf3d8dae369f694d75fc3a54423
+  Valid from Wed Jul 07 19:05:00 CEST 1999 until Sun Jul 07 01:59:59 CEST 2019
+
+adding as trusted cert:
+  Subject: OU=Equifax Secure Certificate Authority, O=Equifax, C=US
+  Issuer:  OU=Equifax Secure Certificate Authority, O=Equifax, C=US
+  Algorithm: RSA; Serial number: 0x35def4cf
+  Valid from Sat Aug 22 18:41:51 CEST 1998 until Wed Aug 22 18:41:51 CEST 2018
+
+adding as trusted cert:
+  Subject: CN=Chambers of Commerce Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Issuer:  CN=Chambers of Commerce Root - 2008, O=AC Camerfirma S.A., SERIALNUMBER=A82743287, L=Madrid (see current address at www.camerfirma.com/address), C=EU
+  Algorithm: RSA; Serial number: 0xa3da427ea4b1aeda
+  Valid from Fri Aug 01 14:29:50 CEST 2008 until Sat Jul 31 14:29:50 CEST 2038
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 2 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 2 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x6170cb498c5f984529e7b0a6d9505b7a
+  Valid from Fri Oct 01 02:00:00 CEST 1999 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=AAA Certificate Services, O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+  Issuer:  CN=AAA Certificate Services, O=Comodo CA Limited, L=Salford, ST=Greater Manchester, C=GB
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Thu Jan 01 01:00:00 CET 2004 until Mon Jan 01 00:59:59 CET 2029
+
+adding as trusted cert:
+  Subject: CN=Equifax Secure eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Issuer:  CN=Equifax Secure eBusiness CA-1, O=Equifax Secure Inc., C=US
+  Algorithm: RSA; Serial number: 0x4
+  Valid from Mon Jun 21 06:00:00 CEST 1999 until Sun Jun 21 06:00:00 CEST 2020
+
+adding as trusted cert:
+  Subject: OU=Starfield Class 2 Certification Authority, O="Starfield Technologies, Inc.", C=US
+  Issuer:  OU=Starfield Class 2 Certification Authority, O="Starfield Technologies, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Jun 29 19:39:16 CEST 2004 until Thu Jun 29 19:39:16 CEST 2034
+
+adding as trusted cert:
+  Subject: OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 1 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Issuer:  OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 1 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x4cc7eaaa983e71d39310f83d3a899192
+  Valid from Mon May 18 02:00:00 CEST 1998 until Wed Aug 02 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Subject: CN=DigiCert Assured ID Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Issuer:  CN=DigiCert Assured ID Root CA, OU=www.digicert.com, O=DigiCert Inc, C=US
+  Algorithm: RSA; Serial number: 0xce7e0e517d846fe8fe560fc1bf03039
+  Valid from Fri Nov 10 01:00:00 CET 2006 until Mon Nov 10 01:00:00 CET 2031
+
+adding as trusted cert:
+  Subject: CN=GlobalSign Root CA, OU=Root CA, O=GlobalSign nv-sa, C=BE
+  Issuer:  CN=GlobalSign Root CA, OU=Root CA, O=GlobalSign nv-sa, C=BE
+  Algorithm: RSA; Serial number: 0x40000000001154b5ac394
+  Valid from Tue Sep 01 14:00:00 CEST 1998 until Fri Jan 28 13:00:00 CET 2028
+
+adding as trusted cert:
+  Subject: OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 3 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Issuer:  OU=VeriSign Trust Network, OU="(c) 1998 VeriSign, Inc. - For authorized use only", OU=Class 3 Public Primary Certification Authority - G2, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x7dd9fe07cfa81eb7107967fba78934c6
+  Valid from Mon May 18 02:00:00 CEST 1998 until Wed Aug 02 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Subject: CN=QuoVadis Root CA 3, O=QuoVadis Limited, C=BM
+  Issuer:  CN=QuoVadis Root CA 3, O=QuoVadis Limited, C=BM
+  Algorithm: RSA; Serial number: 0x5c6
+  Valid from Fri Nov 24 20:11:23 CET 2006 until Mon Nov 24 20:06:44 CET 2031
+
+adding as trusted cert:
+  Subject: CN=Certum CA, O=Unizeto Sp. z o.o., C=PL
+  Issuer:  CN=Certum CA, O=Unizeto Sp. z o.o., C=PL
+  Algorithm: RSA; Serial number: 0x10020
+  Valid from Tue Jun 11 12:46:39 CEST 2002 until Fri Jun 11 12:46:39 CEST 2027
+
+adding as trusted cert:
+  Subject: CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R2
+  Issuer:  CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R2
+  Algorithm: RSA; Serial number: 0x400000000010f8626e60d
+  Valid from Fri Dec 15 09:00:00 CET 2006 until Wed Dec 15 09:00:00 CET 2021
+
+adding as trusted cert:
+  Subject: EMAILADDRESS=premium-server@thawte.com, CN=Thawte Premium Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Issuer:  EMAILADDRESS=premium-server@thawte.com, CN=Thawte Premium Server CA, OU=Certification Services Division, O=Thawte Consulting cc, L=Cape Town, ST=Western Cape, C=ZA
+  Algorithm: RSA; Serial number: 0x36122296c5e338a520a1d25f4cd70954
+  Valid from Thu Aug 01 02:00:00 CEST 1996 until Sat Jan 02 00:59:59 CET 2021
+
+adding as trusted cert:
+  Subject: CN=Chambers of Commerce Root, OU=http://www.chambersign.org, O=AC Camerfirma SA CIF A82743287, C=EU
+  Issuer:  CN=Chambers of Commerce Root, OU=http://www.chambersign.org, O=AC Camerfirma SA CIF A82743287, C=EU
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Sep 30 18:13:43 CEST 2003 until Wed Sep 30 18:13:44 CEST 2037
+
+adding as trusted cert:
+  Subject: CN=Entrust Root Certification Authority - G2, OU="(c) 2009 Entrust, Inc. - for authorized use only", OU=See www.entrust.net/legal-terms, O="Entrust, Inc.", C=US
+  Issuer:  CN=Entrust Root Certification Authority - G2, OU="(c) 2009 Entrust, Inc. - for authorized use only", OU=See www.entrust.net/legal-terms, O="Entrust, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x4a538c28
+  Valid from Tue Jul 07 19:25:54 CEST 2009 until Sat Dec 07 18:55:54 CET 2030
+
+adding as trusted cert:
+  Subject: CN=Class 3P Primary CA, O=Certplus, C=FR
+  Issuer:  CN=Class 3P Primary CA, O=Certplus, C=FR
+  Algorithm: RSA; Serial number: 0xbf5cdbb6f21c6ec04deb7a023b36e879
+  Valid from Wed Jul 07 19:10:00 CEST 1999 until Sun Jul 07 01:59:59 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 3 Public Primary Certification Authority - G5, OU="(c) 2006 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 3 Public Primary Certification Authority - G5, OU="(c) 2006 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x18dad19e267de8bb4a2158cdcc6b3b4a
+  Valid from Wed Nov 08 01:00:00 CET 2006 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=VeriSign Universal Root Certification Authority, OU="(c) 2008 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Universal Root Certification Authority, OU="(c) 2008 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x401ac46421b31321030ebbe4121ac51d
+  Valid from Wed Apr 02 02:00:00 CEST 2008 until Wed Dec 02 00:59:59 CET 2037
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Global CA, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Global CA, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x23456
+  Valid from Tue May 21 06:00:00 CEST 2002 until Sat May 21 06:00:00 CEST 2022
+
+adding as trusted cert:
+  Subject: OU=Class 3 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Issuer:  OU=Class 3 Public Primary Certification Authority, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x3c9131cb1ff6d01b0e9ab8d044bf12be
+  Valid from Mon Jan 29 01:00:00 CET 1996 until Thu Aug 03 01:59:59 CEST 2028
+
+adding as trusted cert:
+  Subject: CN=Certum Trusted Network CA, OU=Certum Certification Authority, O=Unizeto Technologies S.A., C=PL
+  Issuer:  CN=Certum Trusted Network CA, OU=Certum Certification Authority, O=Unizeto Technologies S.A., C=PL
+  Algorithm: RSA; Serial number: 0x444c0
+  Valid from Wed Oct 22 14:07:37 CEST 2008 until Mon Dec 31 13:07:37 CET 2029
+
+adding as trusted cert:
+  Subject: OU=Security Communication RootCA1, O=SECOM Trust.net, C=JP
+  Issuer:  OU=Security Communication RootCA1, O=SECOM Trust.net, C=JP
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Sep 30 06:20:49 CEST 2003 until Sat Sep 30 06:20:49 CEST 2023
+
+adding as trusted cert:
+  Subject: CN=Sonera Class1 CA, O=Sonera, C=FI
+  Issuer:  CN=Sonera Class1 CA, O=Sonera, C=FI
+  Algorithm: RSA; Serial number: 0x24
+  Valid from Fri Apr 06 12:49:13 CEST 2001 until Tue Apr 06 12:49:13 CEST 2021
+
+adding as trusted cert:
+  Subject: OU=Go Daddy Class 2 Certification Authority, O="The Go Daddy Group, Inc.", C=US
+  Issuer:  OU=Go Daddy Class 2 Certification Authority, O="The Go Daddy Group, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Jun 29 19:06:20 CEST 2004 until Thu Jun 29 19:06:20 CEST 2034
+
+adding as trusted cert:
+  Subject: CN=UTN-USERFirst-Client Authentication and Email, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN-USERFirst-Client Authentication and Email, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x44be0c8b500024b411d336252567c989
+  Valid from Fri Jul 09 19:28:50 CEST 1999 until Tue Jul 09 19:36:58 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=UTN-USERFirst-Hardware, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN-USERFirst-Hardware, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x24
+  Valid from Fri Apr 06 12:49:13 CEST 2001 until Tue Apr 06 12:49:13 CEST 2021
+
+adding as trusted cert:
+  Subject: OU=Go Daddy Class 2 Certification Authority, O="The Go Daddy Group, Inc.", C=US
+  Issuer:  OU=Go Daddy Class 2 Certification Authority, O="The Go Daddy Group, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Tue Jun 29 19:06:20 CEST 2004 until Thu Jun 29 19:06:20 CEST 2034
+
+adding as trusted cert:
+  Subject: CN=UTN-USERFirst-Client Authentication and Email, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN-USERFirst-Client Authentication and Email, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x44be0c8b500024b411d336252567c989
+  Valid from Fri Jul 09 19:28:50 CEST 1999 until Tue Jul 09 19:36:58 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=UTN-USERFirst-Hardware, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN-USERFirst-Hardware, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x44be0c8b500024b411d3362afe650afd
+  Valid from Fri Jul 09 20:10:42 CEST 1999 until Tue Jul 09 20:19:22 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Primary Certification Authority, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Primary Certification Authority, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x18acb56afd69b6153a636cafdafac4a1
+  Valid from Mon Nov 27 01:00:00 CET 2006 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R3
+  Issuer:  CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R3
+  Algorithm: RSA; Serial number: 0x4000000000121585308a2
+  Valid from Wed Mar 18 11:00:00 CET 2009 until Sun Mar 18 11:00:00 CET 2029
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Primary Certification Authority - G2, OU=(c) 2007 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Primary Certification Authority - G2, OU=(c) 2007 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Algorithm: EC; Serial number: 0x3cb2f4480a00e2feeb243b5e603ec36b
+  Valid from Mon Nov 05 01:00:00 CET 2007 until Tue Jan 19 00:59:59 CET 2038
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 1 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 1 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x8b5b75568454850b00cfaf3848ceb1a4
+  Valid from Fri Oct 01 02:00:00 CEST 1999 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=America Online Root Certification Authority 1, O=America Online Inc., C=US
+  Issuer:  CN=America Online Root Certification Authority 1, O=America Online Inc., C=US
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 28 08:00:00 CEST 2002 until Thu Nov 19 21:43:00 CET 2037
+
+adding as trusted cert:
+  Subject: OU=Security Communication RootCA2, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Issuer:  OU=Security Communication RootCA2, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Fri May 29 07:00:39 CEST 2009 until Tue May 29 07:00:39 CEST 2029
+
+adding as trusted cert:
+  Subject: CN=Thawte Timestamping CA, OU=Thawte Certification, O=Thawte, L=Durbanville, ST=Western Cape, C=ZA
+  Issuer:  CN=Thawte Timestamping CA, OU=Thawte Certification, O=Thawte, L=Durbanville, ST=Western Cape, C=ZA
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Wed Jan 01 01:00:00 CET 1997 until Fri Jan 01 00:59:59 CET 2021
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Primary Certification Authority - G3, OU=(c) 2008 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Primary Certification Authority - G3, OU=(c) 2008 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x15ac6e9419b2794b41f627a9c3180f1f
+  Valid from Wed Apr 02 02:00:00 CEST 2008 until Wed Dec 02 00:59:59 CET 2037
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 3 Public Primary Certification Authority - G4, OU="(c) 2007 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 3 Public Primary Certification Authority - G4, OU="(c) 2007 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: EC; Serial number: 0x2f80fe238c0e220f486712289187acb3
+  Valid from Mon Nov 05 01:00:00 CET 2007 until Tue Jan 19 00:59:59 CET 2038
+
+adding as trusted cert:
+  Subject: CN=UTN-USERFirst-Object, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN-USERFirst-Object, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x44be0c8b500024b411d3362de0b35f1b
+  Valid from Fri Jul 09 20:31:20 CEST 1999 until Tue Jul 09 20:40:36 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=UTN - DATACorp SGC, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN - DATACorp SGC, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x44be0c8b500021b411d32a6806a9ad69
+  Valid from Thu Jun 24 20:57:21 CEST 1999 until Mon Jun 24 21:06:30 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=Sonera Class2 CA, O=Sonera, C=FI
+  Issuer:  CN=Sonera Class2 CA, O=Sonera, C=FI
+  Algorithm: RSA; Serial number: 0x1d
+  Valid from Fri Apr 06 09:29:40 CEST 2001 until Tue Apr 06 09:29:40 CEST 2021
+
+adding as trusted cert:
+  Subject: CN=TC TrustCenter Class 2 CA II, OU=TC TrustCenter Class 2 CA, O=TC TrustCenter GmbH, C=DE
+  Issuer:  CN=TC TrustCenter Class 2 CA II, OU=TC TrustCenter Class 2 CA, O=TC TrustCenter GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x2e6a000100021fd752212c115c3b
+  Valid from Thu Jan 12 15:38:43 CET 2006 until Wed Dec 31 23:59:59 CET 2025
+
+trigger seeding of SecureRandom
+done seeding SecureRandom
+Using SSLEngineImpl.
+  Algorithm: RSA; Serial number: 0x44be0c8b500024b411d3362afe650afd
+  Valid from Fri Jul 09 20:10:42 CEST 1999 until Tue Jul 09 20:19:22 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Primary Certification Authority, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Primary Certification Authority, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x18acb56afd69b6153a636cafdafac4a1
+  Valid from Mon Nov 27 01:00:00 CET 2006 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R3
+  Issuer:  CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R3
+  Algorithm: RSA; Serial number: 0x4000000000121585308a2
+  Valid from Wed Mar 18 11:00:00 CET 2009 until Sun Mar 18 11:00:00 CET 2029
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Primary Certification Authority - G2, OU=(c) 2007 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Primary Certification Authority - G2, OU=(c) 2007 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Algorithm: EC; Serial number: 0x3cb2f4480a00e2feeb243b5e603ec36b
+  Valid from Mon Nov 05 01:00:00 CET 2007 until Tue Jan 19 00:59:59 CET 2038
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 1 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 1 Public Primary Certification Authority - G3, OU="(c) 1999 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: RSA; Serial number: 0x8b5b75568454850b00cfaf3848ceb1a4
+  Valid from Fri Oct 01 02:00:00 CEST 1999 until Thu Jul 17 01:59:59 CEST 2036
+
+adding as trusted cert:
+  Subject: CN=America Online Root Certification Authority 1, O=America Online Inc., C=US
+  Issuer:  CN=America Online Root Certification Authority 1, O=America Online Inc., C=US
+  Algorithm: RSA; Serial number: 0x1
+  Valid from Tue May 28 08:00:00 CEST 2002 until Thu Nov 19 21:43:00 CET 2037
+
+adding as trusted cert:
+  Subject: OU=Security Communication RootCA2, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Issuer:  OU=Security Communication RootCA2, O="SECOM Trust Systems CO.,LTD.", C=JP
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Fri May 29 07:00:39 CEST 2009 until Tue May 29 07:00:39 CEST 2029
+
+adding as trusted cert:
+  Subject: CN=Thawte Timestamping CA, OU=Thawte Certification, O=Thawte, L=Durbanville, ST=Western Cape, C=ZA
+  Issuer:  CN=Thawte Timestamping CA, OU=Thawte Certification, O=Thawte, L=Durbanville, ST=Western Cape, C=ZA
+  Algorithm: RSA; Serial number: 0x0
+  Valid from Wed Jan 01 01:00:00 CET 1997 until Fri Jan 01 00:59:59 CET 2021
+
+adding as trusted cert:
+  Subject: CN=GeoTrust Primary Certification Authority - G3, OU=(c) 2008 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Issuer:  CN=GeoTrust Primary Certification Authority - G3, OU=(c) 2008 GeoTrust Inc. - For authorized use only, O=GeoTrust Inc., C=US
+  Algorithm: RSA; Serial number: 0x15ac6e9419b2794b41f627a9c3180f1f
+  Valid from Wed Apr 02 02:00:00 CEST 2008 until Wed Dec 02 00:59:59 CET 2037
+
+adding as trusted cert:
+  Subject: CN=VeriSign Class 3 Public Primary Certification Authority - G4, OU="(c) 2007 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Issuer:  CN=VeriSign Class 3 Public Primary Certification Authority - G4, OU="(c) 2007 VeriSign, Inc. - For authorized use only", OU=VeriSign Trust Network, O="VeriSign, Inc.", C=US
+  Algorithm: EC; Serial number: 0x2f80fe238c0e220f486712289187acb3
+  Valid from Mon Nov 05 01:00:00 CET 2007 until Tue Jan 19 00:59:59 CET 2038
+
+adding as trusted cert:
+  Subject: CN=UTN-USERFirst-Object, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN-USERFirst-Object, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x44be0c8b500024b411d3362de0b35f1b
+  Valid from Fri Jul 09 20:31:20 CEST 1999 until Tue Jul 09 20:40:36 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=UTN - DATACorp SGC, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Issuer:  CN=UTN - DATACorp SGC, OU=http://www.usertrust.com, O=The USERTRUST Network, L=Salt Lake City, ST=UT, C=US
+  Algorithm: RSA; Serial number: 0x44be0c8b500021b411d32a6806a9ad69
+  Valid from Thu Jun 24 20:57:21 CEST 1999 until Mon Jun 24 21:06:30 CEST 2019
+
+adding as trusted cert:
+  Subject: CN=Sonera Class2 CA, O=Sonera, C=FI
+  Issuer:  CN=Sonera Class2 CA, O=Sonera, C=FI
+  Algorithm: RSA; Serial number: 0x1d
+  Valid from Fri Apr 06 09:29:40 CEST 2001 until Tue Apr 06 09:29:40 CEST 2021
+
+adding as trusted cert:
+  Subject: CN=TC TrustCenter Class 2 CA II, OU=TC TrustCenter Class 2 CA, O=TC TrustCenter GmbH, C=DE
+  Issuer:  CN=TC TrustCenter Class 2 CA II, OU=TC TrustCenter Class 2 CA, O=TC TrustCenter GmbH, C=DE
+  Algorithm: RSA; Serial number: 0x2e6a000100021fd752212c115c3b
+  Valid from Thu Jan 12 15:38:43 CET 2006 until Wed Dec 31 23:59:59 CET 2025
+
+trigger seeding of SecureRandom
+done seeding SecureRandom
+Using SSLEngineImpl.
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA
+Ignoring unavailable cipher suite: TLS_DHE_DSS_WITH_AES_256_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_RSA_WITH_AES_256_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_DHE_DSS_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+Ignoring unavailable cipher suite: TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA
+Ignoring unavailable cipher suite: TLS_DHE_DSS_WITH_AES_256_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_RC4_128_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_RSA_WITH_AES_256_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_DHE_DSS_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384
+Ignoring unavailable cipher suite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256
+Ignoring unavailable cipher suite: TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_RSA_WITH_AES_256_CBC_SHA
+Ignoring unavailable cipher suite: TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+Allow unsafe renegotiation: false
+Allow legacy hello messages: true
+Is initial handshake: true
+Is secure renegotiation: false
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for SSLv2Hello
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for SSLv2Hello
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for SSLv2Hello
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for SSLv3
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for SSLv3
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for SSLv3
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for TLSv1
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for TLSv1
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for TLSv1
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for TLSv1.1
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for TLSv1.1
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for TLSv1.1
+[nioEventLoopGroup-3-2] DEBUG io.netty.util.ResourceLeakDetector - -Dio.netty.leakDetectionLevel: simple
+nioEventLoopGroup-3-2, READ: TLSv1 Handshake, length = 222
+*** ClientHello, TLSv1.2
+RandomCookie:  GMT: 1375373607 bytes = { 143, 126, 107, 14, 168, 237, 68, 184, 118, 199, 10, 152, 239, 54, 161, 226, 41, 143, 226, 229, 17, 73, 10, 120, 80, 20, 134, 254 }
+Session ID:  {82, 251, 136, 223, 165, 51, 149, 133, 159, 155, 37, 73, 207, 227, 167, 158, 102, 51, 59, 61, 16, 17, 163, 103, 218, 201, 131, 207, 126, 91, 78, 160}
+Cipher Suites: [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_DHE_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, SSL_RSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_MD5, TLS_RSA_WITH_AES_128_CBC_SHA, SSL_RSA_WITH_3DES_EDE_CBC_SHA]
+Compression Methods:  { 0 }
+Extension server_name, server_name: [host_name: localhost]
+Extension renegotiation_info, renegotiated_connection: <empty>
+Extension elliptic_curves, curve names: {secp256r1, secp384r1, secp521r1}
+Extension ec_point_formats, formats: [uncompressed]
+Unsupported extension type_35, data:
+Extension next_protocol_negotiation, protocols: []
+Unsupported extension type_16, data: 00:20:06:73:70:64:79:2f:32:06:73:70:64:79:2f:33:08:73:70:64:79:2f:33:2e:31:08:68:74:74:70:2f:31:2e:31
+Extension signature_algorithms, signature_algorithms: SHA256withRSA, SHA384withRSA, SHA1withRSA, SHA256withECDSA, SHA384withECDSA, SHA1withECDSA, Unknown (hash:0x4, signature:0x2), SHA1withDSA
+***
+%% Initialized:  [Session-1, SSL_NULL_WITH_NULL_NULL]
+matching alias: sync
+%% Negotiating:  [Session-1, TLS_DHE_RSA_WITH_AES_128_CBC_SHA]
+*** ServerHello, TLSv1.2
+RandomCookie:  GMT: 1375373608 bytes = { 95, 132, 160, 43, 168, 107, 63, 66, 120, 220, 239, 229, 243, 97, 241, 245, 32, 18, 90, 59, 202, 232, 45, 188, 130, 204, 134, 236 }
+Session ID:  {82, 251, 137, 40, 108, 233, 110, 123, 88, 224, 128, 191, 25, 229, 218, 250, 241, 13, 178, 73, 20, 250, 175, 6, 109, 172, 234, 18, 142, 57, 31, 219}
+Cipher Suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+Compression Method: 0
+Extension renegotiation_info, renegotiated_connection: <empty>
+***
+Cipher suite:  TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+*** Certificate chain
+[S] NPN received for 1f8972cf[SSLEngine[hostname=null port=-1] SSL_NULL_WITH_NULL_NULL]
+[S] NPN protocols [spdy/3.1, spdy/3, http/1.1] sent to client for 1f8972cf[SSLEngine[hostname=null port=-1] SSL_NULL_WITH_NULL_NULL]
+Allow unsafe renegotiation: false
+Allow legacy hello messages: true
+Is initial handshake: true
+Is secure renegotiation: false
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for SSLv2Hello
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for SSLv2Hello
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for SSLv2Hello
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for SSLv3
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for SSLv3
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for SSLv3
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for TLSv1
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for TLSv1
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for TLSv1
+Ignoring unsupported cipher suite: TLS_RSA_WITH_AES_128_CBC_SHA256 for TLSv1.1
+Ignoring unsupported cipher suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 for TLSv1.1
+Ignoring unsupported cipher suite: TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 for TLSv1.1
+chain [0] = [
+[
+  Version: V3
+  Subject: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  Signature Algorithm: SHA256withRSA, OID = 1.2.840.113549.1.1.11
+
+  Key:  Sun RSA public key, 2048 bits
+  modulus: 17121749394535136124875457776385597159475145202575927117723167132489767408913816862081297294431358629734682967605016774563990839880497485379696514279826600159849817800122227731445515140505754664223730492667542146012877953886613866444146103656498220834824405388009499366749217131502972681885054808633839331020660485587193360575908398037768968459835805306727084316570681334999131813897053754114737545141536160077636656720693768735029857163676750155472764502999263069979763612734087873395011484034860427700000438218985329788707554510577024036678891924286774179301723067433640907110053014845590437094763271386156512522153
+  public exponent: 65537
+  Validity: [From: Wed Feb 12 14:39:51 CET 2014,
+               To: Sat Feb 07 14:39:51 CET 2015]
+  Issuer: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  SerialNumber: [    693bd861]
+
+Certificate Extensions: 1
+[1]: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: AF EF 21 71 5E EF 92 6D   8F 87 0D 3A B1 CE 49 59  ..!q^..m...:..IY
+0010: 97 F1 E3 AA                                        ....
+]
+]
+
+]
+  Algorithm: [SHA256withRSA]
+  Signature:
+0000: 08 23 00 85 C1 AC 48 5D   C1 73 4E 8F 07 C6 34 8A  .#....H].sN...4.
+0010: 12 11 AE 1C B4 59 1C F8   EC 8F B1 36 15 7F 99 51  .....Y.....6...Q
+0020: E0 9B 9C 7B 27 6B 8B 43   45 77 0A B4 D9 0E F4 A3  ....'k.CEw......
+0030: ED DD 1A BC 5C F7 D3 DD   1E 99 6E FF D1 EF 37 D5  ....\.....n...7.
+0040: F9 00 F1 F9 AD 53 C4 2F   9B C3 13 B6 F3 89 CC AA  .....S./........
+0050: 12 B2 2B 84 D2 B3 40 9B   65 AC AB FC 78 8F F6 C7  ..+...@.e...x...
+0060: 0D DD C5 A1 52 1B 7D 72   0C 24 49 83 B8 6C E5 17  ....R..r.$I..l..
+0070: A4 75 4C 29 C3 A3 3F E5   8C 92 5A C9 3A 31 16 2A  .uL)..?...Z.:1.*
+0080: EB 51 0B 49 37 DE 24 A5   14 60 26 30 7F 76 26 7A  .Q.I7.$..`&0.v&z
+0090: 00 C4 43 F5 26 9B AA 79   81 82 E5 EF C0 3F 7A 14  ..C.&..y.....?z.
+00A0: 60 BB 1A DF 3B 75 4E 87   99 2A BB F7 9B E3 3F 4F  `...;uN..*....?O
+00B0: 1B 3D CD D9 BF F2 75 3D   34 5C A3 95 BC 88 48 D4  .=....u=4\....H.
+00C0: AC 87 B3 BC 59 30 80 B4   6C D4 AD 77 EA 44 95 B4  ....Y0..l..w.D..
+00D0: 7C 95 9A C5 80 2F 26 9E   6C 49 98 40 ED D4 E3 10  ...../&.lI.@....
+00E0: 99 5B 7E BF FA BA 30 F2   D0 52 EC F5 4E 20 26 7A  .[....0..R..N &z
+00F0: 4B 19 F6 11 A5 D6 44 F1   1A 90 4F AC A7 00 CE 0B  K.....D...O.....
+
+]
+***
+nioEventLoopGroup-3-1, READ: TLSv1 Handshake, length = 194
+*** ClientHello, TLSv1.2
+RandomCookie:  GMT: 1375373607 bytes = { 58, 157, 28, 152, 134, 186, 127, 237, 182, 29, 92, 244, 150, 165, 143, 224, 187, 69, 23, 95, 112, 116, 35, 93, 27, 116, 49, 166 }
+Session ID:  {}
+Cipher Suites: [TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_DHE_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, SSL_RSA_WITH_RC4_128_SHA, SSL_RSA_WITH_RC4_128_MD5, TLS_RSA_WITH_AES_128_CBC_SHA, SSL_RSA_WITH_3DES_EDE_CBC_SHA]
+Compression Methods:  { 0 }
+Extension server_name, server_name: [host_name: localhost]
+Extension renegotiation_info, renegotiated_connection: <empty>
+Extension elliptic_curves, curve names: {secp256r1, secp384r1, secp521r1}
+Extension ec_point_formats, formats: [uncompressed]
+Unsupported extension type_35, data:
+Extension next_protocol_negotiation, protocols: []
+Unsupported extension type_16, data: 00:20:06:73:70:64:79:2f:32:06:73:70:64:79:2f:33:08:73:70:64:79:2f:33:2e:31:08:68:74:74:70:2f:31:2e:31
+Unsupported extension type_30031, data:
+Extension signature_algorithms, signature_algorithms: SHA256withRSA, SHA384withRSA, SHA1withRSA, SHA256withECDSA, SHA384withECDSA, SHA1withECDSA, Unknown (hash:0x4, signature:0x2), SHA1withDSA
+***
+%% Initialized:  [Session-2, SSL_NULL_WITH_NULL_NULL]
+matching alias: sync
+[S] NPN received for 20d107d6[SSLEngine[hostname=null port=-1] SSL_NULL_WITH_NULL_NULL]
+[S] NPN protocols [spdy/3.1, spdy/3, http/1.1] sent to client for 20d107d6[SSLEngine[hostname=null port=-1] SSL_NULL_WITH_NULL_NULL]
+%% Negotiating:  [Session-2, TLS_DHE_RSA_WITH_AES_128_CBC_SHA]
+*** ServerHello, TLSv1.2
+RandomCookie:  GMT: 1375373608 bytes = { 226, 108, 203, 8, 54, 59, 52, 217, 32, 156, 70, 96, 169, 77, 4, 112, 66, 214, 154, 133, 224, 43, 153, 59, 210, 254, 21, 151 }
+Session ID:  {82, 251, 137, 40, 12, 31, 219, 42, 190, 40, 230, 157, 158, 110, 219, 69, 172, 107, 185, 176, 241, 246, 239, 48, 81, 158, 55, 5, 18, 137, 157, 191}
+Cipher Suite: TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+Compression Method: 0
+Extension renegotiation_info, renegotiated_connection: <empty>
+***
+Cipher suite:  TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+*** Certificate chain
+chain [0] = [
+[
+  Version: V3
+  Subject: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  Signature Algorithm: SHA256withRSA, OID = 1.2.840.113549.1.1.11
+
+  Key:  Sun RSA public key, 2048 bits
+  modulus: 17121749394535136124875457776385597159475145202575927117723167132489767408913816862081297294431358629734682967605016774563990839880497485379696514279826600159849817800122227731445515140505754664223730492667542146012877953886613866444146103656498220834824405388009499366749217131502972681885054808633839331020660485587193360575908398037768968459835805306727084316570681334999131813897053754114737545141536160077636656720693768735029857163676750155472764502999263069979763612734087873395011484034860427700000438218985329788707554510577024036678891924286774179301723067433640907110053014845590437094763271386156512522153
+  public exponent: 65537
+  Validity: [From: Wed Feb 12 14:39:51 CET 2014,
+               To: Sat Feb 07 14:39:51 CET 2015]
+  Issuer: CN=Daniel Bevenius, OU=AeroGear, O=Red Hat, L=Stockholm, ST=Stockholm, C=SE
+  SerialNumber: [    693bd861]
+
+Certificate Extensions: 1
+[1]: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: AF EF 21 71 5E EF 92 6D   8F 87 0D 3A B1 CE 49 59  ..!q^..m...:..IY
+0010: 97 F1 E3 AA                                        ....
+]
+]
+
+]
+  Algorithm: [SHA256withRSA]
+  Signature:
+0000: 08 23 00 85 C1 AC 48 5D   C1 73 4E 8F 07 C6 34 8A  .#....H].sN...4.
+0010: 12 11 AE 1C B4 59 1C F8   EC 8F B1 36 15 7F 99 51  .....Y.....6...Q
+0020: E0 9B 9C 7B 27 6B 8B 43   45 77 0A B4 D9 0E F4 A3  ....'k.CEw......
+0030: ED DD 1A BC 5C F7 D3 DD   1E 99 6E FF D1 EF 37 D5  ....\.....n...7.
+0040: F9 00 F1 F9 AD 53 C4 2F   9B C3 13 B6 F3 89 CC AA  .....S./........
+0050: 12 B2 2B 84 D2 B3 40 9B   65 AC AB FC 78 8F F6 C7  ..+...@.e...x...
+0060: 0D DD C5 A1 52 1B 7D 72   0C 24 49 83 B8 6C E5 17  ....R..r.$I..l..
+0070: A4 75 4C 29 C3 A3 3F E5   8C 92 5A C9 3A 31 16 2A  .uL)..?...Z.:1.*
+0080: EB 51 0B 49 37 DE 24 A5   14 60 26 30 7F 76 26 7A  .Q.I7.$..`&0.v&z
+0090: 00 C4 43 F5 26 9B AA 79   81 82 E5 EF C0 3F 7A 14  ..C.&..y.....?z.
+00A0: 60 BB 1A DF 3B 75 4E 87   99 2A BB F7 9B E3 3F 4F  `...;uN..*....?O
+00B0: 1B 3D CD D9 BF F2 75 3D   34 5C A3 95 BC 88 48 D4  .=....u=4\....H.
+00C0: AC 87 B3 BC 59 30 80 B4   6C D4 AD 77 EA 44 95 B4  ....Y0..l..w.D..
+00D0: 7C 95 9A C5 80 2F 26 9E   6C 49 98 40 ED D4 E3 10  ...../&.lI.@....
+00E0: 99 5B 7E BF FA BA 30 F2   D0 52 EC F5 4E 20 26 7A  .[....0..R..N &z
+00F0: 4B 19 F6 11 A5 D6 44 F1   1A 90 4F AC A7 00 CE 0B  K.....D...O.....
+
+]
+***
+*** Diffie-Hellman ServerKeyExchange
+DH Modulus:  { 233, 230, 66, 89, 157, 53, 95, 55, 201, 127, 253, 53, 103, 18, 11, 142, 37, 201, 205, 67, 233, 39, 179, 169, 103, 15, 190, 197, 216, 144, 20, 25, 34, 210, 195, 179, 173, 36, 128, 9, 55, 153, 134, 157, 30, 132, 106, 171, 73, 250, 176, 173, 38, 210, 206, 106, 34, *** Diffie-Hellman ServerKeyExchange
+DH Modulus:  { 33, 233, 157, 230, 71, 66, 89, 11, 157, 53, 95, 55, 206, 201, 125, 127, 119, 253, 53, 103, 18, 11, 125, 142, 37, 201, 205, 6774, 33, 251, 233, 194, , 112, 233, 181, 39, 127, 179, 96, 169, 112, 2, 103, 243, 15, 206, 190, 248, 197, 57, 216, 54, 144, 148, 20, 207, 25, 69, 34, 210, 238, 54, 136, 193, 195, 26, 179, 140, 173, 86, 36, 171, 128, 18, 9, 122, 61, 175 }
+55, DH Base:  { 48, 153, 71, 134, 10, 157, 213, 30, 160, 132, 5, 106, 251, 171, 73, 250, 20, 176, 173, 38, 210, 206, 206, 45, 106, 157, 34, 205, 33, 135, 227, 139, 157, 199, 71, 11, 206, 125, 209, 119, 177, 125, 74, 33, 251, 197, 233, 194, 250, 112, 203, 181, 174, 127, 203, 96, 233, 112, 2, 243, 206, 248, 57, 54, 148, 207, 69, 238, 54, 136, 193, 26, 140, 86, 95, 171, 25, 18, 10, 122, 167, 61, 175 }
+DH Base:  { 163, 48, 71, 10, 213, 29, 160, 35, 5, 196, 219, 188, 190, 6, 23, 69, 68, 64, 26, 91, 44, 2, 9, 101, 216, 194, 189, 33, 113, 211, 102, 132, 69, 119, 31, 116, 186, 8, 77, 32, 41, 216, 60, 28, 21, 133, 71, 243, 169, 241, 162, 113, 91, 226, 61, 81, 174, 77, 62, 90, 31, 106, 112, 100, 243, 22, 147, 58, 52, 109, 63, 82, 146, 82 }
+Server DH Public Key:  { 127, 52, 95, 162, 244, 104, 32, 110, 176, 15, 59, 112, 80, 17, 113, 198, 165, 196, 235, 88, 106, 138, 151, 124, 145, 169, 236, 246, 176, 72, 201, 94, 107, 74, 102, 51, 247, 116, 235, 149, 31, 61, 255, 1, 222, 88, 25, 146, 4, 229, 63, 50, 39, 78, 185, 227, 189, 126, 184, 162, 244, 178, 45, 160, 18, 19, 217, 91, 112, 13, 28, 174, 135, 80, 182, 109, 45, 1, 68, 211, 128, 143, 120, 53, 82, 125, 144, 240, 236, 97, 173, 137, 52, 36, 240, 249 }
+Signature Algorithm SHA256withRSA
+Signed with a DSA or RSA public key
+*** ServerHelloDone
+251, 20, 206, 45, 157, 205, 135, 227, 139, 199, 209, 177, 197, 250, 203, 174, 203, 233, 95, 25, 10, 167, 163, 29, 35, 196, 219, 188, 190, 6, 23, 69, 68, 64, 26, 91, 44, 2, 9, 101, 216, 194, 189, 33, 113, 211, 102, 132, 69, 119, 31, 116, 186, 8, 77, 32, 41, 216, 60, 28, 21, 133, 71, 243, 169, 241, 162, 113, 91, 226, 61, 81, 174, 77, 62, 90, 31, 106, 112, 100, 243, 22, nioEventLoopGroup-3-1, WRITE: TLSv1.2 Handshake, length = 1589
+147, 58, 52, 109, 63, 82, 146, 82 }
+Server DH Public Key:  { 137, 199, 104, 114, 98, 149, 160, 71, 199, 121, 192, 54, 229, 97, 11, 242, 194, 83, 60, 200, 222, 100, 78, 44, 11, 124, 239, 177, 100, 249, 24, 111, 5, 136, 96, 195, 78, 227, 253, 85, 174, 89, 228, 254, 170, 20, 143, 229, 91, 38, 216, 35, 26, 193, 27, 202, 255, 68, 216, 93, 121, 86, 232, 113, 207, 225, 3, 173, 31, 247, 44, 62, 149, 207, 230, 206, 170, 172, 22, 10, 1, 222, 42, 154, 233, 167, 129, 53, 90, 146, 172, 57, 162, 62, 188, 178 }
+Signature Algorithm SHA256withRSA
+Signed with a DSA or RSA public key
+*** ServerHelloDone
+nioEventLoopGroup-3-2, WRITE: TLSv1.2 Handshake, length = 1589
+nioEventLoopGroup-3-1, READ: TLSv1.2 Handshake, length = 102
+*** ClientKeyExchange, DH
+DH Public key:  { 133, 189, 99, 190, 103, 178, 252, 50, 22, 19, 72, 183, 114, 232, 90, 241, 127, 172, 217, 169, 164, 120, 192, 163, 186, 148, 200, 106, 158, 51, 213, 167, 232, 114, 10, 49, 148, 151, 46, 252, 63, 19, 107, 96, 6, 149, 8, 130, 245, 200, 129, 156, 230, 205, 193, 6, 226, 120, 202, 91, 1, 218, 193, 113, 121, 30, 102, 246, 247, 222, 138, 148, 127, 118, 34, 178, 70, 72, 105, 225, 173, 43, 150, 64, 130, 146, 233, 190, 190, 14, 252, 45, 211, 48, 164, 37 }
+nioEventLoopGroup-3-2, READ: TLSv1.2 Handshake, length = 102
+*** ClientKeyExchange, DH
+DH Public key:  { 173, 172, 97, 255, 192, 68, 171, 164, 91, 176, 81, 214, 169, 50, 140, 71, 96, 70, 229, 4, 228, 25, 138, 60, 12, 94, 92, 119, 121, 49, 171, 19, 144, 119, 160, 251, 26, 37, 7, 241, 30, 26, 184, 115, 231, 244, 132, 193, 173, 82, 179, 192, 23, 92, 170, 37, 243, 116, 173, 86, 12, 96, 227, 40, 255, 125, 169, 167, 48, 80, 82, 253, 44, 33, 84, 208, 88, 14, 54, 152, 143, 145, 32, 247, 41, 181, 139, 118, 106, 25, 158, 185, 220, 160, 220, 229 }
+SESSION KEYGEN:
+PreMaster Secret:
+0000: 5E D9 C2 B1 2B F9 90 FC   6A 48 06 C4 E2 83 D4 6D  ^...+...jH.....m
+0010: 1A 5D 3C BA 6A 28 D7 22   17 63 BE 80 BE D2 00 63  .]<.j(.".c.....c
+0020: 67 C4 C7 81 AC 9E A3 BA   EB 7F 0C D2 1DSESSION KEYGEN:
+PreMaster Secret:
+ 70 FF0000 : DA46  42 g .BE. .F7. .D3. .08. .73. .5D.p .F  2
+08030 A0:  4695  4ECF 9 E38 B 726 B 215 1 74B 8 9  .BAA. .  .1A C9.s](.F..v%.
+0010: F0 5B 24 93 99 85 CD DB   20 0A F0 98 44 3E A4 8A  .[$..... ...D>..
+0020: 55 FD EF 5C D2 AD BE 1E   6D 80 52 D0 A6 6 624  E0F9 4A  61C7  83 U .7E.\ . ....m.R..b..
+0030: FF 50 EC 59 AC 21 DF 06   4E 59 9C C3L ....38. .C5. .d05. AJ8a . ..P
+.0Y040.: 86! .5A.NY .27.8 .3D. .D0
+ E07040 : 85BA EF  F677 8F  DD  2 449  2E07 A3  604F  73   52 93 9F7 4  .Z2'0= 8.4. 1Z0g)  .`s8R2. 19. 71
+ 2A0050 :  08. .BC. .28.D .O2t0  A.F. .33.q*
+080050 3: 1C0   EF 51 AD 5A 8F C5 24 D9   2B. 2.( 8. 453 .<D2.Q .Z8D. .$19.
+86   F3 B4 87 7F 9A 0D A7 2A  .+(E...........*
+CONNECTION KEYGEN:
+Client Nonce:
+0000: 52 FB 89 27 8F 7E 6B 0E   A8 ED 44 B8 76 C7 0A 98  R..'..k...D.v...
+0010: EF 36 A1 E2 29 8F E2 E5   11 49 0A 78 50 14 86 FE  .6..)....I.xP...
+Server Nonce:
+0000: 52 FB 89 28 5F 84 A0 2B   A8 6B 3F 42 78 DC EF E5  R..(_..+.k?Bx...
+0010: F3 61 F1 F5 20 12 5A 3B   CA E8 2D BC 82 CC 86 EC  .a.. .Z;..-.....
+Master Secret:
+0000: 62 F2 50 00 B0 3A 0A 4B   F5 9A 37 BA F4 D1 63 2C  b.P..:.K..7...c,
+0010: 14 90 0D E8 06 9B 02 29   52 B5 9A 47 E6 3C 71 AA  .......)R..G.<q.
+0020: AD 52 EF B2 29 F8 9F 86   6C 4B DF BB CB 1A 41 77  .R..)...lK....Aw
+Client MAC write Secret:
+0000: BE 80 96 B6 66 2E 60 B6   34 BA 36 D9 D7 9F 35 6A  ....f.`.4.6...5j
+0010: 87 24 8D 81                                        .$..
+Server MAC write Secret:
+0000: B6 48 0A 72 B9 5F 19 37   53 6F 58 9D 63 DB E7 BF  .H.r._.7SoX.c...
+0010: BF 27 10 76                                        .'.v
+Client write key:
+0000: 6D 05 A7 CE 6B F4 97 16   3D 88 75 99 4F 8B C8 2D  m...k...=.u.O..-
+Server write key:
+0000: EF 44 D6 BD FE 2D E5 D4   05 7D A4 D5 C9 95 E0 FE  .D...-..........
+... no IV derived for this protocol
+nioEventLoopGroup-3-2, READ: TLSv1.2 Change Cipher Spec, length = 1
+nioEventLoopGroup-3-2, READ: TLSv1.2 Handshake, length = 96
+*** Finished
+verify_data:  { 98, 135, 178, 20, 197, 134CONNECTION KEYGEN:
+Client Nonce:
+0000: 52 FB 89 27 3A 9D 1C 98   86 BA 7F ED B6 1D 5C F4  R..':.........\.
+0010: 96 A5 8F E0 BB 45 17 5F   70 74 23 5D 1B 74 31 A6  .....E._pt#].t1.
+Server Nonce:
+0000: 52 FB 89 28 E2 6C CB 08   36 3B 34 D9 20 9C 46 60  R..(.l..6;4. .F`
+0010: A9 4D 04 70 42 D6 9A 85   E0 2B 99 3B [S] NPN selected 'spdy/3.1' for 1f8972cf[SSLEngine[hostname=null port=-1] SSL_NULL_WITH_NULL_NULL]
+D2 FE 15 97  .M.pB....+.;....
+Master Secret:
+0000: D0 BA C1 85 25 E5 FA 1D   3B 92 91 34 74 B8 03 7E  ....%...;..4t...
+0010: 43 70 B4 D9 A9 B7 E4 46   39 CE 7C 93 B3 7E A7 14  Cp.....F9.......
+0020: 54 D8 65 30 47 1C 26 DE   CF D2 13 43 2E 97 C3 19  T.e0G.&....C....
+Client MAC write Secret:
+0000: 13 CA 8F 5A 1D C4 C7 B1   3F 52 4A D3 C5 85 39 93  ...Z....?RJ...9.
+0010: 52 88 BD 53                                        R..S
+Server MAC write Secret:
+0000: 55 A3 8F 8B 3A 57 43 7F   7A 34 52 FD DC BD 1C 73  U...:WC.z4R....s
+0010: 57 72 03 D7                                        Wr..
+Client write key:
+0000: C3 9A DD D6 AA A6 F9 D9   8B 85 20 B7 36 22 6C 93  .......... .6"l.
+Server write key:
+0000: C7 46 6E F6 C5 3E A3 06   64 0F AD 55 59 5E 42 67  .Fn..>..d..UY^Bg
+... no IV derived for this protocol
+nioEventLoopGroup-3-1, READ: TLSv1.2 Change Cipher Spec, length = 1
+, 27, 25, 226, 107, 179, 120 }
+***
+nioEventLoopGroup-3-1, READ: TLSv1.2 Handshake, length = 96
+*** Finished
+verify_data:  { 92, 15, 249, 43, 232, 34, 61, 106, 9, 8, 115, 158 }
+***
+nioEventLoopGroup-3-1, WRITE: TLSv1.2 Change Cipher Spec, length = 1
+nioEventLoopGroup-3-2, WRITE: TLSv1.2 Change Cipher Spec, length = 1
+*** Finished
+verify_data:  { 161, 22, 13, 108, 3, 40, 158, 88, 97, 82, 47, 71 }
+***
+nioEventLoopGroup-3-2, WRITE: TLSv1.2 Handshake, length = 64
+%% Cached server session: [Session-1, TLS_DHE_RSA_WITH_AES_128_CBC_SHA]
+*** Finished
+verify_data:  { 92, 137, 110, 133[S] NPN selected 'spdy/3.1' for 20d107d6[SSLEngine[hostname=null port=-1] SSL_NULL_WITH_NULL_NULL]
+, 159, 89, 231, 62, 114, 178, 191, 81 }
+***
+nioEventLoopGroup-3-1, WRITE: TLSv1.2 Handshake, length = 64
+%% Cached server session: [Session-2, TLS_DHE_RSA_WITH_AES_128_CBC_SHA]
+java.io.IOException: Connection reset by peer
+	at sun.nio.ch.FileDispatcherImpl.read0(Native Method)
+	at sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:39)
+	at sun.nio.ch.IOUtil.readIntoNativeBuffer(IOUtil.java:225)
+	at sun.nio.ch.IOUtil.read(IOUtil.java:193)
+	at sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:375)
+	at io.netty.buffer.UnpooledUnsafeDirectByteBuf.setBytes(UnpooledUnsafeDirectByteBuf.java:446)
+	at io.netty.buffer.AbstractByteBuf.writeBytes(AbstractByteBuf.java:871)
+	at io.netty.channel.socket.nio.NioSocketChannel.doReadBytes(NioSocketChannel.java:208)
+	at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:122)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:485)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:452)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:346)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:799)
+	at java.lang.Thread.run(Thread.java:724)
+java.io.IOException: Connection reset by peer
+	at sun.nio.ch.FileDispatcherImpl.read0(Native Method)
+	at sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:39)
+	at sun.nio.ch.IOUtil.readIntoNativeBuffer(IOUtil.java:225)
+	at sun.nio.ch.IOUtil.read(IOUtil.java:193)
+	at sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:375)
+	at io.netty.buffer.UnpooledUnsafeDirectByteBuf.setBytes(UnpooledUnsafeDirectByteBuf.java:446)
+	at io.netty.buffer.AbstractByteBuf.writeBytes(AbstractByteBuf.java:871)
+	at io.netty.channel.socket.nio.NioSocketChannel.doReadBytes(NioSocketChannel.java:208)
+	at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:122)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:485)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:452)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:346)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:799)
+	at java.lang.Thread.run(Thread.java:724)
+Caught exception in SpdyOrHttpHandler:
+Caught exception in SpdyOrHttpHandler:
+nioEventLoopGroup-3-2, called closeOutbound()
+nioEventLoopGroup-3-2, closeOutboundInternal()
+nioEventLoopGroup-3-2, SEND TLSv1.2 ALERT:  warning, description = close_notify
+nioEventLoopGroup-3-2, WRITE: TLSv1.2 Alert, length = 48
+nioEventLoopGroup-3-2, called closeInbound()
+nioEventLoopGroup-3-2, fatal error: 80: Inbound closed before receiving peer's close_notify: possible truncation attack?
+javax.net.ssl.SSLException: Inbound closed before receiving peer's close_notify: possible truncation attack?
+%% Invalidated:  [Session-1, TLS_DHE_RSA_WITH_AES_128_CBC_SHA]
+nioEventLoopGroup-3-2, SEND TLSv1.2 ALERT:  fatal, description = internal_error
+nioEventLoopGroup-3-2, Exception sending alert: java.io.IOException: writer side was already closed.
+nioEventLoopGroup-3-1, called closeOutbound()
+nioEventLoopGroup-3-1, closeOutboundInternal()
+nioEventLoopGroup-3-1, SEND TLSv1.2 ALERT:  warning, description = close_notify
+nioEventLoopGroup-3-1, WRITE: TLSv1.2 Alert, length = 48
+nioEventLoopGroup-3-1, called closeInbound()
+nioEventLoopGroup-3-1, fatal error: 80: Inbound closed before receiving peer's close_notify: possible truncation attack?
+javax.net.ssl.SSLException: Inbound closed before receiving peer's close_notify: possible truncation attack?
+%% Invalidated:  [Session-2, TLS_DHE_RSA_WITH_AES_128_CBC_SHA]
+nioEventLoopGroup-3-1, SEND TLSv1.2 ALERT:  fatal, description = internal_error
+nioEventLoopGroup-3-1, Exception sending alert: java.io.IOException: writer side was already closed.
+Feb 12, 2014 3:46:00 PM org.jboss.aerogear.sync.SpdyOrHttpHandler getProtocol
+INFO: Selected Protocol is SPDY_3_1
+Feb 12, 2014 3:46:00 PM org.jboss.aerogear.sync.SpdyOrHttpHandler getProtocol
+INFO: Selected Protocol is SPDY_3_1
+[nioEventLoopGroup-3-2] DEBUG io.netty.util.internal.JavassistTypeParameterMatcherGenerator - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.spdy.SpdyFrameMatcher
+[nioEventLoopGroup-3-1] DEBUG io.netty.util.internal.JavassistTypeParameterMatcherGenerator - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpObjectMatcher
+[nioEventLoopGroup-3-2] DEBUG io.netty.util.internal.JavassistTypeParameterMatcherGenerator - Generated: io.netty.util.internal.__matchers__.io.netty.handler.codec.http.HttpMessageMatcher
