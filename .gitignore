@@ -3,3 +3,6 @@ build/
 dist/
 *.swp
 bower_components
+*.iml
+.idea
+**/target

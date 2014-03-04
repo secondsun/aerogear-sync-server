@@ -69,10 +69,10 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
 
             boolean keepAlive = isKeepAlive(request);
             if (!keepAlive) {
-                ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             } else {
                 response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-                ctx.write(response);
+                ctx.writeAndFlush(response);
             }
         } else {
             ctx.fireChannelRead(msg);

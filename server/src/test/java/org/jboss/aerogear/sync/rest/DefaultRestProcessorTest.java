@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * This class uses Mock object as the underlying SyncManager implementation. When adding
- * tests please bar this in mind as you may need to specify the behaviour that your tests
+ * tests please bare this in mind as you may need to specify the behaviour that your tests
  * expect.
  */
 public class DefaultRestProcessorTest {
