@@ -22,7 +22,7 @@
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
-	<name>AeroGear Data Synchronization Parent</name>
+    <name>AeroGear Data Synchronization Parent</name>
     <url>http://aerogear.org/</url>
     <description>
         Data Synchronization Protocol.
@@ -35,8 +35,15 @@
     </parent>
 
     <properties>
-        <version.io.netty>5.0.0.Alpha2-SNAPSHOT</version.io.netty>
-        <version.ektorp>1.4.1</version.ektorp>
+        <netty.version>5.0.0.Alpha2-SNAPSHOT</netty.version>
+        <ektorp.version>1.4.1</ektorp.version>
+        <slf4j.version>1.7.5</slf4j.version>
+        <junit.version>4.11</junit.version>
+        <easytesting.version>1.4</easytesting.version>
+        <mockito.version>1.9.0</mockito.version>
+        <hibernate.version>4.2.2.Final</hibernate.version>
+        <hibernate.javax.persistence.version>1.0.1.Final</hibernate.javax.persistence.version>
+        <h2database.version>1.3.174</h2database.version>
     </properties>
 
     <modules>
@@ -54,35 +61,50 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>${version.io.netty}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ektorp</groupId>
                 <artifactId>org.ektorp</artifactId>
-                <version>${version.ektorp}</version>
+                <version>${ektorp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.5</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <scope>test</scope>
-                <version>4.11</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
             <groupId>org.easytesting</groupId>
                 <artifactId>fest-assert</artifactId>
-                <version>1.4</version>
+                <version>${easytesting.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>1.9.0</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-entitymanager</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>${hibernate.javax.persistence.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2database.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
