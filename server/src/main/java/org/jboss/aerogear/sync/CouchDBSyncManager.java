@@ -97,7 +97,7 @@ public class CouchDBSyncManager implements SyncManager {
     private static Map<String, String> asMap(final String id, final String revision, final String content) {
         final HashMap<String, String> map = new HashMap<String, String>();
         map.put("_id", id);
-        if (revision != null) {
+        if (revision != null && !"null".equals(revision)) {
             map.put("_rev", revision);
         }
         map.put("content", content);

@@ -125,7 +125,7 @@
                                 <argument>-Xbootclasspath/p:${project.build.directory}/npn/npn-boot-${npn.version}.jar</argument>
                                 <argument>-classpath</argument>
                                 <classpath/>
-                                <argument>org.jboss.aerogear.sync.Server</argument>
+                                <argument>org.jboss.aerogear.sync.rest.RestServer</argument>
                             </arguments>
                             <classpathScope>compile</classpathScope>
                             <systemProperties>

@@ -6,3 +6,5 @@ bower_components
 *.iml
 .idea
 **/target
+*.swo
+*.DS_Store

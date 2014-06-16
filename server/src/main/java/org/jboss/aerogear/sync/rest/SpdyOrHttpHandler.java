@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.rest;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,8 +22,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.cors.CorsHandler;
-import io.netty.handler.codec.spdy.SpdyFrameDecoder;
-import io.netty.handler.codec.spdy.SpdyFrameEncoder;
+import io.netty.handler.codec.spdy.SpdyFrameCodec;
 import io.netty.handler.codec.spdy.SpdyHttpDecoder;
 import io.netty.handler.codec.spdy.SpdyHttpEncoder;
 import io.netty.handler.codec.spdy.SpdyHttpResponseStreamIdHandler;
@@ -31,8 +30,7 @@ import io.netty.handler.codec.spdy.SpdyOrHttpChooser;
 import io.netty.handler.codec.spdy.SpdySessionHandler;
 import io.netty.handler.codec.spdy.SpdyVersion;
 import org.eclipse.jetty.npn.NextProtoNego;
-import org.jboss.aerogear.sync.rest.RestChannelHandler;
-import org.jboss.aerogear.sync.rest.RestProcessor;
+import org.jboss.aerogear.sync.SpdyServerProvider;
 
 import javax.net.ssl.SSLEngine;
 import java.util.logging.Logger;
@@ -78,8 +76,7 @@ public class SpdyOrHttpHandler extends SpdyOrHttpChooser {
      */
     protected void addSpdyHandlers(ChannelHandlerContext ctx, SpdyVersion version) {
         ChannelPipeline pipeline = ctx.pipeline();
-        pipeline.addLast("spdyDecoder", new SpdyFrameDecoder(version));
-        pipeline.addLast("spdyEncoder", new SpdyFrameEncoder(version));
+        pipeline.addLast("spdyFrameCodec", new SpdyFrameCodec(version));
         pipeline.addLast("spdySessionHandler", new SpdySessionHandler(version, true));
         pipeline.addLast("spdyHttpEncoder", new SpdyHttpEncoder(version));
         pipeline.addLast("spdyHttpDecoder", new SpdyHttpDecoder(version, maxSpdyContentLength));
@@ -97,7 +94,7 @@ public class SpdyOrHttpHandler extends SpdyOrHttpChooser {
         pipeline.addLast("httpResponseEncoder", new HttpResponseEncoder());
         pipeline.addLast("httpChunkAggregator", new HttpObjectAggregator(maxHttpContentLength));
         pipeline.addLast("corsHandler", corsHandler);
-        pipeline.addLast("httpRequestHandler", createHttpRequestHandlerForHttp());
+        pipeline.addLast("httpRequestHandler", new RestChannelHandler(restProcessor));
     }
 
     @Override

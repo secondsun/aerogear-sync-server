@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.sync.ds.server;
 
-import org.jboss.aerogear.sync.ds.ClientDocument;
 import org.jboss.aerogear.sync.ds.Document;
 import org.jboss.aerogear.sync.ds.Edits;
 import org.jboss.aerogear.sync.ds.ShadowDocument;

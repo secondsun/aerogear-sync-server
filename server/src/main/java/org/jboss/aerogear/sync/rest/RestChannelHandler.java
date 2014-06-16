@@ -37,7 +37,7 @@ import static io.netty.handler.codec.http.HttpMethod.PUT;
  */
 public class RestChannelHandler extends ChannelHandlerAdapter {
 
-    private Logger logger = LoggerFactory.getLogger(RestChannelHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(RestChannelHandler.class);
 
     private final RestProcessor restProcessor;
 
@@ -68,26 +68,19 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
             }
 
             boolean keepAlive = isKeepAlive(request);
-            if (!keepAlive) {
-                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-            } else {
+            if (keepAlive) {
                 response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
                 ctx.writeAndFlush(response);
+            } else {
+                ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
             }
         } else {
             ctx.fireChannelRead(msg);
         }
     }
 
-    /*
-    @Override
-    public void channelReadComplete(final ChannelHandlerContext ctx) {
-        ctx.flush();
-    }
-    */
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();;
+        logger.error("Caught : ", cause);
     }
 }

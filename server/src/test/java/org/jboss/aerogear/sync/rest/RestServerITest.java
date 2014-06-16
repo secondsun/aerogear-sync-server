@@ -30,7 +30,6 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import org.jboss.aerogear.sync.CouchDBSyncManager;
 import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.Document;
-import org.jboss.aerogear.sync.HttpServerInitializer;
 import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.SyncManager;
 import org.junit.AfterClass;
@@ -65,7 +64,7 @@ public class RestServerITest {
     @BeforeClass
     public static void startSimplePushServer() throws Exception {
         final ServerBootstrap sb = new ServerBootstrap();
-        final CorsConfig corsConfig = CorsConfig.anyOrigin().build();
+        final CorsConfig corsConfig = CorsConfig.withAnyOrigin().build();
         final SyncManager syncManager = new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test");
         sb.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         sb.childHandler(new HttpServerInitializer(corsConfig, syncManager));
