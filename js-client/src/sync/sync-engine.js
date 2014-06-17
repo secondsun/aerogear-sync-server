@@ -17,9 +17,10 @@ Sync.Engine = function () {
      * @param doc the document to add.
      */
     this.addDocument = function( doc ) {
-        saveDocument( doc );
-        saveShadow( doc );
-        saveShadowBackup( doc );
+        var clonedDoc = JSON.parse( JSON.stringify( doc ) );
+        saveDocument( clonedDoc );
+        saveShadow( clonedDoc );
+        saveShadowBackup( clonedDoc );
     };
 
     /**

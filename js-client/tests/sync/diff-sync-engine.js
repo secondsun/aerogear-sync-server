@@ -17,8 +17,7 @@
     test( 'diff document', function() {
         var engine = Sync.Engine();
         var doc = { id: 1234, clientId: 'client1', content: { name: 'Fletch' } };
-        engine.addDocument( { id: 1234, clientId: 'client1', content: { name: 'Fletch' } } );
-        //engine.addDocument( doc ); cannot be done as content is an object reference. Do I need to clone it before saving in the database?
+        engine.addDocument( doc );
 
         // update the name field
         doc.content.name = 'Mr.Poon';
