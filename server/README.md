@@ -66,6 +66,13 @@ A successful response will return a HTTP ```200``` with a body:
 
     mvn exec:exec -Prestserver
 
+The RestServer used SPDY which requires SSL/TLS, and we are currently using a self-signed certificate which has to
+be accepted/imported into the browser you are using. This can be done by simply pointing you browser to:
+
+    https://localhost:8080
+
+And then add an exception for the certificate.
+
 #### Differential Synchronization Server
 <a name="diffserver"></a>
 As mentioned in the overview this server is based on Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html)

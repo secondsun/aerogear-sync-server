@@ -24,6 +24,13 @@ Next, open the qunit test in a browser:
 
     open tests/sync/rest-sync-client.html
 
+The RestServer used SPDY which requires SSL/TLS, and we are currently using a self-signed certificate which has to
+be accepted/imported into the browser you are using. This can be done by simply pointing you browser to:
+
+    https://localhost:8080
+
+And then add an exception for the certificate.
+
 
 ### Testing the RESTful Sync Client
 First, start the Diff Sync Server:
