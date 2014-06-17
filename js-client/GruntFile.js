@@ -13,17 +13,17 @@ module.exports = function(grunt) {
             files: ['tests/sync/rest-sync.html']
         }, 
         shell: {
-            server: {
+            restserver: {
                 options: {
                     stdout: true
                 },
-                command: ['cd  ../server', 'mvn exec:java -Pserver'].join('&&')
+                command: ['cd  ../server', 'mvn exec:exec -Prestserver'].join('&&')
             },
             diffserver: {
                 options: {
                     stdout: true
                 },
-                command: ['cd  ../server', 'mvn exec:java -Pdiffserver'].join('&&')
+                command: ['cd  ../server', 'mvn exec:exec -Pdiffserver'].join('&&')
             }
         }
     });

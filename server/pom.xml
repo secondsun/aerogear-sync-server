@@ -112,7 +112,7 @@
             </build>
         </profile>
         <profile>
-            <id>server</id>
+            <id>restserver</id>
             <build>
                 <plugins>
                     <plugin>
@@ -148,11 +148,18 @@
                         <artifactId>exec-maven-plugin</artifactId>
                         <version>1.2.1</version>
                         <configuration>
-                            <mainClass>org.jboss.aerogear.sync.ds.server.DiffSyncServer</mainClass>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>-Xbootclasspath/p:${project.build.directory}/npn/npn-boot-${npn.version}.jar</argument>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>org.jboss.aerogear.sync.diffsync.server.DiffSyncServer</argument>
+                            </arguments>
+                            <classpathScope>compile</classpathScope>
                             <systemProperties>
                                 <property>
                                     <key>io.netty.leakDetectionLevel</key>
-                                    <value>advanced</value>
+                                    <value>disabled</value>
                                 </property>
                             </systemProperties>
                         </configuration>

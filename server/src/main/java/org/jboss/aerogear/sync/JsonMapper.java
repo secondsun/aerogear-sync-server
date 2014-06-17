@@ -30,10 +30,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.jboss.aerogear.sync.ds.DefaultDiff;
-import org.jboss.aerogear.sync.ds.DefaultEdits;
-import org.jboss.aerogear.sync.ds.Diff;
-import org.jboss.aerogear.sync.ds.Edits;
+import org.jboss.aerogear.sync.diffsync.DefaultDiff;
+import org.jboss.aerogear.sync.diffsync.DefaultEdits;
+import org.jboss.aerogear.sync.diffsync.Diff;
+import org.jboss.aerogear.sync.diffsync.Edits;
 
 import java.io.IOException;
 import java.io.StringWriter;

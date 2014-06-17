@@ -11,18 +11,18 @@ Install the required plugins before running the build the first time, or after a
 
     npm install
 
-    bowser install
+    npm install -g bower
 
 ## Testing
 
 ### Testing the RESTful Sync Client
 First, start the REST Sync Server:
 
-    grunt shell:server
+    grunt shell:restserver
 
 Next, open the qunit test in a browser:
 
-    open tests/sync/rest-sync.html
+    open tests/sync/rest-sync-client.html
 
 
 ### Testing the RESTful Sync Client
