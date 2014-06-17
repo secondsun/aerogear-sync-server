@@ -36,6 +36,7 @@ public final class RestServer {
             b.option(ChannelOption.SO_BACKLOG, 1024);
             b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
             final CorsConfig corsConfig = CorsConfig.withOrigin("http://localhost")
+                    .allowNullOrigin()
                     .allowCredentials()
                     .allowedRequestMethods(HttpMethod.GET, HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE)
                     .allowedRequestHeaders("Content-Type")
