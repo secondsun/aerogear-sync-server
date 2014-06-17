@@ -88,3 +88,15 @@ To run the integration tests (requires a running CouchDB)
 
     mvn test -Pitests
 
+
+#### Testing from IDE
+When running the RestServer you have to add a ```Xbootclasspath``` entry as this is required by SPDY as it uses
+[NPN](http://wiki.eclipse.org/Jetty/Feature/NPN). This is done by maven when using the maven goals above.
+
+For example, add the following as a "VM Option" in the "Edit Configuration Settings":
+
+    -Xbootclasspath/p:server/target/npn/npn-boot-1.1.6.v20130911.jar
+
+The exact version of this jar might be different but you an look in ```server/target/npn/``` to see the version to
+use.
+
