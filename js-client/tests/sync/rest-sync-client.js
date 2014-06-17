@@ -4,8 +4,7 @@
 
     asyncTest('create document - content is an array', function() {
         var documentId = uuid();
-        var promise = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
-        promise.then( function( response ) {
+        putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] ).then( function( response ) {
             start();
             equal( response.status, 200, 'Status should be 200' );
             equal( response.doc.id, documentId, 'id should match the sent path id parameter.' );
@@ -19,8 +18,7 @@
 
     asyncTest('get document', function() {
         var documentId = uuid();
-        var promise = putDocument( documentId, {model: 'ferrari'} );
-        promise.then( function( response ) { 
+        putDocument( documentId, {model: 'ferrari'} ).then( function( response ) {
             return getDocument( response.doc.id );
         }).then( function ( response ) {
             start();
@@ -33,8 +31,7 @@
 
     asyncTest('update document', function() {
         var documentId = uuid(), revision;
-        var promise = putDocument( documentId, {model: 'bmw'} );
-        promise.then( function( response ) { 
+        putDocument( documentId, {model: 'bmw'} ).then( function( response ) {
             return getDocument( response.doc.id );
         }).then( function ( response ) {
             response.doc.content.color = "black";
@@ -54,8 +51,7 @@
 
     asyncTest('update document - content is an array', function() {
         var documentId = uuid(), revision;
-        var promise = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
-        promise.then( function( response ) { 
+        putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] ).then( function( response ) {
             return getDocument( response.doc.id );
         }).then( function ( response ) {
             response.doc.content[ 0 ].color = "black";
@@ -74,8 +70,7 @@
 
     asyncTest('update document with conflict', function() {
         var documentId = uuid(), oldRevision, updatedRevision;
-        var promise = putDocument( documentId, {model: 'bmw'} );
-        promise.then( function( response ) { 
+        putDocument( documentId, {model: 'bmw'} ).then( function( response ) {
             return getDocument( response.doc.id );
         }).then( function ( response ) {
             oldRevision = response.doc.rev;
@@ -97,8 +92,7 @@
 
     asyncTest('update document with conflict - content as an array', function() {
         var documentId = uuid(), oldRevision, updatedRevision;
-        var promise = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
-        promise.then( function( response ) { 
+        putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] ).then( function( response ) {
             return getDocument( response.doc.id );
         }).then( function ( response ) {
             oldRevision = response.doc.rev;
@@ -120,8 +114,7 @@
 
     asyncTest('delete document', function() {
         var documentId = uuid(), revision;
-        var promise = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
-        promise.then( function( response ) { 
+        putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] ).then( function( response ) {
             revision = response.doc.rev;
             return deleteDocument( response.doc.id, response.doc.rev );
         }).then( function( response ) {
@@ -133,8 +126,7 @@
 
     asyncTest('try getting deleted document', function() {
         var documentId = uuid();
-        var promise = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
-        promise.then( function( response ) { 
+        putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] ).then( function( response ) {
             return deleteDocument( response.doc.id, response.doc.rev );
         }).then( function ( response ) {
             return getDocument( documentId );
