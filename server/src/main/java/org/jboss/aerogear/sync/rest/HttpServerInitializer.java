@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.handler.codec.http.cors.CorsHandler;
 import io.netty.handler.ssl.SslHandler;
 import org.eclipse.jetty.npn.NextProtoNego;
-import org.jboss.aerogear.sync.SpdyServerProvider;
+import org.jboss.aerogear.sync.rest.SpdyServerProvider;
 import org.jboss.aerogear.sync.SyncManager;
 
 import javax.net.ssl.SSLEngine;

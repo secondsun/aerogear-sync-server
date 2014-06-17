@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import org.jboss.aerogear.sync.CouchDBSyncManager;
+import org.jboss.aerogear.sync.datastore.CouchDBSyncManager;
 import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.JsonMapper;

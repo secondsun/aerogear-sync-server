@@ -30,7 +30,7 @@ import io.netty.handler.codec.spdy.SpdyOrHttpChooser;
 import io.netty.handler.codec.spdy.SpdySessionHandler;
 import io.netty.handler.codec.spdy.SpdyVersion;
 import org.eclipse.jetty.npn.NextProtoNego;
-import org.jboss.aerogear.sync.SpdyServerProvider;
+import org.jboss.aerogear.sync.rest.SpdyServerProvider;
 
 import javax.net.ssl.SSLEngine;
 import java.util.logging.Logger;

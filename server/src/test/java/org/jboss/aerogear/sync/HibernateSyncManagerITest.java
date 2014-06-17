@@ -16,6 +16,8 @@
  */
 package org.jboss.aerogear.sync;
 
+import org.jboss.aerogear.sync.datastore.EntityDocument;
+import org.jboss.aerogear.sync.datastore.HibernateSyncManager;
 import org.junit.BeforeClass;
 
 public class HibernateSyncManagerITest extends SyncManagerITest {

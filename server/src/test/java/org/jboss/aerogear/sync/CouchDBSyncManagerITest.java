@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync;
 
+import org.jboss.aerogear.sync.datastore.CouchDBSyncManager;
 import org.junit.BeforeClass;
 
 public class CouchDBSyncManagerITest extends SyncManagerITest {

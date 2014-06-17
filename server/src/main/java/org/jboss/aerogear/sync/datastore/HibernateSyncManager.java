@@ -14,7 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.datastore;
+
+import org.jboss.aerogear.sync.ConflictException;
+import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.DocumentNotFoundException;
+import org.jboss.aerogear.sync.datastore.EntityDocument;
+import org.jboss.aerogear.sync.SyncManager;
 
 import javax.persistence.*;
 

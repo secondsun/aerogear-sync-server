@@ -23,7 +23,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cors.CorsConfig;
-import org.jboss.aerogear.sync.CouchDBSyncManager;
+import org.jboss.aerogear.sync.datastore.CouchDBSyncManager;
 import org.jboss.aerogear.sync.rest.HttpServerInitializer;
 
 public final class RestServer {
