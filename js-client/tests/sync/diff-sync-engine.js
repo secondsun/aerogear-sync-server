@@ -13,7 +13,7 @@
         engine = Sync.Engine( syncstore );
         engine.addDocument( { id: 1234, clientId: 'client1', content: { name: 'Fletch' } } );
         doc = syncstore.read( 1234 )[0];
-        equal( doc.docId, 1234, 'Document id should match' );
+        equal( doc.id, 1234, 'Document id should match' );
     });
 
 })();
