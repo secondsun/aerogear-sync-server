@@ -52,7 +52,7 @@ public class ServerSyncEngine<T> {
     /**
      * Adds a new document which is "synchonrizable".
      *
-     * A server does not create a new document itself, this would be create by a client
+     * A server does not create a new document itself, this would be created by a client
      * and a first revision is added to this synchronization engine by this method call.
      *
      * @param document the document to add.

@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.sync.diffsync.server;
 
-import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultDocument;
 import org.jboss.aerogear.sync.diffsync.Diff;
@@ -98,7 +97,6 @@ public class ServerSyncEngineTest {
         assertThat(clientEdits.diffs().size(), is(3));
 
         final Edits edits = syncEngine.patch(clientEdits);
-        System.out.println(JsonMapper.toJson(edits));
         assertThat(edits.version(), is(1L));
         assertThat(edits.clientId(), equalTo(clientId));
         assertThat(edits.diffs().size(), is(1));

@@ -30,9 +30,7 @@ import org.jboss.aerogear.sync.diffsync.Edits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,28 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiffSyncHandler.class);
-
-    private enum MessageType {
-        ADD, EDITS, DETACH, UNKNOWN;
-
-        private static final Map<String, MessageType> MAP;
-
-        static {
-            final Map<String, MessageType> map = new HashMap<String, MessageType>();
-            for (MessageType type : values()) {
-                final String name = type.name();
-                if (name != null) {
-                    map.put(name, type);
-                }
-            }
-            MAP = map;
-        }
-
-        public static MessageType from(final String name) {
-            final MessageType type = MAP.get(name.toUpperCase());
-            return type == null ? UNKNOWN : type;
-        }
-    }
 
     private static final ConcurrentHashMap<String, Set<ChannelHandlerContext>> clients =
             new ConcurrentHashMap<String, Set<ChannelHandlerContext>>();
@@ -74,7 +50,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
     @Override
     protected void messageReceived(final ChannelHandlerContext ctx, final WebSocketFrame frame) throws Exception {
         if (frame instanceof CloseWebSocketFrame) {
-            System.out.println("Received closeFrame");
+            logger.debug("Received closeFrame");
             ctx.close();
         }
         else if (frame instanceof TextWebSocketFrame) {
@@ -137,7 +113,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+        logger.error("Caught exception", cause);
         ctx.channel().writeAndFlush(textFrame("{\"result\": \"" + cause.getMessage() + "\"}"));
     }
 
