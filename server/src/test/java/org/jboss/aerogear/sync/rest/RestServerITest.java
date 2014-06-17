@@ -67,7 +67,7 @@ public class RestServerITest {
         final CorsConfig corsConfig = CorsConfig.withAnyOrigin().build();
         final SyncManager syncManager = new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test");
         sb.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
-        sb.childHandler(new HttpServerInitializer(corsConfig, syncManager));
+        sb.childHandler(new TestHttpServerInitializer(corsConfig, syncManager));
         channel = sb.bind(port).sync().channel();
     }
 
