@@ -80,7 +80,7 @@
             updatedRevision = response.doc.rev;
             response.doc.content.color = "pink";
             return putDocument( response.doc.id, response.doc.content, oldRevision);
-        }).then( null, function ( response ) {
+        }).catch(function ( response ) {
             start();
             equal( response.status, 409, "Should return a 409 Conflict" );
             equal( response.doc.id, documentId, 'Conflicted document id should be the same ');
@@ -102,7 +102,7 @@
             updatedRevision = response.doc.rev;
             response.doc.content[ 1 ].color = "blue";
             return putDocument( response.doc.id, response.doc.content, oldRevision);
-        }).then( null, function ( response ) {
+        }).catch(function ( response ) {
             start();
             equal( response.status, 409, "Should return a 409 Conflict" );
             equal( response.doc.id, documentId, 'Conflicted document id should be the same ');
