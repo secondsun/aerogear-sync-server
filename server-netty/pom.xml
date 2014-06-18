@@ -23,7 +23,7 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>sync-server</artifactId>
+    <artifactId>sync-server-netty</artifactId>
     <packaging>jar</packaging>
     <name>AeroGear Data Synchronization Server</name>
 

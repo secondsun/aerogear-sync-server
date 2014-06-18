@@ -43,7 +43,7 @@
         <module>protocol</module>
         <module>common</module>
         <module>core</module>
-        <module>server</module>
+        <module>server-netty</module>
     </modules>
 
     <dependencyManagement>
