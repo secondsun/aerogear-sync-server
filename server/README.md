@@ -1,66 +1,43 @@
 ## AeroGear Server Data Synchronization Project
 This project aims to provide servers to support data synchronization protocols for testing by AeroGear's client libraries.
 
-Currently two different types of server are provided, one is a [RESTful server](#restserver) implementation that uses a simple approach
-of rejecting conflicts and delegating the responsibility to resolve conflicts to the client. This is similar to what
-most version control systems do. This server uses HTTP and supports SPDY where available.
+Currently two different types of server are provided:  
+1 [RestServer](#restserver)  
+Implementation that uses a simple approach of rejecting conflicts and delegating the responsibility to resolve conflicts
+to the client.   
+This server uses HTTP and supports SPDY where available.  
 
-The [second server](#diffserver) is based on Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html) by
-Neil Fraser. This server implementation is WebSocket based.
+2 [DiffServer](#diffserver)  
+Based on Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html) by
+Neil Fraser.   
+This server implementation is WebSocket based.  
 
 ### Prerequisites
 This project currently requires [CouchDB](http://couchdb.apache.org/).
 
-### RESTful server
+### RestServer server
 <a name="restserver"></a>
 Initially this server will mimic CouchDB protocol and use a CouchDB instance behind the scenes. We expect this to
 change later but doing this will allow our client libraries to have something to test against sooner rather
 than later.
 
-Similar to how CouchDB API works we could expose a RESTFul api for synchronizing data.
+Similar to how CouchDB API works we could expose a RESTFul api for synchronizing data. Like CouchDB a revision is used
+for each document and must be communicated when requesting/updating a document to get the correct version
 
-#### Create a document
-To create a document a PUT request is made:
+#### Conflict resolution (handling)
+Bascially this server will only detect conflicts and inform the calling client about the conflict. When a conflict is
+detected a HTTP 409 "Conflict" will be returned to the calling client.  
+For example, I conflict response might look something like this:
 
-    PUT /document1234 HTTP/1.1
-    {"model": "Toyota"}
+    HTTP/1.1 409 Conflict
+    Content-Type: application/json
+    {"docId":"2941995c-3b75-4de4-8db7-ab2405bc4cfe","rev":"2-161abbc9241c550e113571bab5dcc953","content":"[{\"model\":\"honda\",\"color\":\"black\"},{\"model\":\"bmw\"}]"}
+The body of the response contains the latest version that the server has. The client can use this version to resolve the
+conflict and then retry the update request.
 
-A successful response will return a HTTP ```200``` with a body:
+For examples of using this server please see the following tests:
 
-    HTTP/1.1 200 OK
-    {"id":"document1234","rev":"1","content":"{\"model\": \"Toyota\"}"}
-
-#### Update a document
-To update a document a PUT request is made:
-
-    PUT /document1234 HTTP/1.1
-    {"id":"document1234","rev":"1","content":"{\"state\": \"update\"}"}
-
-A successful response will return a HTTP ```200``` with a body:
-
-    HTTP/1.1 200 OK
-    {"id":"document1234","rev":"2","content":"{\"state\": \"update\"}"}
-
-#### Get a document
-To get a document a GET request is made:
-
-    GET /document1234 HTTP/1.1
-
-A successful response will return a HTTP ```200``` with a body:
-
-    HTTP/1.1 200 OK
-    {"id":"document1234","rev":"5","content":"{\"state\": \"update\"}"}
-
-#### Delete a document
-To delete a document a DELETE request is made:
-
-    DELETE /document1234 HTTP/1.1
-    {"rev":"5"}
-
-A successful response will return a HTTP ```200``` with a body:
-
-    HTTP/1.1 200 OK
-    <deleteRevision>
+    js-client/rest-sync-client.js
 
 #### Starting the server
 
