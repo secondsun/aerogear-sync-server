@@ -22,19 +22,22 @@
         // update the name field
         doc.content.name = 'Mr.Poon';
 
-        var diffs = engine.diff( doc );
-        console.log(diffs);
-
+        var edits = engine.diff( doc );
+        equal ( edits.docId, 1234, 'document id should be 1234');
+        equal ( edits.clientId, 'client1', 'clientId should be client1');
+        equal ( edits.version, 0, 'version should be zero');
+        equal ( edits.checksum, '', 'checksum is currently not implemented.');
+        var diffs = edits.diffs;
         ok( diffs instanceof Array, 'diffs should be an array of tuples' );
         ok( diffs.length == 4, 'there should be 4 diff tuples generated');
-        equal ( diffs[0][0], 0, 'action should be 0, which is means to leave as is');
-        equal ( diffs[0][1], '{"name":"', 'should not change the "name" field');
-        equal ( diffs[1][0], -1, 'action should be -1, which is means to delete');
-        equal ( diffs[1][1], 'Fletch', 'Fletch was the name before the update');
-        equal ( diffs[2][0], 1, 'name value action should be 1, which is means to add');
-        equal ( diffs[2][1], 'Mr.Poon', 'Mr.Poon is the new name');
-        equal ( diffs[3][0], 0, 'action should be 0, which is means to leave as is');
-        equal ( diffs[3][1], '"}', 'closing bracket');
+        equal ( diffs[0].operation, 'UNCHANGED', 'operation should be UNCHANGED');
+        equal ( diffs[0].text, '{"name":"', 'should not change the "name" field');
+        equal ( diffs[1].operation, 'DELETE' ,'operation should be DELETE');
+        equal ( diffs[1].text, 'Fletch', 'Fletch was the name before the update');
+        equal ( diffs[2].operation, 'ADD', 'operation should be ADD');
+        equal ( diffs[2].text, 'Mr.Poon', 'Mr.Poon is the new name');
+        equal ( diffs[3].operation, "UNCHANGED", 'operation should be UNCHANGED');
+        equal ( diffs[3].text, '"}', 'closing bracket');
     });
 
 })();

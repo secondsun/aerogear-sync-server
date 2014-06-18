@@ -36,27 +36,46 @@ Sync.Engine = function () {
      */
     this.diff = function( doc ) {
         var shadow = shadows.read( doc.id )[0];
-        console.log("diff shadow : " + JSON.stringify( shadow.doc.content) );
-        return dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) );
+        return { msgType: 'edits',
+            docId: doc.id,
+            clientId: shadow.clientId,
+            version: shadow.clientVersion,
+            checksum: '',
+            diffs: asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+        };
     };
+
+    function asAeroGearDiffs( diffs ) {
+        var agDiffs = [];
+        diffs.forEach(function addDiff( value ) {
+            agDiffs.push( {operation: asAgOperation( value[0] ), text: value[1] } );
+        });
+        return agDiffs;
+    };
+
+    function asAgOperation( op ) {
+        if ( op === -1 ) {
+            return 'DELETE';
+        } else if ( op === 1 ) {
+            return 'ADD';
+        }
+        return "UNCHANGED";
+    }
 
     this.patch = function( edits ) {
     };
 
     var saveDocument = function( doc ) {
-        console.log( 'saving doc: ' + JSON.stringify( doc) );
         docs.save( doc );
     };
 
     var saveShadow = function( doc ) {
-        var shadow = { id: doc.id, serverVersion: 0, clientVersion: 0, doc: doc };
-        console.log( 'saving shadow: ' + JSON.stringify( shadow ) );
+        var shadow = { id: doc.id, serverVersion: 0, clientId: doc.clientId, clientVersion: 0, doc: doc };
         shadows.save( shadow );
     };
 
     var saveShadowBackup = function( doc ) {
         var backup = { id: doc.id, clientVersion: 0, doc: doc };
-        console.log( 'saving backup: ' + JSON.stringify( backup ) );
         backups.save( backup );
     };
 
