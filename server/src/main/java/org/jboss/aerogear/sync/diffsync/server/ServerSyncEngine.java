@@ -57,23 +57,11 @@ public class ServerSyncEngine<T> {
      *
      * @param document the document to add.
      */
-    public void addDocument(final Document<T> document) {
-        dataStore.saveDocument(document);
-    }
-
-    /**
-     * Adds a client side shadow document to the synchronization engine.
-     *
-     * @param documentId the id of the document for which a client shadow should be created.
-     * @param clientId the client's id which will be used to identify the client's server side shadow document
-     */
-    public void addShadow(final String documentId, final String clientId) {
-        final Document<T> document = getDocument(documentId);
-        final ClientDocument<T> clientDocument = newClientDocument(clientId, documentId, document.content());
-        // A clients shadow always begins with server version 0, and client version 0. Even if the server document
-        // has existed for days and has been updated many time, the server version on the shadow is specific to this
-        // client. The server version represents the latest version of the server document that the client has seen.
-        saveShadow(shadowDoc(0, 0, clientDocument));
+    public void addDocument(final Document<T> document, final String clientId) {
+        if (!contains(document.id())) {
+            dataStore.saveDocument(document);
+            addShadow(document.id(), clientId);
+        }
     }
 
     /**
@@ -85,6 +73,21 @@ public class ServerSyncEngine<T> {
     public Edits patch(final Edits clientEdits) {
         patchShadow(clientEdits);
         return diff(patchDocument(clientEdits), clientEdits.clientId());
+    }
+
+    /*
+     * Adds a client side shadow document to the synchronization engine.
+     *
+     * @param documentId the id of the document for which a client shadow should be created.
+     * @param clientId the client's id which will be used to identify the client's server side shadow document
+     */
+    private void addShadow(final String documentId, final String clientId) {
+        final Document<T> document = getDocument(documentId);
+        final ClientDocument<T> clientDocument = newClientDocument(clientId, documentId, document.content());
+        // A clients shadow always begins with server version 0, and client version 0. Even if the server document
+        // has existed for days and has been updated many time, the server version on the shadow is specific to this
+        // client. The server version represents the latest version of the server document that the client has seen.
+        saveShadow(shadowDoc(0, 0, clientDocument));
     }
 
     /*

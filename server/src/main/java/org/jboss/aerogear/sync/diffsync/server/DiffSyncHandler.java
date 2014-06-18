@@ -59,14 +59,13 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             switch (MessageType.from(json.get("msgType").asText())) {
             case ADD:
                 final Document<String> doc = documentFromJson(json);
-                addDocument(doc);
-                addShadowDocument(doc.id(), json.get("clientId").asText());
+                addDocument(doc, json.get("clientId").asText());
                 addClientListener(doc.id(), ctx);
                 respond(ctx, "ADDED");
                 break;
             case EDITS:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
-                final Edits edits = syncEngine.patch(clientEdits);
+                final Edits edits = patch(clientEdits);
                 respond(ctx, "PATCHED");
                 notifyClientListeners(edits);
             case DETACH:
@@ -77,18 +76,16 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
+    private void addDocument(final Document<String> document, final String clientId) {
+        syncEngine.addDocument(document, clientId);
+    }
+
+    private Edits patch(final Edits clientEdits) {
+        return syncEngine.patch(clientEdits);
+    }
+
     private static Document<String> documentFromJson(final JsonNode json) {
         return new DefaultDocument<String>(json.get("docId").asText(), json.get("content").asText());
-    }
-
-    private void addDocument(final Document<String> doc) {
-        if (!syncEngine.contains(doc.id())) {
-            syncEngine.addDocument(doc);
-        }
-    }
-
-    private void addShadowDocument(final String documentId, final String clientId) {
-        syncEngine.addShadow(documentId, clientId);
     }
 
     private static void addClientListener(final String documentId, final ChannelHandlerContext ctx) {

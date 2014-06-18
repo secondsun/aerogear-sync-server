@@ -48,7 +48,7 @@ public class ServerSyncEngineTest {
     @Test
     public void addDocument() {
         final String documentId = UUID.randomUUID().toString();
-        syncEngine.addDocument(newDoc(documentId, "What!"));
+        syncEngine.addDocument(newDoc(documentId, "What!"), "test");
         final Document<String> document = dataStore.getDocument(documentId);
         assertThat(document.id(), equalTo(documentId));
         assertThat(document.content(), equalTo("What!"));
@@ -57,7 +57,7 @@ public class ServerSyncEngineTest {
     @Test
     public void containsDocument() {
         final String documentId = UUID.randomUUID().toString();
-        syncEngine.addDocument(newDoc(documentId, "What!"));
+        syncEngine.addDocument(newDoc(documentId, "What!"), "test");
         assertThat(syncEngine.contains(documentId), is(true));
     }
 
@@ -70,8 +70,7 @@ public class ServerSyncEngineTest {
     public void addShadow() {
         final String documentId = UUID.randomUUID().toString();
         final String clientId = "shadowTest";
-        syncEngine.addDocument(newDoc(documentId, "What!"));
-        syncEngine.addShadow(documentId, clientId);
+        syncEngine.addDocument(newDoc(documentId, "What!"), clientId);
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.serverVersion(), is(0L));
         assertThat(shadowDocument.clientVersion(), is(0L));
@@ -85,8 +84,7 @@ public class ServerSyncEngineTest {
         final String originalText = "Do or do not, there is no try.";
         final String updatedText = "Do or do not, there is no try!";
         final DefaultDocument<String> serverDocument = newDoc(documentId, originalText);
-        syncEngine.addDocument(serverDocument);
-        syncEngine.addShadow(documentId, clientId);
+        syncEngine.addDocument(serverDocument, clientId);
 
         final ShadowDocument<String> shadowBefore = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowBefore.clientVersion(), is(0L));
