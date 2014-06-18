@@ -3,7 +3,7 @@ package org.jboss.aerogear.sync.diffsync.server;
 import java.util.HashMap;
 import java.util.Map;
 
-enum MessageType {
+public enum MessageType {
     ADD,
     EDITS,
     DETACH,

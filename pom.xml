@@ -22,7 +22,7 @@
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
-	<name>AeroGear Data Synchronization Parent</name>
+    <name>AeroGear Data Synchronization Parent</name>
     <url>http://aerogear.org/</url>
     <description>
         Data Synchronization Protocol.
@@ -42,6 +42,7 @@
     <modules>
         <module>protocol</module>
         <module>common</module>
+        <module>core</module>
         <module>server</module>
     </modules>
 
@@ -55,6 +56,11 @@
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

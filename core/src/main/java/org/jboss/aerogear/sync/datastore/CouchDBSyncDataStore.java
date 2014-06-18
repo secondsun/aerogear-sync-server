@@ -25,19 +25,18 @@ import org.jboss.aerogear.sync.ConflictException;
 import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.DocumentNotFoundException;
-import org.jboss.aerogear.sync.SyncManager;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CouchDBSyncManager implements SyncManager {
+public class CouchDBSyncDataStore implements SyncDataStore {
 
     private final HttpClient httpClient;
     private final StdCouchDbInstance stdCouchDbInstance;
     private final StdCouchDbConnector db;
 
-    public CouchDBSyncManager(final String url, final String dbName)  {
+    public CouchDBSyncDataStore(final String url, final String dbName)  {
         try {
             httpClient = new StdHttpClient.Builder().url(url).build();
         } catch (final MalformedURLException e) {

@@ -19,12 +19,10 @@ package org.jboss.aerogear.sync.datastore;
 import org.jboss.aerogear.sync.ConflictException;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.DocumentNotFoundException;
-import org.jboss.aerogear.sync.datastore.EntityDocument;
-import org.jboss.aerogear.sync.SyncManager;
 
 import javax.persistence.*;
 
-public class HibernateSyncManager implements SyncManager {
+public class HibernateSyncDataStore implements SyncDataStore {
     private EntityManager entityManager;
 
     @Override

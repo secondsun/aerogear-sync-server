@@ -23,19 +23,18 @@ import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.handler.codec.http.cors.CorsHandler;
 import io.netty.handler.ssl.SslHandler;
 import org.eclipse.jetty.npn.NextProtoNego;
-import org.jboss.aerogear.sync.rest.SpdyServerProvider;
-import org.jboss.aerogear.sync.SyncManager;
+import org.jboss.aerogear.sync.datastore.SyncDataStore;
 
 import javax.net.ssl.SSLEngine;
 
 public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final CorsConfig corsConfig;
-    private final SyncManager syncManager;
+    private final SyncDataStore syncDataStore;
 
-    public HttpServerInitializer(final CorsConfig corsConfig, final SyncManager syncManager) {
+    public HttpServerInitializer(final CorsConfig corsConfig, final SyncDataStore syncDataStore) {
         this.corsConfig = corsConfig;
-        this.syncManager = syncManager;
+        this.syncDataStore = syncDataStore;
     }
 
     @Override
@@ -48,6 +47,6 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         // Setup NextProtoNego with our server provider
         NextProtoNego.put(engine, new SpdyServerProvider());
         NextProtoNego.debug = true;
-        pipeline.addLast("handler", new SpdyOrHttpHandler(new DefaultRestProcessor(syncManager), new CorsHandler(corsConfig)));
+        pipeline.addLast("handler", new SpdyOrHttpHandler(new DefaultRestProcessor(syncDataStore), new CorsHandler(corsConfig)));
     }
 }

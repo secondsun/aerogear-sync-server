@@ -16,6 +16,8 @@
  */
 package org.jboss.aerogear.sync.diffsync.client;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.jboss.aerogear.sync.common.DiffMatchPatch;
 import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
@@ -53,9 +55,9 @@ public class ClientSyncEngineTest {
 
     @Test
     public void addDocument() {
-        assertThat(dataStore.getClientDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
-        assertThat(dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId()), is(notNullValue()));
-        assertThat(dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
+        MatcherAssert.assertThat(dataStore.getClientDocument(clientDoc.clientId(), clientDoc.id()), CoreMatchers.is(CoreMatchers.notNullValue()));
+        MatcherAssert.assertThat(dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId()), CoreMatchers.is(CoreMatchers.notNullValue()));
+        MatcherAssert.assertThat(dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id()), CoreMatchers.is(CoreMatchers.notNullValue()));
     }
 
     @Test
@@ -65,13 +67,13 @@ public class ClientSyncEngineTest {
         syncEngine.addDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId1));
         syncEngine.addDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId2));
 
-        assertThat(dataStore.getClientDocument(clientId1, DOC_ID).id(), equalTo(DOC_ID));
-        assertThat(dataStore.getShadowDocument(DOC_ID, clientId1).document().clientId(), equalTo(clientId1));
-        assertThat(dataStore.getBackupShadowDocument(clientId1, DOC_ID), is(notNullValue()));
+        MatcherAssert.assertThat(dataStore.getClientDocument(clientId1, DOC_ID).id(), CoreMatchers.equalTo(DOC_ID));
+        MatcherAssert.assertThat(dataStore.getShadowDocument(DOC_ID, clientId1).document().clientId(), CoreMatchers.equalTo(clientId1));
+        MatcherAssert.assertThat(dataStore.getBackupShadowDocument(clientId1, DOC_ID), CoreMatchers.is(CoreMatchers.notNullValue()));
 
-        assertThat(dataStore.getClientDocument(clientId2, DOC_ID).id(), equalTo(DOC_ID));
-        assertThat(dataStore.getShadowDocument(DOC_ID, clientId2).document().clientId(), equalTo(clientId2));
-        assertThat(dataStore.getBackupShadowDocument(clientId2, DOC_ID), is(notNullValue()));
+        MatcherAssert.assertThat(dataStore.getClientDocument(clientId2, DOC_ID).id(), CoreMatchers.equalTo(DOC_ID));
+        MatcherAssert.assertThat(dataStore.getShadowDocument(DOC_ID, clientId2).document().clientId(), CoreMatchers.equalTo(clientId2));
+        MatcherAssert.assertThat(dataStore.getBackupShadowDocument(clientId2, DOC_ID), CoreMatchers.is(CoreMatchers.notNullValue()));
     }
 
     @Test
@@ -79,8 +81,8 @@ public class ClientSyncEngineTest {
         final Edits edits = syncEngine.diff(new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID));
         assertEdits(dataStore.getEdit(edits.clientId(), edits.documentId()));
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edits.documentId(), edits.clientId());
-        assertThat(shadowDocument.clientVersion(), is(1L));
-        assertThat(shadowDocument.serverVersion(), is(0L));
+        MatcherAssert.assertThat(shadowDocument.clientVersion(), CoreMatchers.is(1L));
+        MatcherAssert.assertThat(shadowDocument.serverVersion(), CoreMatchers.is(0L));
     }
 
     @Test
@@ -88,25 +90,25 @@ public class ClientSyncEngineTest {
         final ClientDocument<String> clientDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         final ClientDocument<String> patched = syncEngine.patch(syncEngine.diff(clientDoc));
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId());
-        assertThat(shadowDocument.clientVersion(), is(0L));
-        assertThat(shadowDocument.serverVersion(), is(1L));
+        MatcherAssert.assertThat(shadowDocument.clientVersion(), CoreMatchers.is(0L));
+        MatcherAssert.assertThat(shadowDocument.serverVersion(), CoreMatchers.is(1L));
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id());
-        assertThat(backupShadowDocument.version(), is(0L));
-        assertThat(patched.content(), equalTo(UPDATED_TEXT));
+        MatcherAssert.assertThat(backupShadowDocument.version(), CoreMatchers.is(0L));
+        MatcherAssert.assertThat(patched.content(), CoreMatchers.equalTo(UPDATED_TEXT));
     }
 
     private void assertEdits(final Edits edits) {
-        assertThat(edits.documentId(), is(DOC_ID));
-        assertThat(edits.version(), is(0L));
+        MatcherAssert.assertThat(edits.documentId(), CoreMatchers.is(DOC_ID));
+        MatcherAssert.assertThat(edits.version(), CoreMatchers.is(0L));
         final ClientDocument<String> document = dataStore.getShadowDocument(edits.documentId(), edits.clientId()).document();
-        assertThat(edits.checksum(), equalTo(DiffMatchPatch.checksum(document.content())));
-        assertThat(edits.diffs().size(), is(3));
+        MatcherAssert.assertThat(edits.checksum(), CoreMatchers.equalTo(DiffMatchPatch.checksum(document.content())));
+        MatcherAssert.assertThat(edits.diffs().size(), CoreMatchers.is(3));
         final List<Diff> diffs = edits.diffs();
-        assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
-        assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
-        assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
-        assertThat(diffs.get(1).text(), equalTo("."));
-        assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
-        assertThat(diffs.get(2).text(), equalTo("!"));
+        MatcherAssert.assertThat(diffs.get(0).operation(), CoreMatchers.is(Diff.Operation.UNCHANGED));
+        MatcherAssert.assertThat(diffs.get(0).text(), CoreMatchers.equalTo("Do or do not, there is no try"));
+        MatcherAssert.assertThat(diffs.get(1).operation(), CoreMatchers.is(Diff.Operation.DELETE));
+        MatcherAssert.assertThat(diffs.get(1).text(), CoreMatchers.equalTo("."));
+        MatcherAssert.assertThat(diffs.get(2).operation(), CoreMatchers.is(Diff.Operation.ADD));
+        MatcherAssert.assertThat(diffs.get(2).text(), CoreMatchers.equalTo("!"));
     }
 }

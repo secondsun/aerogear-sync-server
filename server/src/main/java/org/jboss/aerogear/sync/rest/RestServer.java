@@ -23,8 +23,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cors.CorsConfig;
-import org.jboss.aerogear.sync.datastore.CouchDBSyncManager;
-import org.jboss.aerogear.sync.rest.HttpServerInitializer;
+import org.jboss.aerogear.sync.datastore.CouchDBSyncDataStore;
 
 public final class RestServer {
 
@@ -41,7 +40,7 @@ public final class RestServer {
                     .allowedRequestMethods(HttpMethod.GET, HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE)
                     .allowedRequestHeaders("Content-Type")
                     .build();
-            b.childHandler(new HttpServerInitializer(corsConfig, new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test")));
+            b.childHandler(new HttpServerInitializer(corsConfig, new CouchDBSyncDataStore("http://127.0.0.1:5984", "sync-test")));
 
             System.out.println("Binding to localhost [8080]");
             b.bind("localhost", 8080).sync().channel().closeFuture().sync();

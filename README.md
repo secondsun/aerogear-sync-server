@@ -16,8 +16,11 @@ out of this project if we decide to move forward with it.
 * [protocol](https://github.com/aerogear/aerogear-sync-server/tree/master/protocol)  
 This module currently only contains the API for the Differential Synchronization implementation.  
 
-* [server](https://github.com/aerogear/aerogear-sync-server/tree/master/server)  
-This is where the different server implementations live. Please refer to the README.md for details about how to build
-and run the servers, as well as information about the various implementations.  
+* [core](https://github.com/aerogear/aerogear-sync-server/tree/master/core)
+This module contains the core classes for data synchronization. These are intended to be used by server implementation.
+
+* [server-netty](https://github.com/aerogear/aerogear-sync-server/tree/master/server-netty)
+Netty based server implementations. Please refer to the README.md for details about how to build and run the servers,
+as well as information about the various implementations.
 
 

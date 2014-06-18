@@ -27,11 +27,11 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import org.jboss.aerogear.sync.datastore.CouchDBSyncManager;
+import org.jboss.aerogear.sync.datastore.CouchDBSyncDataStore;
 import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.JsonMapper;
-import org.jboss.aerogear.sync.SyncManager;
+import org.jboss.aerogear.sync.datastore.SyncDataStore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -65,9 +65,9 @@ public class RestServerITest {
     public static void startSimplePushServer() throws Exception {
         final ServerBootstrap sb = new ServerBootstrap();
         final CorsConfig corsConfig = CorsConfig.withAnyOrigin().build();
-        final SyncManager syncManager = new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test");
+        final SyncDataStore syncDataStore = new CouchDBSyncDataStore("http://127.0.0.1:5984", "sync-test");
         sb.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
-        sb.childHandler(new TestHttpServerInitializer(corsConfig, syncManager));
+        sb.childHandler(new TestHttpServerInitializer(corsConfig, syncDataStore));
         channel = sb.bind(port).sync().channel();
     }
 

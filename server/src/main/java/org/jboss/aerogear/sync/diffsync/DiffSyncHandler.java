@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.diffsync.server;
+package org.jboss.aerogear.sync.diffsync;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.netty.channel.ChannelHandler;
@@ -24,9 +24,8 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.aerogear.sync.JsonMapper;
-import org.jboss.aerogear.sync.diffsync.DefaultDocument;
-import org.jboss.aerogear.sync.diffsync.Document;
-import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.server.MessageType;
+import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

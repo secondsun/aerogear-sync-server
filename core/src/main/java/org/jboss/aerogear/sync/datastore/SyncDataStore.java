@@ -14,12 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.datastore;
+
+import org.jboss.aerogear.sync.ConflictException;
+import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.DocumentNotFoundException;
 
 /**
  * Is responsible handling synchronization of documents.
  */
-public interface SyncManager {
+public interface SyncDataStore {
 
     /**
      * Read a specific revision of a document.

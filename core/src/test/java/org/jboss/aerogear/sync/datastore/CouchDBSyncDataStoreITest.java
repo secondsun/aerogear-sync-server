@@ -14,16 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.datastore;
 
-import org.jboss.aerogear.sync.datastore.CouchDBSyncManager;
+import org.jboss.aerogear.sync.DefaultDocument;
+import org.jboss.aerogear.sync.Document;
 import org.junit.BeforeClass;
 
-public class CouchDBSyncManagerITest extends SyncManagerITest {
+public class CouchDBSyncDataStoreITest extends SyncManagerITest {
 
     @BeforeClass
     public static void createDataStore() {
-        syncManager = new CouchDBSyncManager("http://127.0.0.1:5984", "sync-test");
+        SyncManagerITest.syncDataStore = new CouchDBSyncDataStore("http://127.0.0.1:5984", "sync-test");
     }
 
     @Override

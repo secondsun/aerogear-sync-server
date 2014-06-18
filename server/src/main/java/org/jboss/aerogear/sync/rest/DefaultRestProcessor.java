@@ -32,7 +32,7 @@ import org.jboss.aerogear.sync.ConflictException;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.DocumentNotFoundException;
 import org.jboss.aerogear.sync.JsonMapper;
-import org.jboss.aerogear.sync.SyncManager;
+import org.jboss.aerogear.sync.datastore.SyncDataStore;
 
 import static io.netty.buffer.Unpooled.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
@@ -54,9 +54,9 @@ import static org.jboss.aerogear.sync.JsonMapper.*;
  */
 public class DefaultRestProcessor implements RestProcessor {
 
-    private final SyncManager sync;
+    private final SyncDataStore sync;
 
-    public DefaultRestProcessor(final SyncManager sync) {
+    public DefaultRestProcessor(final SyncDataStore sync) {
         this.sync = sync;
     }
 

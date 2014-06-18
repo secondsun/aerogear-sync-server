@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.diffsync.server;
+package org.jboss.aerogear.sync.diffsync;
 
 import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultDocument;
@@ -26,6 +26,10 @@ import org.jboss.aerogear.sync.diffsync.client.ClientDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffsync.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.diffsync.server.DefaultServerSynchronizer;
+import org.jboss.aerogear.sync.diffsync.server.ServerDataStore;
+import org.jboss.aerogear.sync.diffsync.server.ServerInMemoryDataStore;
+import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.UUID;

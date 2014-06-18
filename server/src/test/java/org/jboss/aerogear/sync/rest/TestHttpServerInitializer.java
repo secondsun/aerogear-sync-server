@@ -24,21 +24,17 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.handler.codec.http.cors.CorsHandler;
-import io.netty.handler.ssl.SslHandler;
-import org.eclipse.jetty.npn.NextProtoNego;
-import org.jboss.aerogear.sync.SyncManager;
-
-import javax.net.ssl.SSLEngine;
+import org.jboss.aerogear.sync.datastore.SyncDataStore;
 
 public class TestHttpServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final CorsConfig corsConfig;
-    private final SyncManager syncManager;
+    private final SyncDataStore syncDataStore;
     private static final int MAX_CONTENT_LENGTH = 1024 * 100;
 
-    public TestHttpServerInitializer(final CorsConfig corsConfig, final SyncManager syncManager) {
+    public TestHttpServerInitializer(final CorsConfig corsConfig, final SyncDataStore syncDataStore) {
         this.corsConfig = corsConfig;
-        this.syncManager = syncManager;
+        this.syncDataStore = syncDataStore;
     }
 
     @Override
@@ -48,6 +44,6 @@ public class TestHttpServerInitializer extends ChannelInitializer<SocketChannel>
         pipeline.addLast("httpResponseEncoder", new HttpResponseEncoder());
         pipeline.addLast("httpChunkAggregator", new HttpObjectAggregator(MAX_CONTENT_LENGTH));
         pipeline.addLast("corsHandler", new CorsHandler(corsConfig));
-        pipeline.addLast("httpRequestHandler", new RestChannelHandler(new DefaultRestProcessor(syncManager)));
+        pipeline.addLast("httpRequestHandler", new RestChannelHandler(new DefaultRestProcessor(syncDataStore)));
     }
 }

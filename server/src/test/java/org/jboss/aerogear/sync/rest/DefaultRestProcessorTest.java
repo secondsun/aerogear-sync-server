@@ -6,6 +6,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import org.jboss.aerogear.sync.*;
+import org.jboss.aerogear.sync.datastore.SyncDataStore;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -135,16 +136,16 @@ public class DefaultRestProcessorTest {
         );
     }
 
-    private static SyncManager mockSyncManager() throws Exception {
-        final SyncManager syncManager = mock(SyncManager.class);
-        when(syncManager.create(anyString(), anyString())).thenReturn(REV_ONE_DOC);
-        when(syncManager.read(anyString())).thenReturn(REV_ONE_DOC);
-        when(syncManager.update(Matchers.any(Document.class)))
+    private static SyncDataStore mockSyncManager() throws Exception {
+        final SyncDataStore syncDataStore = mock(SyncDataStore.class);
+        when(syncDataStore.create(anyString(), anyString())).thenReturn(REV_ONE_DOC);
+        when(syncDataStore.read(anyString())).thenReturn(REV_ONE_DOC);
+        when(syncDataStore.update(Matchers.any(Document.class)))
                 .thenReturn(REV_ONE_DOC)
                 .thenReturn(REV_TWO_DOC)
                 .thenThrow(new ConflictException(REV_TWO_DOC, REV_ONE_DOC));
-        when(syncManager.delete(anyString(), anyString())).thenReturn(DELETED_REVISION);
-        return syncManager;
+        when(syncDataStore.delete(anyString(), anyString())).thenReturn(DELETED_REVISION);
+        return syncDataStore;
     }
 
     public static HttpRequest mockRequest(final HttpMethod method) {
