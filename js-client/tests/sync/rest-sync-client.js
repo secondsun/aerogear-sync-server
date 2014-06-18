@@ -80,7 +80,7 @@
             updatedRevision = response.doc.rev;
             response.doc.content.color = "pink";
             return putDocument( response.doc.id, response.doc.content, oldRevision);
-        }).then( function ( response ) {
+        }).then( null, function ( response ) {
             start();
             equal( response.status, 409, "Should return a 409 Conflict" );
             equal( response.doc.id, documentId, 'Conflicted document id should be the same ');
@@ -102,7 +102,7 @@
             updatedRevision = response.doc.rev;
             response.doc.content[ 1 ].color = "blue";
             return putDocument( response.doc.id, response.doc.content, oldRevision);
-        }).then( function ( response ) {
+        }).then( null, function ( response ) {
             start();
             equal( response.status, 409, "Should return a 409 Conflict" );
             equal( response.doc.id, documentId, 'Conflicted document id should be the same ');
@@ -166,7 +166,7 @@
                     if ( xhr.status === 200 ) {
                         resolve({ status: xhr.status, doc: fromJson( xhr.responseText ) });
                     } else if ( xhr.status == 409 ) {
-                        resolve( { status: xhr.status, doc: fromJson( xhr.responseText ) } );
+                        reject( { status: xhr.status, doc: fromJson( xhr.responseText ) } );
                     } else if ( xhr.status >= 400 ) {
                         reject( JSON.stringify( { status: xhr.status, doc: fromJson( xhr.responseText ) } ) );
                     }
