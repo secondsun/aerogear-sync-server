@@ -50,7 +50,7 @@ be accepted/imported into the browser you are using. This can be done by simply 
 
 And then add an exception for the certificate.
 
-#### Differential Synchronization Server
+### Differential Synchronization Server
 <a name="diffserver"></a>
 As mentioned in the overview this server is based on Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html)
 by Neil Fraser. The server implementation is WebSocket based.
