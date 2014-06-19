@@ -53,7 +53,8 @@ And then add an exception for the certificate.
 ### Differential Synchronization Server
 <a name="diffserver"></a>
 As mentioned in the overview this server is based on Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html)
-by Neil Fraser. The server implementation is WebSocket based.
+by Neil Fraser. There is a good video presentation by Neil Fraser on [youtube](https://www.youtube.com/watch?v=S2Hp_1jqpY8).
+The server implementation is WebSocket based.
 
 #### Starting the server
     mvn exec:exec -Pdiffserver
