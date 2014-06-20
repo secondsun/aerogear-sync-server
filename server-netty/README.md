@@ -13,7 +13,8 @@ Neil Fraser.
 This server implementation is WebSocket based.  
 
 ### Prerequisites
-This project currently requires [CouchDB](http://couchdb.apache.org/).
+This project currently requires [CouchDB](http://couchdb.apache.org/), and at the moment requires 5.0.0.Alpha2-SNAPSHOT
+build of [Netty](https://github.com/netty/netty).
 
 ### RestServer server
 <a name="restserver"></a>

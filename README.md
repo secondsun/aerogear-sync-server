@@ -4,6 +4,10 @@ work without a connection, and later when a connection becomes available, any ch
 synchronized with the source of the data.
 This project aims to specify a data synchronization protocol that can be used by AeroGear's client libraries.
 
+### Prerequisites
+This project currently requires [CouchDB](http://couchdb.apache.org/), and at the moment requires 5.0.0.Alpha2-SNAPSHOT
+build of [Netty](https://github.com/netty/netty).
+
 AeroGear Sync consists of the following modules:
 
 * [common](https://github.com/aerogear/aerogear-sync-server/tree/master/common)  
