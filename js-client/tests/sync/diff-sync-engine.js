@@ -40,4 +40,18 @@
         equal ( diffs[3].text, '"}', 'closing bracket');
     });
 
+    test( 'patch document', function() {
+        var engine = Sync.Engine();
+        var doc = { id: 1234, clientId: 'client1', content: { name: 'Fletch' } };
+        engine.addDocument( doc );
+
+        // update the name field
+        doc.content.name = 'Mr.Poon';
+
+        var edits = engine.diff( doc );
+        var patched = engine.patch( edits );
+        console.log( patched );
+        equal( patched.id, 1234, 'Document id should match' );
+    });
+
 })();

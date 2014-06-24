@@ -40,7 +40,8 @@ Sync.Engine = function () {
             docId: doc.id,
             clientId: shadow.clientId,
             version: shadow.clientVersion,
-            checksum: '',
+            // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
+            checksum: '', 
             diffs: asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
         };
     };
@@ -53,6 +54,23 @@ Sync.Engine = function () {
         return agDiffs;
     };
 
+    function asDiffMatchPathDiffs( diffs ) {
+        var dmpDiffs = [];
+        diffs.forEach(function addDiff( value ) {
+            dmpDiffs.push( [asDmp ( value.operation ), value.text] );
+        });
+        return dmpDiffs;
+    };
+
+    function asDmp( op ) {
+        if ( op === 'DELETE' ) {
+            return -1;
+        } else if ( op === 'ADD' ) {
+            return 1;
+        } 
+        return 0;
+    }
+
     function asAgOperation( op ) {
         if ( op === -1 ) {
             return 'DELETE';
@@ -63,6 +81,11 @@ Sync.Engine = function () {
     }
 
     this.patch = function( edits ) {
+        var doc = JSON.stringify( this.getDocument( edits.docId ));
+        var diffs = asDiffMatchPathDiffs( edits.diffs );
+
+        var patches = dmp.patch_make( doc, diffs );
+        return dmp.patch_apply( patches, doc )[0];
     };
 
     var saveDocument = function( doc ) {

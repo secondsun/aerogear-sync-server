@@ -139,7 +139,7 @@ public final class JsonMapper {
         public Document deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            return new DefaultDocument(node.get("docId").asText(), node.get("rev").asText(), node.get("content").asText());
+            return new DefaultDocument(node.get("id").asText(), node.get("rev").asText(), node.get("content").asText());
         }
     }
 
@@ -150,7 +150,7 @@ public final class JsonMapper {
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
-            jgen.writeFieldName("docId");
+            jgen.writeFieldName("id");
             jgen.writeString(document.id());
             jgen.writeFieldName("rev");
             jgen.writeString(document.revision());
@@ -167,7 +167,7 @@ public final class JsonMapper {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
             final String clientId = node.get("clientId").asText();
-            final String documentId = node.get("docId").asText();
+            final String documentId = node.get("id").asText();
             final long version = node.get("version").asLong();
             final String checksum = node.get("checksum").asText();
             final JsonNode diffsNode = node.get("diffs");
@@ -190,7 +190,7 @@ public final class JsonMapper {
             jgen.writeStartObject();
             jgen.writeStringField("msgType", "edits");
             jgen.writeStringField("clientId", edits.clientId());
-            jgen.writeStringField("docId", edits.documentId());
+            jgen.writeStringField("id", edits.documentId());
             jgen.writeNumberField("version", edits.version());
             jgen.writeStringField("checksum", edits.checksum());
             if (!edits.diffs().isEmpty()) {

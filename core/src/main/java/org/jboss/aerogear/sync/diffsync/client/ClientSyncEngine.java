@@ -75,7 +75,8 @@ public class ClientSyncEngine<T> {
      * @param edits the updates from the server.
      */
     public ClientDocument<T> patch(final Edits edits) {
-        final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edits, dataStore.getShadowDocument(edits.documentId(), edits.clientId()));
+        final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edits,
+                dataStore.getShadowDocument(edits.documentId(), edits.clientId()));
         saveShadow(incrementServerVersion(patchedShadow));
         saveBackupShadow(patchedShadow);
         clearPendingEdits(edits);
