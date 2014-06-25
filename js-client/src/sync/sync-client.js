@@ -53,7 +53,7 @@ Sync.Client = function ( config ) {
     };  
 
     var send = function ( msgType, doc ) {
-        var json = { msgType: msgType, docId: doc.docId, clientId: doc.clientId, content: doc.content };
+        var json = { msgType: msgType, id: doc.id, clientId: doc.clientId, content: doc.content };
         console.log ( 'sending ' + JSON.stringify ( json ) );
         ws.send( JSON.stringify ( json ) );
     };
