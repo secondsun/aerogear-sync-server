@@ -55,14 +55,12 @@ Sync.Engine = function () {
     };
 
     function asDiffMatchPathDiffs( diffs ) {
-        var dmpDiffs = [];
-        diffs.forEach(function addDiff( value ) {
-            dmpDiffs.push( [asDmp ( value.operation ), value.text] );
+        return diffs.map(function ( value ) {
+            return [asDmpOperation ( value.operation ), value.text];
         });
-        return dmpDiffs;
     };
 
-    function asDmp( op ) {
+    function asDmpOperation( op ) {
         if ( op === 'DELETE' ) {
             return -1;
         } else if ( op === 'ADD' ) {
@@ -81,11 +79,10 @@ Sync.Engine = function () {
     }
 
     this.patch = function( edits ) {
-        var doc = JSON.stringify( this.getDocument( edits.docId ));
+        var doc = JSON.stringify( this.getDocument( edits.docId ).content);
         var diffs = asDiffMatchPathDiffs( edits.diffs );
-
         var patches = dmp.patch_make( doc, diffs );
-        return dmp.patch_apply( patches, doc )[0];
+        return dmp.patch_apply( patches, doc );
     };
 
     var saveDocument = function( doc ) {

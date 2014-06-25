@@ -62,6 +62,7 @@ public class ServerSyncEngine<T> {
             dataStore.saveDocument(document);
             addShadow(document.id(), clientId);
         }
+        //TODO: add client document even if document exists.
     }
 
     /**

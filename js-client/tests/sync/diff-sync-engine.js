@@ -42,7 +42,7 @@
 
     test( 'patch document', function() {
         var engine = Sync.Engine();
-        var doc = { id: 1234, clientId: 'client1', content: { name: 'Fletch' } };
+        var doc = { id: 1234, clientId: 'client1', content: {name: 'Fletch' } };
         engine.addDocument( doc );
 
         // update the name field
@@ -50,8 +50,8 @@
 
         var edits = engine.diff( doc );
         var patched = engine.patch( edits );
-        console.log( patched );
-        equal( patched.id, 1234, 'Document id should match' );
+        equal( patched[1][0], true, 'patch should have been successful.' );
+        equal( patched[0], '{"name":"Mr.Poon"}', 'name should have been updated' );
     });
 
 })();
