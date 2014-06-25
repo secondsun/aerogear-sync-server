@@ -60,9 +60,8 @@ public class ServerSyncEngine<T> {
     public void addDocument(final Document<T> document, final String clientId) {
         if (!contains(document.id())) {
             dataStore.saveDocument(document);
-            addShadow(document.id(), clientId);
         }
-        //TODO: add client document even if document exists.
+        addShadow(document.id(), clientId);
     }
 
     /**
