@@ -78,7 +78,12 @@ Sync.Engine = function () {
         return "UNCHANGED";
     }
 
-    this.patch = function( edits ) {
+    this.patch = function( doc ) {
+        var edits = this.diff( doc );
+        return this.applyEdits( edits );
+    }
+
+    this.applyEdits = function ( edits ) {
         var doc = JSON.stringify( this.getDocument( edits.docId ).content);
         var diffs = asDiffMatchPathDiffs( edits.diffs );
         var patches = dmp.patch_make( doc, diffs );

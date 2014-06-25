@@ -48,10 +48,34 @@
         // update the name field
         doc.content.name = 'Mr.Poon';
 
-        var edits = engine.diff( doc );
-        var patched = engine.patch( edits );
+        var patched = engine.patch( doc );
         equal( patched[1][0], true, 'patch should have been successful.' );
-        equal( patched[0], '{"name":"Mr.Poon"}', 'name should have been updated' );
+        equal( patched[0], '{"name":"Mr.Poon"}', 'name should have been updated to Mr.Poon' );
+    });
+
+    test( 'patch two documents', function() {
+        var engine = Sync.Engine();
+        var content = {name: 'Fletch' };
+        var doc = { id: 1234, clientId: 'client1', content: content };
+        engine.addDocument( doc );
+
+        var doc2 = { id: 1234, clientId: 'client2', content: content };
+        engine.addDocument( doc2 );
+
+        // update the name field
+        doc.content.name = 'Mr.Poon';
+
+        var patched = engine.patch( doc );
+        equal( patched[1][0], true, 'patch should have been successful.' );
+        equal( patched[0], '{"name":"Mr.Poon"}', 'name should have been updated to Mr.Poon' );
+
+        doc2.content.name = 'Dr.Rosen';
+
+        var patched2 = engine.patch( doc2 );
+        equal( patched2[1][0], true, 'patch should have been successful.' );
+        equal( patched2[0], '{"name":"Dr.Rosen"}', 'name should have been updated to Dr.Rosen' );
+
+
     });
 
 })();
