@@ -21,9 +21,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.JsonMapper;
-import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.sync.diffsync.DiffSyncHandler;
-import org.jboss.aerogear.sync.diffsync.Edits;
 import org.jboss.aerogear.sync.diffsync.client.ClientDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
@@ -63,9 +60,10 @@ public class DiffSyncHandlerTest {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
-        final String originalContent = "Do or do not, there is no try.";
+        final String originalContent = "{\"content\": \"Do or do not, there is no try.\"}";
         sendAddDocMsg(docId, clientId, originalContent, channel);
-        final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId, "Do or do not, there is no try!");
+        final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId,
+                "{\"content\": \"Do or do not, there is no try!\"}");
         final JsonNode json = sendEditMsg(clientEdits, channel);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
         final TextWebSocketFrame serverUpdate = channel.readOutbound();
@@ -85,7 +83,7 @@ public class DiffSyncHandlerTest {
                                           final EmbeddedChannel ch) {
         final ObjectNode docMsg = message("add");
         docMsg.put("msgType", "add");
-        docMsg.put("docId", docId);
+        docMsg.put("id", docId);
         docMsg.put("clientId", clientId);
         docMsg.put("content", content);
         return writeTextFrame(docMsg.toString(), ch);
@@ -93,7 +91,7 @@ public class DiffSyncHandlerTest {
 
     private static JsonNode sendAddShadowMsg(final String docId, final String clientId, final EmbeddedChannel ch) {
         final ObjectNode shadowMsg = message("shadow");
-        shadowMsg.put("docId", docId);
+        shadowMsg.put("id", docId);
         shadowMsg.put("clientId", clientId);
         return writeTextFrame(shadowMsg.toString(), ch);
     }

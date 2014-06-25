@@ -84,7 +84,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
     }
 
     private static Document<String> documentFromJson(final JsonNode json) {
-        return new DefaultDocument<String>(json.get("docId").asText(), json.get("content").asText());
+        return new DefaultDocument<String>(json.get("id").asText(), json.get("content").asText());
     }
 
     private static void addClientListener(final String documentId, final ChannelHandlerContext ctx) {
