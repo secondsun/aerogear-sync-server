@@ -1,11 +1,11 @@
-this.Sync = {}; 
+this.Sync = {};
 
 Sync.Client = function ( config ) {
     var sendQueue = [], ws;
 
     if ( ! ( this instanceof Sync.Client ) ) {
         return new Sync.Client( config );
-    }   
+    }
 
     if ( config.serverUrl === undefined ) {
         throw new Error("'config.serverUrl' must be specified" );
@@ -20,7 +20,7 @@ Sync.Client = function ( config ) {
     };
     ws.onmessage = function( e ) {
         config.onmessage( e );
-    }
+    };
     ws.onerror = function( e ) {
         if ( config.onerror === undefined ) {
             console.log ( 'Error: ' + e );
@@ -34,7 +34,7 @@ Sync.Client = function ( config ) {
         } else {
             config.onclose ( e );
         }
-    }
+    };
 
     this.addDoc = function( doc ) {
         if ( ws.readyState === 0 ) {
@@ -42,15 +42,15 @@ Sync.Client = function ( config ) {
         } else if ( ws.readyState === 1 ) {
             send( 'add', doc );
         }
-    };  
+    };
 
     this.disconnect = function () {
         ws.close();
-    }
+    };
 
     this.removeDoc = function( doc ) {
         console.log( "removing  doc from engine" );
-    };  
+    };
 
     var send = function ( msgType, doc ) {
         var json = { msgType: msgType, id: doc.id, clientId: doc.clientId, content: doc.content };

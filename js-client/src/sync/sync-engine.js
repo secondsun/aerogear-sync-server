@@ -1,10 +1,10 @@
-this.Sync = {}; 
+this.Sync = {};
 
 Sync.Engine = function () {
 
     if ( ! ( this instanceof Sync.Engine ) ) {
         return new Sync.Engine();
-    }   
+    }
 
     var dm = AeroGear.DataManager( ['docs', 'shadows', 'backups', 'edits'] );
     var dmp = new diff_match_patch();
@@ -39,7 +39,7 @@ Sync.Engine = function () {
             clientId: shadow.clientId,
             version: shadow.clientVersion,
             // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
-            checksum: '', 
+            checksum: '',
             diffs: asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
         };
     };
@@ -60,20 +60,20 @@ Sync.Engine = function () {
             agDiffs.push( {operation: asAgOperation( value[0] ), text: value[1] } );
         });
         return agDiffs;
-    };
+    }
 
     function asDiffMatchPathDiffs( diffs ) {
         return diffs.map(function ( value ) {
             return [asDmpOperation ( value.operation ), value.text];
         });
-    };
+    }
 
     function asDmpOperation( op ) {
         if ( op === 'DELETE' ) {
             return -1;
         } else if ( op === 'ADD' ) {
             return 1;
-        } 
+        }
         return 0;
     }
 

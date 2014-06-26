@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-    'use strict'
+    'use strict';
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         uglify: {
@@ -11,7 +11,7 @@ module.exports = function(grunt) {
         },
         qunit: {
             files: ['tests/sync/diff-sync-engine.html']
-        }, 
+        },
         shell: {
             restserver: {
                 options: {
