@@ -62,7 +62,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 addClientListener(doc.id(), ctx);
                 respond(ctx, "ADDED");
                 break;
-            case EDITS:
+            case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
                 final Edits edits = patch(clientEdits);
                 respond(ctx, "PATCHED");
@@ -70,7 +70,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             case DETACH:
                 // detach the client from a specific document.
             case UNKNOWN:
-                ctx.channel().writeAndFlush(textFrame("{\"result\": \"Unknown msgType '" + json.get("msgType").asText() + "'\"}"));
+                unknownMessageType(ctx, json);
             }
         }
     }
@@ -117,6 +117,10 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         final TextWebSocketFrame textWebSocketFrame = textFrame("{\"result\": \"" + msg + "\"}");
         logger.info("Responding: " + textWebSocketFrame.text());
         ctx.channel().writeAndFlush(textWebSocketFrame);
+    }
+
+    private static void unknownMessageType(final ChannelHandlerContext ctx, final JsonNode json) {
+        ctx.channel().writeAndFlush(textFrame("{\"result\": \"Unknown msgType '" + json.get("msgType").asText() + "'\"}"));
     }
 
     private static TextWebSocketFrame textFrame(final String text) {

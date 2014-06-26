@@ -16,12 +16,6 @@
  */
 package org.jboss.aerogear.sync.diffsync;
 
-import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.sync.diffsync.DefaultDocument;
-import org.jboss.aerogear.sync.diffsync.Diff;
-import org.jboss.aerogear.sync.diffsync.Document;
-import org.jboss.aerogear.sync.diffsync.Edits;
-import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 import org.jboss.aerogear.sync.diffsync.client.ClientDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;

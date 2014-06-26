@@ -188,7 +188,7 @@ public final class JsonMapper {
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
-            jgen.writeStringField("msgType", "edits");
+            jgen.writeStringField("msgType", "patch");
             jgen.writeStringField("clientId", edits.clientId());
             jgen.writeStringField("id", edits.documentId());
             jgen.writeNumberField("version", edits.version());
