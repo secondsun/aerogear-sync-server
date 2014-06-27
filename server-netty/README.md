@@ -10,7 +10,12 @@ This server uses HTTP and supports SPDY where available.
 2 [DiffServer](#diffserver)  
 Based on Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html) by
 Neil Fraser.   
-This server implementation is WebSocket based.  
+This server implementation is WebSocket based.
+
+### Resources
+* [Differential Synchronization presentation](https://www.youtube.com/watch?v=S2Hp_1jqpY8)
+* [Differential Synchronization paper](http://research.google.com/pubs/pub35605.html)
+* [Differential Synchronization step by step keynote presentation](https://www.icloud.com/iw/#keynote/BAKHgqmqd5ETPe9ebKyBhSINoBo1QHaNPYeF/diffsync)
 
 ### Prerequisites
 This project currently requires [CouchDB](http://couchdb.apache.org/), and at the moment requires 5.0.0.Alpha2-SNAPSHOT
