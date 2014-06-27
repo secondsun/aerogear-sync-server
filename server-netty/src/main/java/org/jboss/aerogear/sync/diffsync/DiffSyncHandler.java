@@ -118,7 +118,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private void removeAckedEdits(final Edits clientEdits) {
+    private static void removeAckedEdits(final Edits clientEdits) {
         while (true) {
             final Set<Edits> currentEdits = pendingEdits.get(clientEdits.clientId());
             if (currentEdits != null || !currentEdits.isEmpty()) {
