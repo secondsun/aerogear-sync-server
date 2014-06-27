@@ -7,7 +7,7 @@
         ok( engine , 'Should be no problem not using new when creating' );
     });
 
-    test( 'save document', function() {
+    test( 'addDdocument', function() {
         var engine = Sync.Engine(), doc = { id: 1234, clientId: 'client1', content: { name: 'Fletch' } };
         engine.addDocument( { id: 1234, clientId: 'client1', content: { name: 'Fletch' } } );
         var actualDoc = engine.getDocument( 1234 );
@@ -75,7 +75,34 @@
         equal( patched2[1][0], true, 'patch should have been successful.' );
         equal( patched2[0], '{"name":"Dr.Rosen"}', 'name should have been updated to Dr.Rosen' );
 
+    });
 
+    test( 'patchShadow', function() {
+        var engine = Sync.Engine();
+        var content = {name: 'Fletch' };
+        var doc = { id: 1234, clientId: 'client1', content: content };
+        engine.addDocument( doc );
+        doc.content.name = 'John Coctolstol';
+        var serverEdits = engine.diff( doc );
+        serverEdits.version = 2;
+
+        var shadow = engine.patchShadow( serverEdits );
+        equal( shadow.doc.content, '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
+        equal( shadow.serverVersion, 2, 'Server version should have been updated.' );
+        equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
+    });
+
+    test( 'patchDocument', function() {
+        var engine = Sync.Engine();
+        var content = {name: 'Fletch' };
+        var doc = { id: 1234, clientId: 'client1', content: content };
+        engine.addDocument( doc );
+        doc.content.name = 'John Coctolstol';
+        var serverEdits = engine.diff( doc );
+        serverEdits.version = 2;
+
+        var doc = engine.patchDocument( serverEdits );
+        equal( doc.content, '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
     });
 
 })();

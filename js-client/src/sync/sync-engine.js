@@ -6,9 +6,7 @@ Sync.Engine = function () {
         return new Sync.Engine();
     }   
 
-    var docs = AeroGear.DataManager( { name: 'doc', recordId: 'id' } ).stores.doc;
-    var shadows = AeroGear.DataManager( { name: 'shadow', recordId: 'id' } ).stores.shadow;
-    var backups = AeroGear.DataManager( { name: 'backup', recordId: 'id' } ).stores.backup;
+    var dm = AeroGear.DataManager( ['docs', 'shadows', 'backups', 'edits'] );
     var dmp = new diff_match_patch();
 
     /**
@@ -35,7 +33,7 @@ Sync.Engine = function () {
      * @returns {object} containing the diffs that between the clientDoc and it's shadow doc.
      */
     this.diff = function( doc ) {
-        var shadow = shadows.read( doc.id )[0];
+        var shadow = dm.stores.shadows.read( doc.id )[0];
         return { msgType: 'edits',
             docId: doc.id,
             clientId: shadow.clientId,
@@ -44,6 +42,16 @@ Sync.Engine = function () {
             checksum: '', 
             diffs: asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
         };
+    };
+
+    this.processServerEdits = function( edits ) {
+        saveShadow( this.patchShadow( edits ) );
+        var doc = this.saveDocument( this.patchDocument( edits ) );
+        var backup = this.getBackup( doc.id );
+        backup.content = doc.content;
+        backup.clientVersion++;
+        saveBackup( backup );
+        //remove pending edits.
     };
 
     function asAeroGearDiffs( diffs ) {
@@ -78,12 +86,34 @@ Sync.Engine = function () {
         return "UNCHANGED";
     }
 
+    this.patchShadow = function( edits ) {
+        var shadow = this.getShadow( edits.docId );
+        var patched = this.applyEditsToShadow( edits, shadow );
+        shadow.doc.content = patched[0];
+        shadow.serverVersion = edits.version;
+        return shadow;
+    };
+
+    this.applyEditsToShadow = function ( edits, shadow ) {
+        var doc = JSON.stringify( shadow.doc.content);
+        var diffs = asDiffMatchPathDiffs( edits.diffs );
+        var patches = dmp.patch_make( doc, diffs );
+        return dmp.patch_apply( patches, doc );
+    };
+
+    this.patchDocument = function( edits ) {
+        var patched = this.applyEditsToDoc( edits );
+        var doc = this.getDocument( edits.docId );
+        doc.content = patched[0];
+        return doc;
+    };
+
     this.patch = function( doc ) {
         var edits = this.diff( doc );
-        return this.applyEdits( edits );
+        return this.applyEditsToDoc( edits );
     }
 
-    this.applyEdits = function ( edits ) {
+    this.applyEditsToDoc = function ( edits ) {
         var doc = JSON.stringify( this.getDocument( edits.docId ).content);
         var diffs = asDiffMatchPathDiffs( edits.diffs );
         var patches = dmp.patch_make( doc, diffs );
@@ -91,21 +121,29 @@ Sync.Engine = function () {
     };
 
     var saveDocument = function( doc ) {
-        docs.save( doc );
+        dm.stores.docs.save( doc );
     };
 
     var saveShadow = function( doc ) {
         var shadow = { id: doc.id, serverVersion: 0, clientId: doc.clientId, clientVersion: 0, doc: doc };
-        shadows.save( shadow );
+        dm.stores.shadows.save( shadow );
     };
 
     var saveShadowBackup = function( doc ) {
         var backup = { id: doc.id, clientVersion: 0, doc: doc };
-        backups.save( backup );
+        dm.stores.backups.save( backup );
     };
 
     this.getDocument = function( id ) {
-        return docs.read( id )[0];
+        return dm.stores.docs.read( id )[0];
+    };
+
+    this.getShadow = function( id ) {
+        return dm.stores.shadows.read( id )[0];
+    };
+
+    this.getBackup = function( id ) {
+        return dm.stores.backups.read( id )[0];
     };
 
 };
