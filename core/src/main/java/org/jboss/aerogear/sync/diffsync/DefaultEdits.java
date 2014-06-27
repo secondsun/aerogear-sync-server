@@ -58,4 +58,30 @@ public class DefaultEdits implements Edits {
     public LinkedList<Diff> diffs() {
         return diffs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DefaultEdits that = (DefaultEdits) o;
+
+        if (version != that.version) return false;
+        if (!checksum.equals(that.checksum)) return false;
+        if (!clientId.equals(that.clientId)) return false;
+        if (!diffs.equals(that.diffs)) return false;
+        if (!documentId.equals(that.documentId)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = clientId.hashCode();
+        result = 31 * result + documentId.hashCode();
+        result = 31 * result + (int) (version ^ (version >>> 32));
+        result = 31 * result + checksum.hashCode();
+        result = 31 * result + diffs.hashCode();
+        return result;
+    }
 }

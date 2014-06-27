@@ -29,6 +29,7 @@ import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +41,10 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private static final ConcurrentHashMap<String, Set<ChannelHandlerContext>> clients =
             new ConcurrentHashMap<String, Set<ChannelHandlerContext>>();
+
+    private static final ConcurrentHashMap<String, Set<Edits>> pendingEdits =
+            new ConcurrentHashMap<String, Set<Edits>>();
+
     private final ServerSyncEngine<String> syncEngine;
 
     public DiffSyncHandler(final ServerSyncEngine<String> syncEngine) {
@@ -54,7 +59,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
         else if (frame instanceof TextWebSocketFrame) {
             final JsonNode json = JsonMapper.asJsonNode(((TextWebSocketFrame) frame).text());
-            logger.info(json.toString());
+            logger.debug(json.toString());
             switch (MessageType.from(json.get("msgType").asText())) {
             case ADD:
                 final Document<String> doc = documentFromJson(json);
@@ -65,6 +70,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
                 final Edits edits = patch(clientEdits);
+                saveEdits(clientEdits.clientId(), edits);
+                removeAckedEdits(clientEdits);
                 respond(ctx, "PATCHED");
                 notifyClientListeners(edits);
             case DETACH:
@@ -85,6 +92,47 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private static Document<String> documentFromJson(final JsonNode json) {
         return new DefaultDocument<String>(json.get("id").asText(), json.get("content").asText());
+    }
+
+    private static void saveEdits(final String clientId, final Edits edits) {
+        final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
+        newEdits.add(edits);
+        while (true) {
+            final Set<Edits> currentEdits = pendingEdits.get(clientId);
+            if (currentEdits == null) {
+                final Set<Edits> previous = pendingEdits.putIfAbsent(clientId, newEdits);
+                if (previous != null) {
+                    newEdits.addAll(previous);
+                    if (pendingEdits.replace(clientId, previous, newEdits)) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            } else {
+                newEdits.addAll(currentEdits);
+                if (pendingEdits.replace(clientId, currentEdits, newEdits)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    private void removeAckedEdits(final Edits clientEdits) {
+        while (true) {
+            final Set<Edits> currentEdits = pendingEdits.get(clientEdits.clientId());
+            if (currentEdits != null || !currentEdits.isEmpty()) {
+                final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
+                if (newEdits.addAll(currentEdits)) {
+                    if (newEdits.remove(clientEdits)) {
+                        pendingEdits.replace(clientEdits.clientId(), currentEdits, newEdits);
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private static void addClientListener(final String documentId, final ChannelHandlerContext ctx) {

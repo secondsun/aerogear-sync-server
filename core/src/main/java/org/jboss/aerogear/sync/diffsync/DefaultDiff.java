@@ -18,8 +18,8 @@ package org.jboss.aerogear.sync.diffsync;
 
 public class DefaultDiff implements Diff {
 
-    private Operation operation;
-    private String text;
+    private final Operation operation;
+    private final String text;
 
     public DefaultDiff(final Operation operation, final String text) {
         this.operation = operation;
@@ -34,5 +34,30 @@ public class DefaultDiff implements Diff {
     @Override
     public String text() {
         return text;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DefaultDiff that = (DefaultDiff) o;
+
+        if (operation != that.operation) {
+            return false;
+        }
+
+        return text != null ? !text.equals(that.text) : that.text != null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = operation != null ? operation.hashCode() : 0;
+        result = 31 * result + (text != null ? text.hashCode() : 0);
+        return result;
     }
 }
