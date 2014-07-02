@@ -15,10 +15,9 @@ Sync.Engine = function () {
      * @param doc the document to add.
      */
     this.addDocument = function( doc ) {
-        var clonedDoc = JSON.parse( JSON.stringify( doc ) );
-        this._saveDocument( clonedDoc );
-        this._saveShadow( clonedDoc );
-        this._saveShadowBackup( clonedDoc );
+        this._saveDocument( JSON.parse( JSON.stringify( doc ) ) );
+        this._saveShadow( JSON.parse( JSON.stringify( doc ) ) );
+        this._saveShadowBackup( JSON.parse( JSON.stringify( doc ) ) );
     };
 
     /**
@@ -34,8 +33,8 @@ Sync.Engine = function () {
      */
     this.diff = function( doc ) {
         var shadow = dm.stores.shadows.read( doc.id )[0];
-        return { msgType: 'edits',
-            docId: doc.id,
+        return { msgType: 'patch',
+            id: doc.id,
             clientId: shadow.clientId,
             version: shadow.clientVersion,
             // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.

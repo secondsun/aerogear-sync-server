@@ -53,6 +53,10 @@ Sync.Client = function ( config ) {
         }
     };
 
+    this.sendEdit = function( edit ) {
+        ws.send( JSON.stringify( edit ) );
+    };
+
     this.disconnect = function () {
         ws.close();
     };

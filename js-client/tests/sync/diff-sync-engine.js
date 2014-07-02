@@ -23,7 +23,7 @@
         doc.content.name = 'Mr.Poon';
 
         var edits = engine.diff( doc );
-        equal ( edits.docId, 1234, 'document id should be 1234');
+        equal ( edits.id, 1234, 'document id should be 1234');
         equal ( edits.clientId, 'client1', 'clientId should be client1');
         equal ( edits.version, 0, 'version should be zero');
         equal ( edits.checksum, '', 'checksum is currently not implemented.');
