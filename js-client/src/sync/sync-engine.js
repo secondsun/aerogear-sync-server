@@ -1,4 +1,4 @@
-this.Sync = {};
+this.Sync = this.Sync || {};
 
 Sync.Engine = function () {
 
@@ -111,7 +111,7 @@ Sync.Engine = function () {
     this.patch = function( doc ) {
         var edits = this.diff( doc );
         return this.applyEditsToDoc( edits );
-    }
+    };
 
     this.applyEditsToDoc = function ( edits ) {
         var doc = JSON.stringify( this.getDocument( edits.docId ).content);

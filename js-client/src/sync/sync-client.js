@@ -1,11 +1,13 @@
-this.Sync = {};
+this.Sync = this.Sync || {};
 
 Sync.Client = function ( config ) {
-    var sendQueue = [], ws;
-
     if ( ! ( this instanceof Sync.Client ) ) {
         return new Sync.Client( config );
     }
+
+    var sendQueue = [], ws;
+
+    config = config || {};
 
     if ( config.serverUrl === undefined ) {
         throw new Error("'config.serverUrl' must be specified" );
@@ -13,26 +15,33 @@ Sync.Client = function ( config ) {
 
     ws = new WebSocket( config.serverUrl );
     ws.onopen = function ( e ) {
+        if ( config.onopen ) {
+            config.onopen.apply( this, arguments );
+        }
+
         console.log ( 'WebSocket opened' );
+
         while ( sendQueue.length ) {
             send ( 'add', sendQueue.pop() );
         }
     };
     ws.onmessage = function( e ) {
-        config.onmessage( e );
+        if( config.onmessage ) {
+            config.onmessage.apply( this, arguments );
+        }
     };
     ws.onerror = function( e ) {
-        if ( config.onerror === undefined ) {
-            console.log ( 'Error: ' + e );
+        if ( config.onerror ) {
+            config.onerror.apply( this, arguments );
         } else {
-            config.onerror ( e );
+            console.log ( 'Error: ' + e );
         }
     };
     ws.onclose = function( e ) {
-        if ( config.onclose === undefined ) {
-            console.log ( 'Close [code=' + e.code + ', reason=' + e.reason + ', wasClean=' + e.wasClean + ']' );
+        if ( config.onclose ) {
+             config.onclose.apply( this, arguments);
         } else {
-            config.onclose ( e );
+            console.log ( 'Close [code=' + e.code + ', reason=' + e.reason + ', wasClean=' + e.wasClean + ']' );
         }
     };
 
