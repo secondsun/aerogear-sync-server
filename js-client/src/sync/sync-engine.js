@@ -6,8 +6,8 @@ Sync.Engine = function () {
         return new Sync.Engine();
     }
 
-    var dm = AeroGear.DataManager( ['docs', 'shadows', 'backups', 'edits'] );
-    var dmp = new diff_match_patch();
+    var dm = AeroGear.DataManager( ['docs', 'shadows', 'backups', 'edits'] ), // Shouldn't depend on AG Datamaanger in the future
+        dmp = new diff_match_patch();
 
     /**
      * Adds a new document to this sync engine.
@@ -16,9 +16,9 @@ Sync.Engine = function () {
      */
     this.addDocument = function( doc ) {
         var clonedDoc = JSON.parse( JSON.stringify( doc ) );
-        saveDocument( clonedDoc );
-        saveShadow( clonedDoc );
-        saveShadowBackup( clonedDoc );
+        this._saveDocument( clonedDoc );
+        this._saveShadow( clonedDoc );
+        this._saveShadowBackup( clonedDoc );
     };
 
     /**
@@ -40,70 +40,72 @@ Sync.Engine = function () {
             version: shadow.clientVersion,
             // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
             checksum: '',
-            diffs: asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+            diffs: this._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
         };
     };
 
     this.processServerEdits = function( edits ) {
-        saveShadow( this.patchShadow( edits ) );
-        var doc = this.saveDocument( this.patchDocument( edits ) );
-        var backup = this.getBackup( doc.id );
+        var doc = this._saveDocument( this.patchDocument( edits ) ),
+            backup = this.getBackup( doc.id );
+
+        this._saveShadow( this.patchShadow( edits ) );
         backup.content = doc.content;
         backup.clientVersion++;
-        saveBackup( backup );
+        this._saveBackup( backup );
         //remove pending edits.
     };
 
-    function asAeroGearDiffs( diffs ) {
-        var agDiffs = [];
-        diffs.forEach(function addDiff( value ) {
-            agDiffs.push( {operation: asAgOperation( value[0] ), text: value[1] } );
-        });
-        return agDiffs;
-    }
+    this._asAeroGearDiffs = function( diffs ) {
+        return diffs.map(function( value ) {
+            return {operation: this._asAgOperation( value[0] ), text: value[1] };
+        }.bind(this));
+    };
 
-    function asDiffMatchPathDiffs( diffs ) {
+    this._asDiffMatchPathDiffs = function( diffs ) {
         return diffs.map(function ( value ) {
-            return [asDmpOperation ( value.operation ), value.text];
-        });
-    }
+            return [this._asDmpOperation ( value.operation ), value.text];
+        }.bind(this));
+    };
 
-    function asDmpOperation( op ) {
+    this._asDmpOperation = function( op ) {
         if ( op === 'DELETE' ) {
             return -1;
         } else if ( op === 'ADD' ) {
             return 1;
         }
         return 0;
-    }
+    };
 
-    function asAgOperation( op ) {
+    this._asAgOperation = function( op ) {
         if ( op === -1 ) {
             return 'DELETE';
         } else if ( op === 1 ) {
             return 'ADD';
         }
         return "UNCHANGED";
-    }
+    };
 
     this.patchShadow = function( edits ) {
-        var shadow = this.getShadow( edits.docId );
-        var patched = this.applyEditsToShadow( edits, shadow );
+        var shadow = this.getShadow( edits.docId ),
+            patched = this.applyEditsToShadow( edits, shadow );
+
         shadow.doc.content = patched[0];
         shadow.serverVersion = edits.version;
         return shadow;
     };
 
     this.applyEditsToShadow = function ( edits, shadow ) {
-        var doc = JSON.stringify( shadow.doc.content);
-        var diffs = asDiffMatchPathDiffs( edits.diffs );
-        var patches = dmp.patch_make( doc, diffs );
+        var doc = JSON.stringify( shadow.doc.content),
+            diffs = this._asDiffMatchPathDiffs( edits.diffs ),
+            patches = dmp.patch_make( doc, diffs );
+
         return dmp.patch_apply( patches, doc );
     };
 
     this.patchDocument = function( edits ) {
-        var patched = this.applyEditsToDoc( edits );
-        var doc = this.getDocument( edits.docId );
+        var patched = this.applyEditsToDoc( edits ),
+            doc = this.getDocument( edits.docId );
+
         doc.content = patched[0];
         return doc;
     };
@@ -115,21 +117,21 @@ Sync.Engine = function () {
 
     this.applyEditsToDoc = function ( edits ) {
         var doc = JSON.stringify( this.getDocument( edits.docId ).content);
-        var diffs = asDiffMatchPathDiffs( edits.diffs );
+        var diffs = this._asDiffMatchPathDiffs( edits.diffs );
         var patches = dmp.patch_make( doc, diffs );
         return dmp.patch_apply( patches, doc );
     };
 
-    var saveDocument = function( doc ) {
+    this._saveDocument = function( doc ) {
         dm.stores.docs.save( doc );
     };
 
-    var saveShadow = function( doc ) {
+    this._saveShadow = function( doc ) {
         var shadow = { id: doc.id, serverVersion: 0, clientId: doc.clientId, clientVersion: 0, doc: doc };
         dm.stores.shadows.save( shadow );
     };
 
-    var saveShadowBackup = function( doc ) {
+    this._saveShadowBackup = function( doc ) {
         var backup = { id: doc.id, clientVersion: 0, doc: doc };
         dm.stores.backups.save( backup );
     };
