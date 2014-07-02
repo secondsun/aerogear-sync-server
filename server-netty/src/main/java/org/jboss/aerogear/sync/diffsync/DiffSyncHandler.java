@@ -74,10 +74,13 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 removeAckedEdits(clientEdits);
                 respond(ctx, "PATCHED");
                 notifyClientListeners(edits);
+                break;
             case DETACH:
                 // detach the client from a specific document.
+                break;
             case UNKNOWN:
                 unknownMessageType(ctx, json);
+                break;
             }
         }
     }
