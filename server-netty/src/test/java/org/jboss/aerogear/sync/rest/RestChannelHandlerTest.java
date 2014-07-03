@@ -40,7 +40,7 @@ public class RestChannelHandlerTest {
         final EmbeddedChannel channel = withMockGetHandler();
         channel.writeInbound(new DefaultHttpRequest(HTTP_1_1, GET, "/app/resource"));
         final HttpResponse response = channel.readOutbound();
-        assertThat(response.getStatus(), is(OK));
+        assertThat(response.status(), is(OK));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class RestChannelHandlerTest {
         final EmbeddedChannel channel = withMockPutHandler();
         channel.writeInbound(new DefaultHttpRequest(HTTP_1_1, PUT, "/app/resource"));
         final HttpResponse response = channel.readOutbound();
-        assertThat(response.getStatus(), is(OK));
+        assertThat(response.status(), is(OK));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class RestChannelHandlerTest {
         final EmbeddedChannel channel = withMockPostHandler();
         channel.writeInbound(new DefaultHttpRequest(HTTP_1_1, POST, "/app/resource"));
         final HttpResponse response = channel.readOutbound();
-        assertThat(response.getStatus(), is(CREATED));
+        assertThat(response.status(), is(CREATED));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class RestChannelHandlerTest {
         final EmbeddedChannel channel = withMockDeleteHandler();
         channel.writeInbound(new DefaultHttpRequest(HTTP_1_1, DELETE, "/app/resource"));
         final HttpResponse response = channel.readOutbound();
-        assertThat(response.getStatus(), is(NO_CONTENT));
+        assertThat(response.status(), is(NO_CONTENT));
     }
 
     private static EmbeddedChannel withMockGetHandler() {

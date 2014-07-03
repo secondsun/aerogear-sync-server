@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.JsonMapper;
+import org.jboss.aerogear.sync.diffsync.Diff.Operation;
 import org.jboss.aerogear.sync.diffsync.client.ClientDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
@@ -71,6 +72,11 @@ public class DiffSyncHandlerTest {
         assertThat(serverUpdates.documentId(), equalTo(docId));
         assertThat(serverUpdates.clientId(), equalTo(clientId));
         assertThat(serverUpdates.version(), is(1L));
+        assertThat(serverUpdates.diffs().size(), is(4));
+        assertThat(serverUpdates.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(serverUpdates.diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(serverUpdates.diffs().get(2).operation(), is(Operation.ADD));
+        assertThat(serverUpdates.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 
     private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {

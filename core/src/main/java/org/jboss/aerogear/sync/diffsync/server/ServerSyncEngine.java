@@ -72,7 +72,9 @@ public class ServerSyncEngine<T> {
      */
     public Edits patch(final Edits clientEdits) {
         patchShadow(clientEdits);
-        return diff(patchDocument(clientEdits), clientEdits.clientId());
+        final Edits edits = diff(dataStore.getDocument(clientEdits.documentId()), clientEdits.clientId());
+        patchDocument(clientEdits);
+        return edits;
     }
 
     /*

@@ -53,7 +53,7 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     @Override
     public Edits diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
-        final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
+        final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
         return new DefaultEdits(shadowDocument.document().clientId(), document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
     }
 

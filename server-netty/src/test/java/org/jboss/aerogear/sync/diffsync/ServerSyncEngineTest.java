@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.diffsync;
 
+import org.jboss.aerogear.sync.diffsync.Diff.Operation;
 import org.jboss.aerogear.sync.diffsync.client.ClientDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
@@ -95,9 +96,10 @@ public class ServerSyncEngineTest {
         final Edits edits = syncEngine.patch(clientEdits);
         assertThat(edits.version(), is(1L));
         assertThat(edits.clientId(), equalTo(clientId));
-        assertThat(edits.diffs().size(), is(1));
-        assertThat(edits.diffs().get(0).text(), equalTo(updatedText));
-        assertThat(edits.diffs().get(0).operation(), is(Diff.Operation.UNCHANGED));
+        assertThat(edits.diffs().size(), is(3));
+        assertThat(edits.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edits.diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(edits.diffs().get(2).operation(), is(Operation.ADD));
 
         final ShadowDocument<String> shadowAfter = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowAfter.clientVersion(), is(1L));

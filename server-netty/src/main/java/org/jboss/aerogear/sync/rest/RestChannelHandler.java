@@ -52,7 +52,7 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             final HttpRequest request = (HttpRequest) msg;
-            final HttpMethod method = request.getMethod();
+            final HttpMethod method = request.method();
             final HttpResponse response;
             logger.info("HTTP Method: " + method);
             if (method.equals(GET)) {

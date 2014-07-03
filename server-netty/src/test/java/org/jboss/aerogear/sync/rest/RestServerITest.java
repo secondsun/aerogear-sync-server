@@ -87,7 +87,7 @@ public class RestServerITest {
         final NettyClient client = new NettyClient("localhost", port);
         try {
             client.send(putRequest(documentId, content));
-            assertThat(client.getResponse().getStatus(), is(OK));
+            assertThat(client.getResponse().status(), is(OK));
             assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
             final Document document = fromJson(client.getBody(), Document.class);
             assertThat(document.id(), equalTo(documentId));
@@ -146,7 +146,7 @@ public class RestServerITest {
             final Document updated = fromJson(client.getBody(), Document.class);
             final Document conflict = new DefaultDocument(updated.id(), original.revision(), "{\"model\":\"mazda\"}");
             client.send(putRequest(conflict));
-            assertThat(client.getResponse().getStatus(), is(CONFLICT));
+            assertThat(client.getResponse().status(), is(CONFLICT));
             assertThat(fromJson(client.getBody(), Document.class).revision(), equalTo(updated.revision()));
         } finally {
             client.shutdown();
@@ -162,7 +162,7 @@ public class RestServerITest {
             client.send(putRequest(documentId, content));
             final Document doc = fromJson(client.getBody(), Document.class);
             client.send(deleteRequest(documentId, "/", jsonRev(doc.revision())));
-            assertThat(client.getResponse().getStatus(), equalTo(OK));
+            assertThat(client.getResponse().status(), equalTo(OK));
             assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
             assertThat(asJsonNode(client.getBody()).get("rev").asText(), not(equalTo(doc.revision())));
         } finally {

@@ -64,9 +64,9 @@ public class DefaultRestProcessor implements RestProcessor {
     public HttpResponse processGet(final HttpRequest request, final ChannelHandlerContext ctx) {
         try {
             final Document document = sync.read(extractId(request));
-            return responseWithContent(request.getProtocolVersion(), OK, toJson(document));
+            return responseWithContent(request.protocolVersion(), OK, toJson(document));
         } catch (final DocumentNotFoundException e) {
-            return new DefaultFullHttpResponse(request.getProtocolVersion(), NOT_FOUND);
+            return new DefaultFullHttpResponse(request.protocolVersion(), NOT_FOUND);
         }
     }
 
@@ -79,21 +79,21 @@ public class DefaultRestProcessor implements RestProcessor {
                     try {
                         final Document updateDoc = partialDocument(extractId(request), contentAsString(fullHttpRequest));
                         final Document updatedDoc = sync.update(updateDoc);
-                        return responseWithContent(request.getProtocolVersion(), OK, toJson(updatedDoc));
+                        return responseWithContent(request.protocolVersion(), OK, toJson(updatedDoc));
                     } catch (final ConflictException e) {
-                        return responseWithContent(request.getProtocolVersion(), CONFLICT, toJson(e.latest()));
+                        return responseWithContent(request.protocolVersion(), CONFLICT, toJson(e.latest()));
                     }
                 }
             } finally {
                 fullHttpRequest.release();
             }
         }
-        return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
+        return new DefaultHttpResponse(request.protocolVersion(), BAD_REQUEST);
     }
 
     @Override
     public HttpResponse processPost(final HttpRequest request, final ChannelHandlerContext ctx) {
-        return new DefaultHttpResponse(request.getProtocolVersion(), NOT_IMPLEMENTED);
+        return new DefaultHttpResponse(request.protocolVersion(), NOT_IMPLEMENTED);
     }
 
     @Override
@@ -105,12 +105,12 @@ public class DefaultRestProcessor implements RestProcessor {
                 final Document doc = partialDocument(id, contentAsString(fullHttpRequest));
                 final ObjectNode revision = newObjectNode();
                 revision.put("rev", sync.delete(id, doc.revision()));
-                return responseWithContent(request.getProtocolVersion(), OK, revision.toString());
+                return responseWithContent(request.protocolVersion(), OK, revision.toString());
             } finally {
                 fullHttpRequest.release();
             }
         } else {
-            return new DefaultHttpResponse(request.getProtocolVersion(), BAD_REQUEST);
+            return new DefaultHttpResponse(request.protocolVersion(), BAD_REQUEST);
         }
     }
 
@@ -119,7 +119,7 @@ public class DefaultRestProcessor implements RestProcessor {
     }
 
     private static String extractId(final HttpRequest request) {
-        final String path = new QueryStringDecoder(request.getUri()).path();
+        final String path = new QueryStringDecoder(request.uri()).path();
         return path.substring(path.lastIndexOf('/') + 1);
     }
 
