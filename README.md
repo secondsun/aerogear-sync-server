@@ -10,20 +10,20 @@ build of [Netty](https://github.com/netty/netty).
 
 AeroGear Sync consists of the following modules:
 
-* [common](./common)
+* [common](./common)  
 Contains [google-diff-match-patch](https://code.google.com/p/google-diff-match-patch/) with some minor tweaks.  
 
-* [js-client](./js-client)
+* [js-client](./js-client)  
 Contains a JavaScript client library and tests for verifiying the servers funtionality. This will most likely be moved
 out of this project if we decide to move forward with it.  
 
-* [protocol](./protocol)
+* [protocol](./protocol)  
 This module currently only contains the API for the Differential Synchronization implementation.  
 
-* [core](./core)
+* [core](./core)  
 This module contains the core classes for data synchronization. These are intended to be used by server implementation.
 
-* [server-netty](./server-netty)
+* [server-netty](./server-netty)  
 Netty based server implementations. Please refer to the README.md for details about how to build and run the servers,
 as well as information about the various implementations.
 
