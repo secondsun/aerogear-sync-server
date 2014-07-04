@@ -27,6 +27,7 @@ import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffsync.client.DefaultClientSynchronizer;
 import org.jboss.aerogear.sync.diffsync.server.DefaultServerSynchronizer;
+import org.jboss.aerogear.sync.diffsync.server.ServerDataStore;
 import org.jboss.aerogear.sync.diffsync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.diffsync.server.ServerSynchronizer;
@@ -36,6 +37,7 @@ import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DiffSyncHandlerTest {
@@ -57,17 +59,36 @@ public class DiffSyncHandlerTest {
     }
 
     @Test
-    public void patch() {
+    public void addDocumentObjectContent() {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
+        final String content = "{\"content\": {\"name\": \"Dr.Rosen\"}}";
+        final JsonNode json = sendAddDocMsg(docId, clientId, content, channel);
+        assertThat(json.get("result").asText(), equalTo("ADDED"));
+    }
+
+    @Test
+    public void patch() {
+        final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
+        final EmbeddedChannel channel = embeddedChannel(dataStore);
+        final EmbeddedChannel channel2 = embeddedChannel(dataStore);
+
+        final String docId = UUID.randomUUID().toString();
         final String originalContent = "{\"content\": \"Do or do not, there is no try.\"}";
+        final String clientId = "client1";
         sendAddDocMsg(docId, clientId, originalContent, channel);
+
+        final String client2Id = "client2";
+        sendAddDocMsg(docId, client2Id, originalContent, channel2);
+
         final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId,
                 "{\"content\": \"Do or do not, there is no try!\"}");
         final JsonNode json = sendEditMsg(clientEdits, channel);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
-        final TextWebSocketFrame serverUpdate = channel.readOutbound();
+
+        assertThat(channel.readOutbound(), is(nullValue()));
+        final TextWebSocketFrame serverUpdate = channel2.readOutbound();
         final Edits serverUpdates = JsonMapper.fromJson(serverUpdate.text(), Edits.class);
         assertThat(serverUpdates.documentId(), equalTo(docId));
         assertThat(serverUpdates.clientId(), equalTo(clientId));
@@ -119,8 +140,11 @@ public class DiffSyncHandlerTest {
     }
 
     private static EmbeddedChannel embeddedChannel() {
+        return embeddedChannel(new ServerInMemoryDataStore());
+    }
+
+    private static EmbeddedChannel embeddedChannel(final ServerInMemoryDataStore dataStore) {
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
-        final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
         final ServerSyncEngine<String> syncEngine = new ServerSyncEngine<String>(synchronizer, dataStore);
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }

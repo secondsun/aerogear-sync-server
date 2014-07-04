@@ -16,23 +16,42 @@
             diffs: [{operation: 'UNCHANGED', text: 'Do or do not, there is no try'},{operation: 'DELETE', text: '.'},{operation: 'ADD', text: '!'}]};
         var url = 'ws://localhost:7777/sync';
         var ws = new WebSocket(url);
+        var ws2 = new WebSocket(url);
+
+        ws2.onopen = function( evt ) {
+            addDocument.clientId = "testClientId2";
+            ws2.send( JSON.stringify ( addDocument ) );
+        }
 
         ws.onopen = function( evt ) {
             ws.send( JSON.stringify ( addDocument ) );
             ws.send( JSON.stringify ( clientEdits ) );
         };
 
-        var counter = 0;
+        var counter1 = 0;
         ws.onmessage = function( evt ) {
             var json = JSON.parse( evt.data );
-            switch ( counter ) {
+            switch ( counter1 ) {
                 case 0:
                     equal( json.result, 'ADDED', 'Document should have been added' );
                     break;
                 case 1:
                     equal( json.result, 'PATCHED', 'The patch should have been applied' );
                     break;
-                case 2:
+                    start();
+            }
+            counter1++;
+        };
+
+        var counter2 = 0;
+        ws2.onmessage = function( evt ) {
+            var json = JSON.parse( evt.data );
+            console.log(json);
+            switch ( counter2 ) {
+                case 0:
+                    equal( json.result, 'ADDED', 'Document should have been added' );
+                    break;
+                case 1:
                     equal( json.msgType, 'patch', 'The server should have generated an edit' );
                     equal( json.clientId, clientId, 'The clientId should match. This is who made the update.' );
                     equal( json.version, 1, 'Version of the server document recieved.' );
@@ -45,11 +64,16 @@
                     start();
                     break;
             }
-            counter++;
+            counter2++
         };
 
         ws.onerror = function( e ) {
-            ok( false, 'Failed to connect to WebSocket server [' + url + ']' );
+            ok( false, 'WS client1 failed to connect to WebSocket server [' + url + ']' );
+            start();
+        };
+
+        ws2.onerror = function( e ) {
+            ok( false, 'WS client2 failed to connect to WebSocket server [' + url + ']' );
             start();
         };
     });

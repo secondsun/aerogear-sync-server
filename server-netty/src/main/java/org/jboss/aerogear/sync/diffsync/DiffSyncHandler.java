@@ -73,7 +73,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 saveEdits(clientEdits.clientId(), edits);
                 removeAckedEdits(clientEdits);
                 respond(ctx, "PATCHED");
-                notifyClientListeners(edits);
+                notifyClientListeners(ctx, edits);
                 break;
             case DETACH:
                 // detach the client from a specific document.
@@ -151,10 +151,12 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private static void notifyClientListeners(final Edits edits) {
+    private static void notifyClientListeners(final ChannelHandlerContext ctx, final Edits edits) {
         final Set<ChannelHandlerContext> contexts = clients.get(edits.documentId());
-        for (ChannelHandlerContext ctx : contexts) {
-            ctx.channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
+        for (ChannelHandlerContext clientCtx : contexts) {
+            if (clientCtx != ctx) {
+                clientCtx.channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
+            }
         }
     }
 
