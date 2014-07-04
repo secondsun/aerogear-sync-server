@@ -37,7 +37,11 @@
                     equal( json.clientId, clientId, 'The clientId should match. This is who made the update.' );
                     equal( json.version, 1, 'Version of the server document recieved.' );
                     equal( json.diffs[0].operation, 'UNCHANGED', 'Since we made the change now change is required.' );
-                    equal( json.diffs[0].text, 'Do or do not, there is no try!', 'The text should be updated.' );
+                    equal( json.diffs[0].text, 'Do or do not, there is no try', 'The first part of the string should be unchanged.' );
+                    equal( json.diffs[1].operation, 'DELETE', 'The operation should be DELETE' );
+                    equal( json.diffs[1].text, '.', "text should be '.'" );
+                    equal( json.diffs[2].operation, 'ADD', 'The operation should be ADD' );
+                    equal( json.diffs[2].text, '!', "text should be '!'" );
                     start();
                     break;
             }
