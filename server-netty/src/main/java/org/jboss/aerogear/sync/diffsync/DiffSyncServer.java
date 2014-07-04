@@ -27,7 +27,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import org.jboss.aerogear.sync.diffsync.DiffSyncHandler;
 import org.jboss.aerogear.sync.diffsync.server.DefaultServerSynchronizer;
 import org.jboss.aerogear.sync.diffsync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;

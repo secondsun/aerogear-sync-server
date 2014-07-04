@@ -27,7 +27,6 @@ import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffsync.client.DefaultClientSynchronizer;
 import org.jboss.aerogear.sync.diffsync.server.DefaultServerSynchronizer;
-import org.jboss.aerogear.sync.diffsync.server.ServerDataStore;
 import org.jboss.aerogear.sync.diffsync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.diffsync.server.ServerSynchronizer;
@@ -114,13 +113,6 @@ public class DiffSyncHandlerTest {
         docMsg.put("clientId", clientId);
         docMsg.put("content", content);
         return writeTextFrame(docMsg.toString(), ch);
-    }
-
-    private static JsonNode sendAddShadowMsg(final String docId, final String clientId, final EmbeddedChannel ch) {
-        final ObjectNode shadowMsg = message("shadow");
-        shadowMsg.put("id", docId);
-        shadowMsg.put("clientId", clientId);
-        return writeTextFrame(shadowMsg.toString(), ch);
     }
 
     private static ObjectNode message(final String type) {
