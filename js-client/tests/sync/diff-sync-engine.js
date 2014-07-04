@@ -7,7 +7,7 @@
         ok( engine , 'Should be no problem not using new when creating' );
     });
 
-    test( 'addDdocument', function() {
+    test( 'add document', function() {
         var engine = Sync.Engine(), doc = { id: 1234, clientId: 'client1', content: { name: 'Fletch' } };
         engine.addDocument( { id: 1234, clientId: 'client1', content: { name: 'Fletch' } } );
         var actualDoc = engine.getDocument( 1234 );
@@ -77,7 +77,7 @@
 
     });
 
-    test( 'patchShadow', function() {
+    test( 'patch shadow', function() {
         var engine = Sync.Engine();
         var content = {name: 'Fletch' };
         var doc = { id: 1234, clientId: 'client1', content: content };
@@ -92,7 +92,7 @@
         equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
     });
 
-    test( 'patchDocument', function() {
+    test( 'patch document', function() {
         var engine = Sync.Engine();
         var content = {name: 'Fletch' };
         var doc = { id: 1234, clientId: 'client1', content: content };
