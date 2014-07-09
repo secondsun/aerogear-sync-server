@@ -73,7 +73,6 @@ public class ServerSyncEngine<T> {
         final Document<T> document = getDocument(clientEdits.documentId());
         final ShadowDocument<T> shadowDocument = patchShadow(clientEdits);
         patchDocument(document, shadowDocument);
-        saveShadow(incrementServerVersion(shadowDocument));
     }
 
     /**

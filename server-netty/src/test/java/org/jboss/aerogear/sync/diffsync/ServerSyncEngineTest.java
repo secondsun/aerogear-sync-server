@@ -111,7 +111,46 @@ public class ServerSyncEngineTest {
 
         final ShadowDocument<String> shadowAfter = dataStore.getShadowDocument(documentId, client1Id);
         assertThat(shadowAfter.clientVersion(), is(1L));
-        assertThat(shadowAfter.serverVersion(), is(1L));
+        assertThat(shadowAfter.serverVersion(), is(0L));
+    }
+
+    @Test
+    public void patch2() {
+        final String documentId = UUID.randomUUID().toString();
+        final String client1Id = "client1";
+        final String client2Id = "client2";
+        final String version1 = "Do or do not, there is no try.";
+        final String version2 = "Do or do not, there is no try!";
+        final String version3 = "Do or do not, there is no try!";
+        final DefaultDocument<String> serverDocument = newDoc(documentId, version1);
+        syncEngine.addDocument(serverDocument, client1Id);
+        syncEngine.addDocument(serverDocument, client2Id);
+
+        final ShadowDocument<String> shadowBefore = dataStore.getShadowDocument(documentId, client1Id);
+        assertThat(shadowBefore.clientVersion(), is(0L));
+        assertThat(shadowBefore.serverVersion(), is(0L));
+
+        final Edits clientEdits = generateClientSideEdits(documentId, version1, client1Id, version2);
+        assertThat(clientEdits.clientVersion(), is(0L));
+        assertThat(clientEdits.serverVersion(), is(0L));
+        assertThat(clientEdits.diffs().size(), is(3));
+
+        syncEngine.patch(clientEdits);
+
+        final Edits edits = syncEngine.diff(client2Id, documentId);
+        assertThat(edits.clientVersion(), is(0L));
+        assertThat(edits.serverVersion(), is(0L));
+        assertThat(edits.clientId(), equalTo(client2Id));
+        assertThat(edits.diffs().size(), is(3));
+        assertThat(edits.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edits.diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(edits.diffs().get(1).text(), equalTo("."));
+        assertThat(edits.diffs().get(2).operation(), is(Operation.ADD));
+        assertThat(edits.diffs().get(2).text(), equalTo("!"));
+
+        final ShadowDocument<String> shadowAfter = dataStore.getShadowDocument(documentId, client1Id);
+        assertThat(shadowAfter.clientVersion(), is(1L));
+        assertThat(shadowAfter.serverVersion(), is(0L));
     }
 
     private static Edits generateClientSideEdits(final String documentId,
