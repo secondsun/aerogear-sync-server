@@ -38,13 +38,18 @@ public interface Edits {
     String documentId();
 
     /**
-     * The version that edit is related to.
-     * For a client side update this would be the version this edit was based on.
-     * For a server side update this would the the version of the server side document this edit was based on.
+     * The client version that edit is related to.
      *
-     * @return {@code long} the version that this edit is based on.
+     * @return {@code long} the client version that this edit is based on.
      */
-    long version();
+    long clientVersion();
+
+    /**
+     * The server version that edit is related to.
+     *
+     * @return {@code long} the server version that this edit is based on.
+     */
+    long serverVersion();
 
     /**
      * A checksum of the opposing sides, client or server, shadow document.

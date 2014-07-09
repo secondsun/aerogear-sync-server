@@ -22,14 +22,21 @@ public class DefaultEdits implements Edits {
 
     private final String clientId;
     private final String documentId;
-    private final long version;
+    private final long clientVersion;
+    private final long serverVersion;
     private final String checksum;
     private final LinkedList<Diff> diffs;
 
-    public DefaultEdits(final String clientId, final String documentId, final long version, final String checksum, final LinkedList<Diff> diffs) {
+    public DefaultEdits(final String clientId,
+                        final String documentId,
+                        final long clientVersion,
+                        final long serverVersion,
+                        final String checksum,
+                        final LinkedList<Diff> diffs) {
         this.clientId = clientId;
         this.documentId = documentId;
-        this.version = version;
+        this.clientVersion = clientVersion;
+        this.serverVersion = serverVersion;
         this.checksum = checksum;
         this.diffs = diffs;
     }
@@ -45,8 +52,13 @@ public class DefaultEdits implements Edits {
     }
 
     @Override
-    public long version() {
-        return version;
+    public long clientVersion() {
+        return clientVersion;
+    }
+
+    @Override
+    public long serverVersion() {
+        return serverVersion;
     }
 
     @Override
@@ -61,25 +73,39 @@ public class DefaultEdits implements Edits {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        DefaultEdits that = (DefaultEdits) o;
+        final DefaultEdits that = (DefaultEdits) o;
 
-        if (version != that.version) return false;
-        if (!checksum.equals(that.checksum)) return false;
-        if (!clientId.equals(that.clientId)) return false;
-        if (!diffs.equals(that.diffs)) return false;
-        if (!documentId.equals(that.documentId)) return false;
-
-        return true;
+        if (clientVersion != that.clientVersion) {
+            return false;
+        }
+        if (serverVersion != that.serverVersion) {
+            return false;
+        }
+        if (!checksum.equals(that.checksum)) {
+            return false;
+        }
+        if (!clientId.equals(that.clientId)) {
+            return false;
+        }
+        if (!diffs.equals(that.diffs)) {
+            return false;
+        }
+        return !documentId.equals(that.documentId);
     }
 
     @Override
     public int hashCode() {
         int result = clientId.hashCode();
         result = 31 * result + documentId.hashCode();
-        result = 31 * result + (int) (version ^ (version >>> 32));
+        result = 31 * result + (int) (clientVersion ^ clientVersion >>> 32);
+        result = 31 * result + (int) (serverVersion ^ serverVersion >>> 32);
         result = 31 * result + checksum.hashCode();
         result = 31 * result + diffs.hashCode();
         return result;

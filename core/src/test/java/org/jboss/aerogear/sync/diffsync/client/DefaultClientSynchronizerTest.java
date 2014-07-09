@@ -18,9 +18,13 @@ package org.jboss.aerogear.sync.diffsync.client;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.hamcrest.CoreMatchers;
-import org.jboss.aerogear.sync.diffsync.*;
+import org.jboss.aerogear.sync.diffsync.ClientDocument;
+import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
+import org.jboss.aerogear.sync.diffsync.DefaultShadowDocument;
 import org.jboss.aerogear.sync.diffsync.Diff;
+import org.jboss.aerogear.sync.diffsync.Document;
+import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.List;
@@ -53,11 +57,11 @@ public class DefaultClientSynchronizerTest {
     public void diff() {
         final ClientDocument<String> updatedDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         final Edits edits = clientSynchronizer.diff(updatedDoc, clientShadow);
-        assertThat(edits.version(), is(0L));
+        assertThat(edits.clientVersion(), is(0L));
         assertThat(edits.checksum(), equalTo(checksum(clientShadow.document().content())));
         assertThat(edits.diffs().size(), is(3));
-        final List<org.jboss.aerogear.sync.diffsync.Diff> diffs = edits.diffs();
-        assertThat(diffs.get(0).operation(), CoreMatchers.is(Diff.Operation.UNCHANGED));
+        final List<Diff> diffs = edits.diffs();
+        assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
         assertThat(diffs.get(1).text(), equalTo("."));
@@ -72,7 +76,7 @@ public class DefaultClientSynchronizerTest {
         final Edits edits = clientSynchronizer.diff(clientUpdate, clientShadow);
         // On the server side, the server takes the edits and tries to patch the client's server side shadow.
         final ShadowDocument<String> patched = clientSynchronizer.patchShadow(edits, serverShadow);
-        assertThat(patched.clientVersion(), is(edits.version()));
+        assertThat(patched.clientVersion(), is(edits.clientVersion()));
         assertThat(patched.serverVersion(), is(serverShadow.serverVersion()));
         assertThat(patched.document().content(), equalTo(UPDATED_TEXT));
     }

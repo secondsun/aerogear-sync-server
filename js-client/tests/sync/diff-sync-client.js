@@ -11,20 +11,21 @@
         var clientEdits = { msgType: 'patch',
             id: documentId,
             clientId: clientId,
-            version: 0,
+            clientVersion: 0,
+            serverVersion: 0,
             checksum: '',
             diffs: [{operation: 'UNCHANGED', text: 'Do or do not, there is no try'},{operation: 'DELETE', text: '.'},{operation: 'ADD', text: '!'}]};
         var url = 'ws://localhost:7777/sync';
         var ws = new WebSocket(url);
         var ws2 = new WebSocket(url);
 
+        ws.onopen = function( evt ) {
+            ws.send( JSON.stringify ( addDocument ) );
+        };
+
         ws2.onopen = function( evt ) {
             addDocument.clientId = "client2";
             ws2.send( JSON.stringify ( addDocument ) );
-        }
-
-        ws.onopen = function( evt ) {
-            ws.send( JSON.stringify ( addDocument ) );
         };
 
         var counter1 = 0;
@@ -50,11 +51,10 @@
                     equal( json.result, 'ADDED', 'Document should have been added' );
                     ws.send( JSON.stringify ( clientEdits ) );
                     break;
-                    start();
                 case 1:
                     equal( json.msgType, 'patch', 'The server should have generated an edit' );
-                    equal( json.clientId, clientId, 'The clientId should match. This is who made the update.' );
-                    equal( json.version, 1, 'Version of the server document recieved.' );
+                    equal( json.clientId, 'client2', 'The clientId should match. This is who made the update.' );
+                    equal( json.serverVersion, 0, 'Version of the server document recieved.' );
                     equal( json.diffs[0].operation, 'UNCHANGED', 'Since we made the change now change is required.' );
                     equal( json.diffs[0].text, 'Do or do not, there is no try', 'The first part of the string should be unchanged.' );
                     equal( json.diffs[1].operation, 'DELETE', 'The operation should be DELETE' );
@@ -74,7 +74,6 @@
 
         ws2.onerror = function( e ) {
             ok( false, 'WS client2 failed to connect to WebSocket server [' + url + ']' );
-            start();
         };
     });
 

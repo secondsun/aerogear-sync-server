@@ -89,7 +89,7 @@ public final class JsonMapper {
     }
 
     /**
-     * Allows for the creation of an incomplete {@link org.jboss.aerogear.sync.Document instance}
+     * Allows for the creation of an incomplete {@link Document instance}
      *
      * @param id the documents documentId.
      * @param json the contents for the document.
@@ -168,7 +168,8 @@ public final class JsonMapper {
             final JsonNode node = oc.readTree(jp);
             final String clientId = node.get("clientId").asText();
             final String documentId = node.get("id").asText();
-            final long version = node.get("version").asLong();
+            final long clientVersion = node.get("clientVersion").asLong();
+            final long serverVersion = node.get("serverVersion").asLong();
             final String checksum = node.get("checksum").asText();
             final JsonNode diffsNode = node.get("diffs");
             final LinkedList<Diff> diffs = new LinkedList<Diff>();
@@ -177,7 +178,7 @@ public final class JsonMapper {
                     diffs.add(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                 }
             }
-            return new DefaultEdits(clientId, documentId, version, checksum, diffs);
+            return new DefaultEdits(clientId, documentId, clientVersion, serverVersion, checksum, diffs);
         }
     }
 
@@ -191,7 +192,8 @@ public final class JsonMapper {
             jgen.writeStringField("msgType", "patch");
             jgen.writeStringField("clientId", edits.clientId());
             jgen.writeStringField("id", edits.documentId());
-            jgen.writeNumberField("version", edits.version());
+            jgen.writeNumberField("clientVersion", edits.clientVersion());
+            jgen.writeNumberField("serverVersion", edits.serverVersion());
             jgen.writeStringField("checksum", edits.checksum());
             if (!edits.diffs().isEmpty()) {
                 jgen.writeArrayFieldStart("diffs");

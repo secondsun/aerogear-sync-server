@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,8 +38,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private static final Logger logger = LoggerFactory.getLogger(DiffSyncHandler.class);
 
-    private static final ConcurrentHashMap<String, Set<ChannelHandlerContext>> clients =
-            new ConcurrentHashMap<String, Set<ChannelHandlerContext>>();
+    private static final ConcurrentHashMap<String, Set<Client>> clients =
+            new ConcurrentHashMap<String, Set<Client>>();
 
     private static final ConcurrentHashMap<String, Set<Edits>> pendingEdits =
             new ConcurrentHashMap<String, Set<Edits>>();
@@ -63,17 +62,16 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             switch (MessageType.from(json.get("msgType").asText())) {
             case ADD:
                 final Document<String> doc = documentFromJson(json);
-                addDocument(doc, json.get("clientId").asText());
-                addClientListener(doc.id(), ctx);
+                final String clientId = json.get("clientId").asText();
+                addDocument(doc, clientId);
+                addClientListener(doc.id(), clientId, ctx);
                 respond(ctx, "ADDED");
                 break;
             case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
-                final Edits edits = patch(clientEdits);
-                saveEdits(clientEdits.clientId(), edits);
-                removeAckedEdits(clientEdits);
+                patch(clientEdits);
                 respond(ctx, "PATCHED");
-                notifyClientListeners(ctx, edits);
+                notifyClientListeners(clientEdits.clientId(), clientEdits.documentId());
                 break;
             case DETACH:
                 // detach the client from a specific document.
@@ -89,8 +87,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         syncEngine.addDocument(document, clientId);
     }
 
-    private Edits patch(final Edits clientEdits) {
-        return syncEngine.patch(clientEdits);
+    private void patch(final Edits clientEdits) {
+        syncEngine.patch(clientEdits);
     }
 
     private static Document<String> documentFromJson(final JsonNode json) {
@@ -121,6 +119,10 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
+    private Edits diff(final String clientId, final String documentId) {
+        return syncEngine.diff(clientId, documentId);
+    }
+
     private static void removeAckedEdits(final Edits clientEdits) {
         while (true) {
             final Set<Edits> currentEdits = pendingEdits.get(clientEdits.clientId());
@@ -129,33 +131,41 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 if (newEdits.addAll(currentEdits)) {
                     if (newEdits.remove(clientEdits)) {
                         pendingEdits.replace(clientEdits.clientId(), currentEdits, newEdits);
-                        break;
-                    } else {
-                        break;
                     }
+                    break;
                 }
             }
         }
     }
 
-    private static void addClientListener(final String documentId, final ChannelHandlerContext ctx) {
-        if (!clients.containsKey(documentId)) {
-            final Set<ChannelHandlerContext> contexts = new HashSet<ChannelHandlerContext>();
-            contexts.add(ctx);
-            clients.put(documentId, contexts);
-        } else {
-            synchronized (clients) {
-                final Set<ChannelHandlerContext> contexts = clients.get(documentId);
-                contexts.add(ctx);
+    private static void addClientListener(final String documentId, final String clientId, final ChannelHandlerContext ctx) {
+        final Set<Client> newClient = Collections.newSetFromMap(new ConcurrentHashMap<Client, Boolean>());
+        newClient.add(new Client(clientId, ctx));
+        while(true) {
+            final Set<Client> currentClients = clients.get(documentId);
+            if (currentClients == null) {
+                final Set<Client> previous = clients.putIfAbsent(documentId, newClient);
+                if (previous != null) {
+                    newClient.addAll(previous);
+                    if (clients.replace(documentId, previous, newClient)) {
+                        break;
+                    }
+                }
+            } else {
+                newClient.addAll(currentClients);
+                if (clients.replace(documentId, currentClients, newClient)) {
+                    break;
+                }
             }
         }
     }
 
-    private static void notifyClientListeners(final ChannelHandlerContext ctx, final Edits edits) {
-        final Set<ChannelHandlerContext> contexts = clients.get(edits.documentId());
-        for (ChannelHandlerContext clientCtx : contexts) {
-            if (clientCtx != ctx) {
-                clientCtx.channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
+    private void notifyClientListeners(final String clientId, final String documentId) {
+        for (Client client : clients.get(documentId)) {
+            if (!client.id().equals(clientId)) {
+                //TODO: this should be done async and not block the io thread!
+                final Edits edits  = diff(client.id(), documentId);
+                client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
             }
         }
     }
@@ -178,5 +188,54 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private static TextWebSocketFrame textFrame(final String text) {
         return new TextWebSocketFrame(text);
+    }
+
+    private static class Client {
+
+        private final String id;
+        private final ChannelHandlerContext ctx;
+
+        Client(final String clientId, final ChannelHandlerContext ctx) {
+            id = clientId;
+            this.ctx = ctx;
+        }
+
+        public String id() {
+            return id;
+        }
+
+        public ChannelHandlerContext ctx() {
+            return ctx;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final Client client = (Client) o;
+
+            if (!id.equals(client.id)) {
+                return false;
+            }
+
+            return !ctx.equals(client.ctx);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = id.hashCode();
+            result = 31 * result + ctx.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Client[id=" + id + ", ctx=" + ctx + ']';
+        }
     }
 }

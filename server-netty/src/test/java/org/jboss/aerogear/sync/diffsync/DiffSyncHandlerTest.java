@@ -70,32 +70,38 @@ public class DiffSyncHandlerTest {
     @Test
     public void patch() {
         final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
-        final EmbeddedChannel channel = embeddedChannel(dataStore);
+        final EmbeddedChannel channel1 = embeddedChannel(dataStore);
         final EmbeddedChannel channel2 = embeddedChannel(dataStore);
-
         final String docId = UUID.randomUUID().toString();
         final String originalContent = "{\"content\": \"Do or do not, there is no try.\"}";
-        final String clientId = "client1";
-        sendAddDocMsg(docId, clientId, originalContent, channel);
-
+        final String updatedContent = "{\"content\": \"Do or do not, there is no try!\"}";
+        final String client1Id = "client1";
         final String client2Id = "client2";
+
+        // add same document but with two different clients/channels.
+        sendAddDocMsg(docId, client1Id, originalContent, channel1);
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
-        final Edits clientEdits = generateClientSideEdits(docId, originalContent, clientId,
-                "{\"content\": \"Do or do not, there is no try!\"}");
-        final JsonNode json = sendEditMsg(clientEdits, channel);
+        final Edits clientEdits = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
+        final JsonNode json = sendEditMsg(clientEdits, channel1);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
 
-        assertThat(channel.readOutbound(), is(nullValue()));
+        // client1 should not get an update as it was the one making the change.
+        assertThat(channel1.readOutbound(), is(nullValue()));
+
+        // get the update from channel2.
         final TextWebSocketFrame serverUpdate = channel2.readOutbound();
         final Edits serverUpdates = JsonMapper.fromJson(serverUpdate.text(), Edits.class);
         assertThat(serverUpdates.documentId(), equalTo(docId));
-        assertThat(serverUpdates.clientId(), equalTo(clientId));
-        assertThat(serverUpdates.version(), is(1L));
+        assertThat(serverUpdates.clientId(), equalTo(client2Id));
+        assertThat(serverUpdates.clientVersion(), is(0L));
+        assertThat(serverUpdates.serverVersion(), is(0L));
         assertThat(serverUpdates.diffs().size(), is(4));
         assertThat(serverUpdates.diffs().get(0).operation(), is(Operation.UNCHANGED));
         assertThat(serverUpdates.diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(serverUpdates.diffs().get(1).text(), equalTo("."));
         assertThat(serverUpdates.diffs().get(2).operation(), is(Operation.ADD));
+        assertThat(serverUpdates.diffs().get(2).text(), equalTo("!"));
         assertThat(serverUpdates.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 

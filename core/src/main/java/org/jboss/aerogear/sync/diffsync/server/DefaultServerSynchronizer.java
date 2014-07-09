@@ -51,10 +51,27 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     }
 
     @Override
-    public Edits diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public Edits clientDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
-        return new DefaultEdits(shadowDocument.document().clientId(), document.id(), shadowDocument.clientVersion(), checksum(shadowText), asAeroGearDiffs(diffs));
+        return new DefaultEdits(shadowDocument.document().clientId(),
+                document.id(),
+                shadowDocument.clientVersion(),
+                shadowDocument.serverVersion(),
+                checksum(shadowText),
+                asAeroGearDiffs(diffs));
+    }
+
+    @Override
+    public Edits serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+        final String shadowText = shadowDocument.document().content();
+        final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
+        return new DefaultEdits(shadowDocument.document().clientId(),
+                document.id(),
+                shadowDocument.clientVersion(),
+                shadowDocument.serverVersion(),
+                checksum(shadowText),
+                asAeroGearDiffs(diffs));
     }
 
     @Override
@@ -65,7 +82,7 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
         final boolean[] patchResults = (boolean[]) results[1];
         final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), (String) results[0], doc.clientId() );
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edits.version(), patchedDocument);
+        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edits.clientVersion(), patchedDocument);
     }
 
     @Override
