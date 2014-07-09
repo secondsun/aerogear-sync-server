@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -76,9 +77,11 @@ public class ClientSyncEngineTest {
 
     @Test
     public void diff() {
-        final Edits edits = syncEngine.diff(new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID));
-        assertEdits(dataStore.getEdit(edits.clientId(), edits.documentId()));
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edits.documentId(), edits.clientId());
+        final Set<Edits> edits = syncEngine.diff(new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID));
+        assertThat(edits.size(), is(1));
+        final Edits edit = edits.iterator().next();
+        assertEdits(edit);
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edit.documentId(), edit.clientId());
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.serverVersion(), is(0L));
     }
@@ -86,7 +89,7 @@ public class ClientSyncEngineTest {
     @Test
     public void patch() {
         final ClientDocument<String> clientDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
-        final ClientDocument<String> patched = syncEngine.patch(syncEngine.diff(clientDoc));
+        final ClientDocument<String> patched = syncEngine.patch(syncEngine.diff(clientDoc).iterator().next());
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId());
         assertThat(shadowDocument.clientVersion(), is(0L));
         assertThat(shadowDocument.serverVersion(), is(1L));

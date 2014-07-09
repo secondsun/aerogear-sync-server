@@ -1,5 +1,7 @@
 package org.jboss.aerogear.sync.diffsync;
 
+import java.util.Set;
+
 /**
  * A DataStore implementation is responible for storing and serving data for a
  * Differential Synchronization implementation.
@@ -44,17 +46,24 @@ public interface DataStore<T> {
     /**
      * Saves edits for the document.
      *
-     * @param document the document identifier that the edits instance belongs to.
+     * @param edits the edits to be saved.
      */
-    void saveEdits(final Edits edits, final Document<T> document);
+    void saveEdits(Edits edits);
 
     /**
      * Retreives the {@link Edits} for the specified document documentId.
      *
      * @param clientId the client identifier for which to fetch the document.
      * @param documentId the document identifier of the edit.
-     * @return {@link Edits} the edit for the document.
+     * @return {@code Set<Edits>} the edit for the document.
      */
-    Edits getEdit(String clientId, String documentId);
+    Set<Edits> getEdits(String clientId, String documentId);
+
+    /**
+     * Removes the edits from the store.
+     *
+     * @param edits the edits to be removed.
+     */
+    void removeEdits(Edits edits);
 
 }

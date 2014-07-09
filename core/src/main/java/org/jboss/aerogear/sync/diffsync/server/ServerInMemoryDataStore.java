@@ -22,6 +22,8 @@ import org.jboss.aerogear.sync.diffsync.Document;
 import org.jboss.aerogear.sync.diffsync.Edits;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -30,7 +32,8 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     private final ConcurrentMap<String, Document<String>> documents = new ConcurrentHashMap<String, Document<String>>();
     private final ConcurrentMap<Id, ShadowDocument<String>> shadows = new ConcurrentHashMap<Id, ShadowDocument<String>>();
     private final ConcurrentMap<Id, BackupShadowDocument<String>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<String>>();
-    private final ConcurrentMap<Id, Edits> edits = new ConcurrentHashMap<Id, Edits>();
+    private static final ConcurrentHashMap<Id, Set<Edits>> pendingEdits =
+            new ConcurrentHashMap<Id, Set<Edits>>();
 
     @Override
     public void saveShadowDocument(final ShadowDocument<String> shadowDocument) {
@@ -63,13 +66,55 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     }
 
     @Override
-    public void saveEdits(final Edits edits, final Document<String> document) {
-        this.edits.put(id(edits.clientId(), document.id()), edits);
+    public void saveEdits(final Edits edits) {
+        final Id id = id(edits.clientId(), edits.documentId());
+        final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
+        newEdits.add(edits);
+        while (true) {
+            final Set<Edits> currentEdits = pendingEdits.get(id);
+            if (currentEdits == null) {
+                final Set<Edits> previous = pendingEdits.putIfAbsent(id, newEdits);
+                if (previous != null) {
+                    newEdits.addAll(previous);
+                    if (pendingEdits.replace(id, previous, newEdits)) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            } else {
+                newEdits.addAll(currentEdits);
+                if (pendingEdits.replace(id, currentEdits, newEdits)) {
+                    break;
+                }
+            }
+        }
     }
 
     @Override
-    public Edits getEdit(final String clientId, final String documentId) {
-        return edits.get(id(clientId, documentId));
+    public void removeEdits(final Edits edits) {
+        final Id id = id(edits.clientId(), edits.documentId());
+        while (true) {
+            final Set<Edits> currentEdits = pendingEdits.get(id);
+            if (currentEdits == null) {
+                break;
+            }
+            if (!currentEdits.isEmpty()) {
+                final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
+                if (newEdits.addAll(currentEdits)) {
+                    if (newEdits.remove(edits)) {
+                        pendingEdits.replace(id, currentEdits, newEdits);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public Set<Edits> getEdits(final String clientId, final String documentId) {
+        return pendingEdits.get(id(clientId, documentId));
     }
 
     private static Id id(final ClientDocument<String> document) {
@@ -85,7 +130,7 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
         private final String clientId;
         private final String documentId;
 
-        public Id(final String clientId, final String documentId) {
+        Id(final String clientId, final String documentId) {
             this.clientId = clientId;
             this.documentId = documentId;
         }
@@ -99,15 +144,22 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Id)) return false;
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Id)) {
+                return false;
+            }
 
-            Id id = (Id) o;
+            final Id id = (Id) o;
 
-            if (clientId != null ? !clientId.equals(id.clientId) : id.clientId != null) return false;
-            if (documentId != null ? !documentId.equals(id.documentId) : id.documentId != null) return false;
-
+            if (clientId != null ? !clientId.equals(id.clientId) : id.clientId != null) {
+                return false;
+            }
+            if (documentId != null ? !documentId.equals(id.documentId) : id.documentId != null) {
+                return false;
+            }
             return true;
         }
 

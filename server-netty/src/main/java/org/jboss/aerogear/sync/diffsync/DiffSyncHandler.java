@@ -40,10 +40,6 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private static final ConcurrentHashMap<String, Set<Client>> clients =
             new ConcurrentHashMap<String, Set<Client>>();
-
-    private static final ConcurrentHashMap<String, Set<Edits>> pendingEdits =
-            new ConcurrentHashMap<String, Set<Edits>>();
-
     private final ServerSyncEngine<String> syncEngine;
 
     public DiffSyncHandler(final ServerSyncEngine<String> syncEngine) {
@@ -55,8 +51,10 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         if (frame instanceof CloseWebSocketFrame) {
             logger.debug("Received closeFrame");
             ctx.close();
+            return;
         }
-        else if (frame instanceof TextWebSocketFrame) {
+
+        if (frame instanceof TextWebSocketFrame) {
             final JsonNode json = JsonMapper.asJsonNode(((TextWebSocketFrame) frame).text());
             logger.debug(json.toString());
             switch (MessageType.from(json.get("msgType").asText())) {
@@ -80,6 +78,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 unknownMessageType(ctx, json);
                 break;
             }
+        } else {
+            ctx.fireChannelRead(frame);
         }
     }
 
@@ -95,47 +95,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         return new DefaultDocument<String>(json.get("id").asText(), json.get("content").asText());
     }
 
-    private static void saveEdits(final String clientId, final Edits edits) {
-        final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
-        newEdits.add(edits);
-        while (true) {
-            final Set<Edits> currentEdits = pendingEdits.get(clientId);
-            if (currentEdits == null) {
-                final Set<Edits> previous = pendingEdits.putIfAbsent(clientId, newEdits);
-                if (previous != null) {
-                    newEdits.addAll(previous);
-                    if (pendingEdits.replace(clientId, previous, newEdits)) {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            } else {
-                newEdits.addAll(currentEdits);
-                if (pendingEdits.replace(clientId, currentEdits, newEdits)) {
-                    break;
-                }
-            }
-        }
-    }
-
     private Edits diff(final String clientId, final String documentId) {
         return syncEngine.diff(clientId, documentId);
-    }
-
-    private static void removeAckedEdits(final Edits clientEdits) {
-        while (true) {
-            final Set<Edits> currentEdits = pendingEdits.get(clientEdits.clientId());
-            if (currentEdits != null || !currentEdits.isEmpty()) {
-                final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
-                if (newEdits.addAll(currentEdits)) {
-                    if (newEdits.remove(clientEdits)) {
-                        pendingEdits.replace(clientEdits.clientId(), currentEdits, newEdits);
-                    }
-                    break;
-                }
-            }
-        }
     }
 
     private static void addClientListener(final String documentId, final String clientId, final ChannelHandlerContext ctx) {

@@ -154,7 +154,7 @@ public class DiffSyncHandlerTest {
         final ClientDataStore<String> clientDataStore = new ClientInMemoryDataStore();
         final ClientSyncEngine<String> clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), clientDataStore);
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
-        return clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, updatedContent, clientId));
+        return clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, updatedContent, clientId)).iterator().next();
     }
 
 }
