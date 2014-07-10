@@ -24,15 +24,15 @@ import java.util.Stack;
 public interface SyncMessage {
 
     /**
-     * The version of the document that the {@link Edits}s in this message are based on.
+     * The version of the document that the {@link Edit}s in this message are based on.
      * <p>
      *
-     * Client side {@link Edits}s are produced by taking the shadow on the client side, and the client's latest version
+     * Client side {@link Edit}s are produced by taking the shadow on the client side, and the client's latest version
      * of the document and producing a diff.
      * For clients sending a SyncMessage the version returned by this method will be the servers version. This is the
      * latest version of the server document that the client has "seen".
      *
-     * Server side {@link Edits}s are produced by taking the client's server side shadow, and the server latest version
+     * Server side {@link Edit}s are produced by taking the client's server side shadow, and the server latest version
      * and producing a diff.
      * When the server is sending a SyncMessage the version returned by this method will be the clients version. This is
      * the latest version of the clients document that the server has "seen".
@@ -51,5 +51,5 @@ public interface SyncMessage {
      *
      * @return {@code Stack} containing zero or more edits.
      */
-    Stack<Edits> edits();
+    Stack<Edit> edits();
 }

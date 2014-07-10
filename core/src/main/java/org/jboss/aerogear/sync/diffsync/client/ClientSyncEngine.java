@@ -19,7 +19,7 @@ package org.jboss.aerogear.sync.diffsync.client;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultBackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultShadowDocument;
-import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
 import java.util.Set;
@@ -53,20 +53,20 @@ public class ClientSyncEngine<T> {
      * Performs the client side of a differential sync.
      * <p>
      * When a client makes an update to it's document, it is first diffed against the shadow
-     * document. The result of this is an {@link Edits} instance representing the changes.
+     * document. The result of this is an {@link Edit} instance representing the changes.
      * There might be pending edits that represent edits that have not made it to the server
      * for some reason (for example packet drop). If a pending edit exits the contents (the diffs)
      * of the pending edit will be included in the returned Edits from this method.
      *
      * @param document the updated document.
-     * @return {@link Edits} containing the edits for the changes in the document.
+     * @return {@link Edit} containing the edits for the changes in the document.
      */
-    public Set<Edits> diff(final ClientDocument<T> document) {
+    public Set<Edit> diff(final ClientDocument<T> document) {
         final ShadowDocument<T> shadow = getShadowDocument(document);
-        final Edits newEdits = diff(document, shadow);
+        final Edit newEdit = diff(document, shadow);
         //final Set<Edits> pendingEdits = getPendingEdits(document.clientId(), document.id());
         //final Edits mergedEdits = merge(pendingEdits, newEdits);
-        saveEdits(newEdits);
+        saveEdits(newEdit);
         saveShadow(incrementClientVersion(shadow));
         return getPendingEdits(document.clientId(), document.id());
     }
@@ -74,15 +74,15 @@ public class ClientSyncEngine<T> {
     /**
      * Patches the client side shadow with updates from the server.
      *
-     * @param edits the updates from the server.
+     * @param edit the updates from the server.
      */
-    public ClientDocument<T> patch(final Edits edits) {
-        final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edits,
-                dataStore.getShadowDocument(edits.documentId(), edits.clientId()));
+    public ClientDocument<T> patch(final Edit edit) {
+        final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit,
+                dataStore.getShadowDocument(edit.documentId(), edit.clientId()));
         saveShadow(incrementServerVersion(patchedShadow));
         saveBackupShadow(patchedShadow);
-        clearPendingEdits(edits);
-        return patchDocument(edits);
+        clearPendingEdits(edit);
+        return patchDocument(edit);
     }
 
     /*
@@ -91,9 +91,9 @@ public class ClientSyncEngine<T> {
      * @param edits edits containing changes from the server.
      * @return {@code ClientDocument} the patched client document.
      */
-    private ClientDocument<T> patchDocument(final Edits edits) {
-        final ClientDocument<T> document = dataStore.getClientDocument(edits.clientId(), edits.documentId());
-        final ClientDocument<T> patched = clientSynchronizer.patchDocument(edits, document);
+    private ClientDocument<T> patchDocument(final Edit edit) {
+        final ClientDocument<T> document = dataStore.getClientDocument(edit.clientId(), edit.documentId());
+        final ClientDocument<T> patched = clientSynchronizer.patchDocument(edit, document);
         saveDocument(patched);
         return patched;
     }
@@ -102,16 +102,16 @@ public class ClientSyncEngine<T> {
         return dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId());
     }
 
-    private Set<Edits> getPendingEdits(final String clientId, final String documentId) {
+    private Set<Edit> getPendingEdits(final String clientId, final String documentId) {
         return dataStore.getEdits(clientId, documentId);
     }
 
-    private Edits diff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {
+    private Edit diff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {
         return clientSynchronizer.diff(doc, shadow);
     }
 
-    private void saveEdits(final Edits edits) {
-        dataStore.saveEdits(edits);
+    private void saveEdits(final Edit edit) {
+        dataStore.saveEdits(edit);
     }
 
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {
@@ -143,8 +143,8 @@ public class ClientSyncEngine<T> {
         dataStore.saveClientDocument(document);
     }
 
-    private void clearPendingEdits(final Edits edits) {
-        dataStore.removeEdits(edits);
+    private void clearPendingEdits(final Edit edit) {
+        dataStore.removeEdits(edit);
     }
 
 }

@@ -17,16 +17,8 @@
 package org.jboss.aerogear.sync.diffsync.server;
 
 import org.jboss.aerogear.sync.common.DiffMatchPatch;
-import org.jboss.aerogear.sync.diffsync.ClientDocument;
-import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.sync.diffsync.DefaultDiff;
-import org.jboss.aerogear.sync.diffsync.DefaultDocument;
-import org.jboss.aerogear.sync.diffsync.DefaultEdits;
-import org.jboss.aerogear.sync.diffsync.DefaultShadowDocument;
-import org.jboss.aerogear.sync.diffsync.Diff;
-import org.jboss.aerogear.sync.diffsync.Document;
-import org.jboss.aerogear.sync.diffsync.Edits;
-import org.jboss.aerogear.sync.diffsync.ShadowDocument;
+import org.jboss.aerogear.sync.diffsync.*;
+import org.jboss.aerogear.sync.diffsync.DefaultEdit;
 
 import java.util.LinkedList;
 
@@ -51,10 +43,10 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     }
 
     @Override
-    public Edits clientDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public Edit clientDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
-        return new DefaultEdits(shadowDocument.document().clientId(),
+        return new DefaultEdit(shadowDocument.document().clientId(),
                 document.id(),
                 shadowDocument.clientVersion(),
                 shadowDocument.serverVersion(),
@@ -63,10 +55,10 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     }
 
     @Override
-    public Edits serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public Edit serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return new DefaultEdits(shadowDocument.document().clientId(),
+        return new DefaultEdit(shadowDocument.document().clientId(),
                 document.id(),
                 shadowDocument.clientVersion(),
                 shadowDocument.serverVersion(),
@@ -75,26 +67,26 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     }
 
     @Override
-    public ShadowDocument<String> patchShadow(final Edits edits, final ShadowDocument<String> shadowDocument) {
-        final LinkedList<Patch> patches = patchesFrom(edits);
+    public ShadowDocument<String> patchShadow(final Edit edit, final ShadowDocument<String> shadowDocument) {
+        final LinkedList<Patch> patches = patchesFrom(edit);
         final ClientDocument<String> doc = shadowDocument.document();
         final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
         final boolean[] patchResults = (boolean[]) results[1];
         final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), (String) results[0], doc.clientId() );
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edits.clientVersion(), patchedDocument);
+        return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edit.clientVersion(), patchedDocument);
     }
 
     @Override
-    public Document<String> patchDocument(final Edits edits, final Document<String> document) {
-        final LinkedList<Patch> patches = patchesFrom(edits);
+    public Document<String> patchDocument(final Edit edit, final Document<String> document) {
+        final LinkedList<Patch> patches = patchesFrom(edit);
         final Object[] results = diffMatchPatch.patchApply(patches, document.content());
         //TODO: results also contains a boolean array. Not sure what we should do with it.
         return new DefaultDocument<String>(document.id(), (String) results[0]);
     }
 
-    private LinkedList<Patch> patchesFrom(final Edits edits) {
-        return diffMatchPatch.patchMake(asDiffUtilDiffs(edits.diffs()));
+    private LinkedList<Patch> patchesFrom(final Edit edit) {
+        return diffMatchPatch.patchMake(asDiffUtilDiffs(edit.diffs()));
     }
 
     private static LinkedList<DiffMatchPatch.Diff> asDiffUtilDiffs(final LinkedList<Diff> diffs) {

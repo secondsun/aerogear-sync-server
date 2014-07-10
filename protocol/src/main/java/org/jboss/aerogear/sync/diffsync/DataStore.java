@@ -46,24 +46,24 @@ public interface DataStore<T> {
     /**
      * Saves edits for the document.
      *
-     * @param edits the edits to be saved.
+     * @param edit the edits to be saved.
      */
-    void saveEdits(Edits edits);
+    void saveEdits(Edit edit);
 
     /**
-     * Retreives the {@link Edits} for the specified document documentId.
+     * Retreives the {@link Edit} for the specified document documentId.
      *
      * @param clientId the client identifier for which to fetch the document.
      * @param documentId the document identifier of the edit.
      * @return {@code Set<Edits>} the edit for the document.
      */
-    Set<Edits> getEdits(String clientId, String documentId);
+    Set<Edit> getEdits(String clientId, String documentId);
 
     /**
      * Removes the edits from the store.
      *
-     * @param edits the edits to be removed.
+     * @param edit the edits to be removed.
      */
-    void removeEdits(Edits edits);
+    void removeEdits(Edit edit);
 
 }

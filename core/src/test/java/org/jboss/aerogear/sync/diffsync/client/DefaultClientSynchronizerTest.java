@@ -23,7 +23,7 @@ import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultShadowDocument;
 import org.jboss.aerogear.sync.diffsync.Diff;
 import org.jboss.aerogear.sync.diffsync.Document;
-import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,11 +56,11 @@ public class DefaultClientSynchronizerTest {
     @Test
     public void diff() {
         final ClientDocument<String> updatedDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
-        final Edits edits = clientSynchronizer.diff(updatedDoc, clientShadow);
-        assertThat(edits.clientVersion(), is(0L));
-        assertThat(edits.checksum(), equalTo(checksum(clientShadow.document().content())));
-        assertThat(edits.diffs().size(), is(3));
-        final List<Diff> diffs = edits.diffs();
+        final Edit edit = clientSynchronizer.diff(updatedDoc, clientShadow);
+        assertThat(edit.clientVersion(), is(0L));
+        assertThat(edit.checksum(), equalTo(checksum(clientShadow.document().content())));
+        assertThat(edit.diffs().size(), is(3));
+        final List<Diff> diffs = edit.diffs();
         assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
@@ -73,10 +73,10 @@ public class DefaultClientSynchronizerTest {
     public void patchShadow() {
         final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
         // Produce and edits that would be sent over the network to the server.
-        final Edits edits = clientSynchronizer.diff(clientUpdate, clientShadow);
+        final Edit edit = clientSynchronizer.diff(clientUpdate, clientShadow);
         // On the server side, the server takes the edits and tries to patch the client's server side shadow.
-        final ShadowDocument<String> patched = clientSynchronizer.patchShadow(edits, serverShadow);
-        assertThat(patched.clientVersion(), is(edits.clientVersion()));
+        final ShadowDocument<String> patched = clientSynchronizer.patchShadow(edit, serverShadow);
+        assertThat(patched.clientVersion(), is(edit.clientVersion()));
         assertThat(patched.serverVersion(), is(serverShadow.serverVersion()));
         assertThat(patched.document().content(), equalTo(UPDATED_TEXT));
     }
@@ -85,8 +85,8 @@ public class DefaultClientSynchronizerTest {
     public void patchDocument() {
         final ShadowDocument<String> clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
         final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
-        final Edits edits = clientSynchronizer.diff(clientUpdate, clientShadow);
-        final Document<String> patched = clientSynchronizer.patchDocument(edits, serverDoc);
+        final Edit edit = clientSynchronizer.diff(clientUpdate, clientShadow);
+        final Document<String> patched = clientSynchronizer.patchDocument(edit, serverDoc);
         assertThat(patched.content(), equalTo(UPDATED_TEXT));
     }
 }

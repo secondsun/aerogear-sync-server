@@ -18,7 +18,7 @@ package org.jboss.aerogear.sync.diffsync.client;
 
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.Document;
-import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
 /**
@@ -32,20 +32,20 @@ public interface ClientSynchronizer<T> {
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.
      *
-     * @param edits The edits.
+     * @param edit The edits.
      * @return {@link ShadowDocument} a new patched shadow document.
      */
-    ShadowDocument<T> patchShadow(Edits edits, ShadowDocument<T> shadowDocument);
+    ShadowDocument<T> patchShadow(Edit edit, ShadowDocument<T> shadowDocument);
 
     /**
      * Called when the document should be patched.
      * If this engine is used on the server side this will patch the server document, and
      * if run on the client side will patch the client document
      *
-     * @param edits
+     * @param edit
      * @return {@link ClientDocument} a new patched document.
      */
-    ClientDocument<T> patchDocument(Edits edits, ClientDocument<T> document);
+    ClientDocument<T> patchDocument(Edit edit, ClientDocument<T> document);
 
     /**
      * The first step in a sync is to produce a an edit for the changes.
@@ -53,8 +53,8 @@ public interface ClientSynchronizer<T> {
      *
      * @param document the document containing
      * @param shadowDocument the document shadow.
-     * @return {@link Edits} the edit representing the diff between the document and it's shadow document.
+     * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edits diff(Document<T> document, ShadowDocument<T> shadowDocument);
+    Edit diff(Document<T> document, ShadowDocument<T> shadowDocument);
 
 }

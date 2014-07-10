@@ -21,7 +21,7 @@ import java.util.LinkedList;
 /**
  * Represents a single edit.
  */
-public interface Edits {
+public interface Edit {
 
     /**
      * Identifies the client that this edit instance belongs to.

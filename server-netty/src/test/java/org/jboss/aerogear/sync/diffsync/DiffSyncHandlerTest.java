@@ -82,8 +82,8 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client1Id, originalContent, channel1);
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
-        final Edits clientEdits = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
-        final JsonNode json = sendEditMsg(clientEdits, channel1);
+        final Edit clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
+        final JsonNode json = sendEditMsg(clientEdit, channel1);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
 
         // client1 should not get an update as it was the one making the change.
@@ -91,7 +91,7 @@ public class DiffSyncHandlerTest {
 
         // get the update from channel2.
         final TextWebSocketFrame serverUpdate = channel2.readOutbound();
-        final Edits serverUpdates = JsonMapper.fromJson(serverUpdate.text(), Edits.class);
+        final Edit serverUpdates = JsonMapper.fromJson(serverUpdate.text(), Edit.class);
         assertThat(serverUpdates.documentId(), equalTo(docId));
         assertThat(serverUpdates.clientId(), equalTo(client2Id));
         assertThat(serverUpdates.clientVersion(), is(0L));
@@ -105,8 +105,8 @@ public class DiffSyncHandlerTest {
         assertThat(serverUpdates.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 
-    private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {
-        return writeTextFrame(JsonMapper.toJson(edits), ch);
+    private static JsonNode sendEditMsg(final Edit edit, final EmbeddedChannel ch) {
+        return writeTextFrame(JsonMapper.toJson(edit), ch);
     }
 
     private static JsonNode sendAddDocMsg(final String docId,
@@ -147,7 +147,7 @@ public class DiffSyncHandlerTest {
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }
 
-    private static Edits generateClientSideEdits(final String documentId,
+    private static Edit generateClientSideEdits(final String documentId,
                                                  final String originalContent,
                                                  final String clientId,
                                                  final String updatedContent) {

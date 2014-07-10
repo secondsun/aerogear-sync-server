@@ -18,7 +18,7 @@ package org.jboss.aerogear.sync.diffsync;
 
 import java.util.LinkedList;
 
-public class DefaultEdits implements Edits {
+public class DefaultEdit implements Edit {
 
     private final String clientId;
     private final String documentId;
@@ -27,12 +27,12 @@ public class DefaultEdits implements Edits {
     private final String checksum;
     private final LinkedList<Diff> diffs;
 
-    public DefaultEdits(final String clientId,
-                        final String documentId,
-                        final long clientVersion,
-                        final long serverVersion,
-                        final String checksum,
-                        final LinkedList<Diff> diffs) {
+    public DefaultEdit(final String clientId,
+                       final String documentId,
+                       final long clientVersion,
+                       final long serverVersion,
+                       final String checksum,
+                       final LinkedList<Diff> diffs) {
         this.clientId = clientId;
         this.documentId = documentId;
         this.clientVersion = clientVersion;
@@ -80,7 +80,7 @@ public class DefaultEdits implements Edits {
             return false;
         }
 
-        final DefaultEdits that = (DefaultEdits) o;
+        final DefaultEdit that = (DefaultEdit) o;
 
         if (clientVersion != that.clientVersion) {
             return false;

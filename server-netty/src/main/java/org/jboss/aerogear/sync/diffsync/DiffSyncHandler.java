@@ -66,10 +66,10 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 respond(ctx, "ADDED");
                 break;
             case PATCH:
-                final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
-                patch(clientEdits);
+                final Edit clientEdit = JsonMapper.fromJson(json.toString(), Edit.class);
+                patch(clientEdit);
                 respond(ctx, "PATCHED");
-                notifyClientListeners(clientEdits.clientId(), clientEdits.documentId());
+                notifyClientListeners(clientEdit.clientId(), clientEdit.documentId());
                 break;
             case DETACH:
                 // detach the client from a specific document.
@@ -87,15 +87,15 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         syncEngine.addDocument(document, clientId);
     }
 
-    private void patch(final Edits clientEdits) {
-        syncEngine.patch(clientEdits);
+    private void patch(final Edit clientEdit) {
+        syncEngine.patch(clientEdit);
     }
 
     private static Document<String> documentFromJson(final JsonNode json) {
         return new DefaultDocument<String>(json.get("id").asText(), json.get("content").asText());
     }
 
-    private Edits diff(final String clientId, final String documentId) {
+    private Edit diff(final String clientId, final String documentId) {
         return syncEngine.diff(clientId, documentId);
     }
 
@@ -125,8 +125,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         for (Client client : clients.get(documentId)) {
             if (!client.id().equals(clientId)) {
                 //TODO: this should be done async and not block the io thread!
-                final Edits edits  = diff(client.id(), documentId);
-                client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
+                final Edit edit = diff(client.id(), documentId);
+                client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edit)));
             }
         }
     }

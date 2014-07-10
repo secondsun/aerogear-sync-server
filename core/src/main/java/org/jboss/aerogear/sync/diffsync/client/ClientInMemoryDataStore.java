@@ -18,7 +18,7 @@ package org.jboss.aerogear.sync.diffsync.client;
 
 import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
-import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
 import java.util.Collections;
@@ -31,8 +31,8 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     private final ConcurrentMap<Id, ClientDocument<String>> documents = new ConcurrentHashMap<Id, ClientDocument<String>>();
     private final ConcurrentMap<Id, ShadowDocument<String>> shadows = new ConcurrentHashMap<Id, ShadowDocument<String>>();
     private final ConcurrentMap<Id, BackupShadowDocument<String>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<String>>();
-    private static final ConcurrentHashMap<Id, Set<Edits>> pendingEdits =
-            new ConcurrentHashMap<Id, Set<Edits>>();
+    private static final ConcurrentHashMap<Id, Set<Edit>> pendingEdits =
+            new ConcurrentHashMap<Id, Set<Edit>>();
 
     @Override
     public void saveShadowDocument(final ShadowDocument<String> shadowDocument) {
@@ -65,14 +65,14 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     }
 
     @Override
-    public void saveEdits(final Edits edits) {
-        final Id id = id(edits.clientId(), edits.documentId());
-        final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
-        newEdits.add(edits);
+    public void saveEdits(final Edit edit) {
+        final Id id = id(edit.clientId(), edit.documentId());
+        final Set<Edit> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edit, Boolean>());
+        newEdits.add(edit);
         while (true) {
-            final Set<Edits> currentEdits = pendingEdits.get(id);
+            final Set<Edit> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
-                final Set<Edits> previous = pendingEdits.putIfAbsent(id, newEdits);
+                final Set<Edit> previous = pendingEdits.putIfAbsent(id, newEdits);
                 if (previous != null) {
                     newEdits.addAll(previous);
                     if (pendingEdits.replace(id, previous, newEdits)) {
@@ -91,14 +91,14 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     }
 
     @Override
-    public void removeEdits(final Edits edits) {
-        final Id id = id(edits.clientId(), edits.documentId());
+    public void removeEdits(final Edit edit) {
+        final Id id = id(edit.clientId(), edit.documentId());
         while (true) {
-            final Set<Edits> currentEdits = pendingEdits.get(id);
+            final Set<Edit> currentEdits = pendingEdits.get(id);
             if (currentEdits != null || !currentEdits.isEmpty()) {
-                final Set<Edits> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edits, Boolean>());
+                final Set<Edit> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edit, Boolean>());
                 if (newEdits.addAll(currentEdits)) {
-                    if (newEdits.remove(edits)) {
+                    if (newEdits.remove(edit)) {
                         pendingEdits.replace(id, currentEdits, newEdits);
                     }
                     break;
@@ -108,7 +108,7 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     }
 
     @Override
-    public Set<Edits> getEdits(final String clientId, final String documentId) {
+    public Set<Edit> getEdits(final String clientId, final String documentId) {
         return pendingEdits.get(id(clientId, documentId));
     }
 

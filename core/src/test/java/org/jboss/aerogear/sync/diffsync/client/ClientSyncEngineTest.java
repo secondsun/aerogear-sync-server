@@ -21,7 +21,7 @@ import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.sync.diffsync.Diff;
-import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,9 +77,9 @@ public class ClientSyncEngineTest {
 
     @Test
     public void diff() {
-        final Set<Edits> edits = syncEngine.diff(new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID));
+        final Set<Edit> edits = syncEngine.diff(new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID));
         assertThat(edits.size(), is(1));
-        final Edits edit = edits.iterator().next();
+        final Edit edit = edits.iterator().next();
         assertEdits(edit);
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edit.documentId(), edit.clientId());
         assertThat(shadowDocument.clientVersion(), is(1L));
@@ -98,13 +98,13 @@ public class ClientSyncEngineTest {
         assertThat(patched.content(), equalTo(UPDATED_TEXT));
     }
 
-    private void assertEdits(final Edits edits) {
-        assertThat(edits.documentId(), is(DOC_ID));
-        assertThat(edits.clientVersion(), is(0L));
-        final ClientDocument<String> document = dataStore.getShadowDocument(edits.documentId(), edits.clientId()).document();
-        assertThat(edits.checksum(), equalTo(DiffMatchPatch.checksum(document.content())));
-        assertThat(edits.diffs().size(), is(3));
-        final List<Diff> diffs = edits.diffs();
+    private void assertEdits(final Edit edit) {
+        assertThat(edit.documentId(), is(DOC_ID));
+        assertThat(edit.clientVersion(), is(0L));
+        final ClientDocument<String> document = dataStore.getShadowDocument(edit.documentId(), edit.clientId()).document();
+        assertThat(edit.checksum(), equalTo(DiffMatchPatch.checksum(document.content())));
+        assertThat(edit.diffs().size(), is(3));
+        final List<Diff> diffs = edit.diffs();
         assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));

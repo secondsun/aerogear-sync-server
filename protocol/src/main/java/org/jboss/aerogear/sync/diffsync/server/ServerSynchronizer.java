@@ -17,7 +17,7 @@
 package org.jboss.aerogear.sync.diffsync.server;
 
 import org.jboss.aerogear.sync.diffsync.Document;
-import org.jboss.aerogear.sync.diffsync.Edits;
+import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
 /**
@@ -31,18 +31,18 @@ public interface ServerSynchronizer<T> {
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.
      *
-     * @param edits The edits.
+     * @param edit The edits.
      * @return {@link ShadowDocument} a new patched shadow document.
      */
-    ShadowDocument<T> patchShadow(Edits edits, ShadowDocument<T> shadowDocument);
+    ShadowDocument<T> patchShadow(Edit edit, ShadowDocument<T> shadowDocument);
 
     /**
      * Called when the document should be patched.
      *
-     * @param edits
+     * @param edit
      * @return {@link Document} a new patched document.
      */
-    Document<T> patchDocument(Edits edits, Document<T> document);
+    Document<T> patchDocument(Edit edit, Document<T> document);
 
     /**
      * The first step in a sync is to produce a an edit for the changes.
@@ -50,9 +50,9 @@ public interface ServerSynchronizer<T> {
      *
      * @param document the document containing
      * @param shadowDocument the document shadow.
-     * @return {@link Edits} the edit representing the diff between the document and it's shadow document.
+     * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edits serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+    Edit serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
 
     /**
      * The first step in a sync is to produce a an edit for the changes.
@@ -60,8 +60,8 @@ public interface ServerSynchronizer<T> {
      *
      * @param document the document containing
      * @param shadowDocument the document shadow.
-     * @return {@link Edits} the edit representing the diff between the document and it's shadow document.
+     * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edits clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+    Edit clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
 
 }
