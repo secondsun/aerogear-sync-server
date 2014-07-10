@@ -72,7 +72,6 @@ public class ServerSyncEngine<T> {
      * @param clientEdits the changes made by a client.
      */
     public void patch(final Edits clientEdits) {
-        //final Set<Edits> pendingEdits = getPendingEdits(clientEdits.clientId(), clientEdits.documentId());
         final Document<T> document = getDocument(clientEdits.documentId());
         final ShadowDocument<T> shadowDocument = patchShadow(clientEdits);
         patchDocument(document, shadowDocument);
@@ -118,6 +117,9 @@ public class ServerSyncEngine<T> {
 
     private ShadowDocument<T> patchShadow(final Edits edits) {
         final ShadowDocument<T> shadow = getShadowDocument(edits.clientId(), edits.documentId());
+        if (shadow.clientVersion() != edits.clientVersion() || shadow.serverVersion() != edits.serverVersion()) {
+            return shadow;
+        }
         final ShadowDocument<T> patchedShadow = synchronizer.patchShadow(edits, shadow);
         return saveShadow(incrementClientVersion(patchedShadow));
     }

@@ -27,6 +27,8 @@ import org.jboss.aerogear.sync.diffsync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.LinkedList;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -47,7 +49,7 @@ public class ServerSyncEngineTest {
     @Test
     public void addDocument() {
         final String documentId = UUID.randomUUID().toString();
-        syncEngine.addDocument(newDoc(documentId, "What!"), "test");
+        syncEngine.addDocument(newDoc(documentId, "What!"), "client1");
         final Document<String> document = dataStore.getDocument(documentId);
         assertThat(document.id(), equalTo(documentId));
         assertThat(document.content(), equalTo("What!"));
@@ -56,7 +58,7 @@ public class ServerSyncEngineTest {
     @Test
     public void containsDocument() {
         final String documentId = UUID.randomUUID().toString();
-        syncEngine.addDocument(newDoc(documentId, "What!"), "test");
+        syncEngine.addDocument(newDoc(documentId, "What!"), "client1");
         assertThat(syncEngine.contains(documentId), is(true));
     }
 
@@ -71,117 +73,109 @@ public class ServerSyncEngineTest {
         final String clientId = "shadowTest";
         syncEngine.addDocument(newDoc(documentId, "What!"), clientId);
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.document().clientId(), is("shadowTest"));
         assertThat(shadowDocument.serverVersion(), is(0L));
         assertThat(shadowDocument.clientVersion(), is(0L));
         assertThat(shadowDocument.document().id(), equalTo(documentId));
     }
 
     @Test
-    public void patch() {
+    public void patchOneVersion() {
         final String documentId = UUID.randomUUID().toString();
-        final String client1Id = "client1";
-        final String client2Id = "client2";
-        final String originalText = "Do or do not, there is no try.";
-        final String updatedText = "Do or do not, there is no try!";
-        final DefaultDocument<String> serverDocument = newDoc(documentId, originalText);
-        syncEngine.addDocument(serverDocument, client1Id);
-        syncEngine.addDocument(serverDocument, client2Id);
+        final String clientOne = "client1";
+        final String clientTwo = "client2";
+        final String originalVersion = "Do or do not, there is no try.";
+        final String versionOne = "Do or do not, there is no try!";
 
-        final ShadowDocument<String> shadowBefore = dataStore.getShadowDocument(documentId, client1Id);
-        assertThat(shadowBefore.clientVersion(), is(0L));
-        assertThat(shadowBefore.serverVersion(), is(0L));
+        final DefaultDocument<String> serverDocument = newDoc(documentId, originalVersion);
+        syncEngine.addDocument(serverDocument, clientOne);
+        syncEngine.addDocument(serverDocument, clientTwo);
+        syncEngine.patch(clientSideEdits(documentId, originalVersion, clientOne, versionOne));
 
-        final Edits clientEdits = generateClientSideEdits(documentId, originalText, client1Id, updatedText);
-        assertThat(clientEdits.clientVersion(), is(0L));
-        assertThat(clientEdits.serverVersion(), is(0L));
-        assertThat(clientEdits.diffs().size(), is(3));
-
-        syncEngine.patch(clientEdits);
-
-        final Edits edits = syncEngine.diff(client2Id, documentId);
+        final Edits edits = syncEngine.diff(clientTwo, documentId);
         assertThat(edits.clientVersion(), is(0L));
         assertThat(edits.serverVersion(), is(0L));
-        assertThat(edits.clientId(), equalTo(client2Id));
-        assertThat(edits.diffs().size(), is(3));
-        assertThat(edits.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(edits.diffs().get(1).operation(), is(Operation.DELETE));
-        assertThat(edits.diffs().get(1).text(), equalTo("."));
-        assertThat(edits.diffs().get(2).operation(), is(Operation.ADD));
-        assertThat(edits.diffs().get(2).text(), equalTo("!"));
+        assertThat(edits.clientId(), equalTo(clientTwo));
+        final LinkedList<Diff> diffs = edits.diffs();
+        assertThat(diffs.size(), is(3));
+        assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(diffs.get(1).operation(), is(Operation.DELETE));
+        assertThat(diffs.get(1).text(), equalTo("."));
+        assertThat(diffs.get(2).operation(), is(Operation.ADD));
+        assertThat(diffs.get(2).text(), equalTo("!"));
 
-        final ShadowDocument<String> shadowAfter = dataStore.getShadowDocument(documentId, client1Id);
+        final ShadowDocument<String> shadowAfter = dataStore.getShadowDocument(documentId, clientOne);
         assertThat(shadowAfter.clientVersion(), is(1L));
         assertThat(shadowAfter.serverVersion(), is(0L));
     }
 
     @Test
-    public void edits() {
+    public void patchTwoVersions() {
         final String documentId = UUID.randomUUID().toString();
-        final String client1Id = "client1";
-        final String client2Id = "client2";
-        final String version1 = "Do or do not, there is no try.";
-        final String version2 = "Do or do not, there is no try!";
-        final String version3 = "Do or do nothing, there is no try!";
+        final String clientOne = "client1";
+        final String clientTwo = "client2";
+        final String originalVersion = "Do or do not, there is no try.";
+        final String versionTwo = "Do or do not, there is no try!";
+        final String versionThree = "Do or do nothing, there is no try!";
 
         // inject the client document into the client engine.
         final ClientSyncEngine<String> clientSyncEngine = clientSyncEngine();
-        final ClientDocument<String> clientDoc1 = newClientDoc(documentId, version1, client1Id);
-        final ClientDocument<String> clientDoc2 = newClientDoc(documentId, version1, client2Id);
-        clientSyncEngine.addDocument(clientDoc1);
-        clientSyncEngine.addDocument(clientDoc2);
+        clientSyncEngine.addDocument(newClientDoc(documentId, originalVersion, clientOne));
+        clientSyncEngine.addDocument(newClientDoc(documentId, originalVersion, clientTwo));
 
         // inject the server documents into the server engine.
-        final DefaultDocument<String> serverDocument = newDoc(documentId, version1);
-        syncEngine.addDocument(serverDocument, client1Id);
-        syncEngine.addDocument(serverDocument, client2Id);
+        final DefaultDocument<String> serverDocument = newDoc(documentId, originalVersion);
+        syncEngine.addDocument(serverDocument, clientOne);
+        syncEngine.addDocument(serverDocument, clientTwo);
 
-        final Edits clientEdits = clientSyncEngine.diff(newClientDoc(documentId, version2, client1Id)).iterator().next();
+        final Edits clientEdits = clientSyncEngine.diff(newClientDoc(documentId, versionTwo, clientOne)).iterator().next();
         assertThat(clientEdits.clientVersion(), is(0L));
         assertThat(clientEdits.serverVersion(), is(0L));
         assertThat(clientEdits.diffs().size(), is(3));
 
         syncEngine.patch(clientEdits);
 
-        final Edits client1Edits = syncEngine.diff(client1Id, documentId);
-        assertThat(client1Edits.clientId(), equalTo(client1Id));
-        assertThat(client1Edits.clientVersion(), is(1L));
-        assertThat(client1Edits.serverVersion(), is(0L));
-        assertThat(client1Edits.diffs().size(), is(1));
-        assertThat(client1Edits.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        final Edits firstEdits = syncEngine.diff(clientOne, documentId);
+        assertThat(firstEdits.clientId(), equalTo(clientOne));
+        assertThat(firstEdits.clientVersion(), is(1L));
+        assertThat(firstEdits.serverVersion(), is(0L));
+        assertThat(firstEdits.diffs().size(), is(1));
+        assertThat(firstEdits.diffs().get(0).operation(), is(Operation.UNCHANGED));
 
-        final Edits client2Edits = syncEngine.diff(client2Id, documentId);
-        assertThat(client2Edits.clientId(), equalTo(client2Id));
-        assertThat(client2Edits.clientVersion(), is(0L));
-        assertThat(client2Edits.serverVersion(), is(0L));
-        assertThat(client2Edits.diffs().size(), is(3));
-        assertThat(client2Edits.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(client2Edits.diffs().get(0).text(), equalTo("Do or do not, there is no try"));
-        assertThat(client2Edits.diffs().get(1).operation(), is(Operation.DELETE));
-        assertThat(client2Edits.diffs().get(1).text(), equalTo("."));
-        assertThat(client2Edits.diffs().get(2).operation(), is(Operation.ADD));
-        assertThat(client2Edits.diffs().get(2).text(), equalTo("!"));
+        final Edits secondEdits = syncEngine.diff(clientTwo, documentId);
+        assertThat(secondEdits.clientId(), equalTo(clientTwo));
+        assertThat(secondEdits.clientVersion(), is(0L));
+        assertThat(secondEdits.serverVersion(), is(0L));
+        final LinkedList<Diff> secondDiffs = secondEdits.diffs();
+        assertThat(secondDiffs.size(), is(3));
+        assertThat(secondDiffs.get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(secondDiffs.get(0).text(), equalTo("Do or do not, there is no try"));
+        assertThat(secondDiffs.get(1).operation(), is(Operation.DELETE));
+        assertThat(secondDiffs.get(1).text(), equalTo("."));
+        assertThat(secondDiffs.get(2).operation(), is(Operation.ADD));
+        assertThat(secondDiffs.get(2).text(), equalTo("!"));
 
         clientSyncEngine.patch(clientEdits);
 
-        final Edits clientEdits2 = clientSyncEngine.diff(newClientDoc(documentId, version3, client1Id)).iterator().next();
-        assertThat(clientEdits2.clientVersion(), is(0L));
-        assertThat(clientEdits2.serverVersion(), is(1L));
-        assertThat(clientEdits2.diffs().size(), is(3));
-        assertThat(clientEdits2.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(clientEdits2.diffs().get(1).operation(), is(Operation.ADD));
-        assertThat(clientEdits2.diffs().get(1).text(), equalTo("hing"));
-        assertThat(clientEdits2.diffs().get(2).operation(), is(Operation.UNCHANGED));
-
+        final Edits thirdEdits = clientSyncEngine.diff(newClientDoc(documentId, versionThree, clientOne)).iterator().next();
+        assertThat(thirdEdits.clientVersion(), is(0L));
+        assertThat(thirdEdits.serverVersion(), is(1L));
+        final LinkedList<Diff> thirdDiffs = thirdEdits.diffs();
+        assertThat(thirdDiffs.size(), is(3));
+        assertThat(thirdDiffs.get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(thirdDiffs.get(1).operation(), is(Operation.ADD));
+        assertThat(thirdDiffs.get(1).text(), equalTo("hing"));
+        assertThat(thirdDiffs.get(2).operation(), is(Operation.UNCHANGED));
     }
 
     private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {
         return new DefaultClientDocument<String>(documentId, content, clientId);
     }
 
-    private static Edits generateClientSideEdits(final String documentId,
-                                          final String originalContent,
-                                          final String clientId,
-                                          final String updatedContent) {
+    private static Edits clientSideEdits(final String documentId,
+                                         final String originalContent,
+                                         final String clientId,
+                                         final String updatedContent) {
         final ClientSyncEngine<String> clientSyncEngine = clientSyncEngine();
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
         return clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, updatedContent, clientId)).iterator().next();
