@@ -22,7 +22,6 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.JsonMapper;
 import org.jboss.aerogear.sync.diffsync.Diff.Operation;
-import org.jboss.aerogear.sync.diffsync.client.ClientDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffsync.client.DefaultClientSynchronizer;
@@ -82,7 +81,7 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client1Id, originalContent, channel1);
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
-        final Edits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
+        final DefautEdits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
         final JsonNode json = sendEditMsg(clientEdit, channel1);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
 
@@ -105,7 +104,7 @@ public class DiffSyncHandlerTest {
         assertThat(serverUpdates.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 
-    private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {
+    private static JsonNode sendEditMsg(final DefautEdits edits, final EmbeddedChannel ch) {
         return writeTextFrame(JsonMapper.toJson(edits), ch);
     }
 
@@ -147,14 +146,15 @@ public class DiffSyncHandlerTest {
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }
 
-    private static Edits generateClientSideEdits(final String documentId,
+    private static DefautEdits generateClientSideEdits(final String documentId,
                                                  final String originalContent,
                                                  final String clientId,
                                                  final String updatedContent) {
-        final ClientDataStore<String> clientDataStore = new ClientInMemoryDataStore();
-        final ClientSyncEngine<String> clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), clientDataStore);
+        final ClientSyncEngine<String> clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(),
+                new ClientInMemoryDataStore());
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
-        return new Edits(clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, updatedContent, clientId)));
+        final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, updatedContent, clientId);
+        return new DefautEdits(documentId, clientId, clientSyncEngine.diff(doc));
     }
 
 }

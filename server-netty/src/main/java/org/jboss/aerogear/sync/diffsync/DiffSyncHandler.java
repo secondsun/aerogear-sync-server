@@ -67,8 +67,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 respond(ctx, "ADDED");
                 break;
             case PATCH:
-                final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
-                patch(clientEdits.getEdits());
+                final DefautEdits clientEdits = JsonMapper.fromJson(json.toString(), DefautEdits.class);
+                patch(clientEdits.edits());
                 respond(ctx, "PATCHED");
                 notifyClientListeners(clientEdits);
                 break;
@@ -122,8 +122,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private void notifyClientListeners(final Edits edits) {
-        final Edit peek = edits.getEdits().peek();
+    private void notifyClientListeners(final DefautEdits edits) {
+        final Edit peek = edits.edits().peek();
         final String documentId = peek.documentId();
         final String clientId = peek.clientId();
         for (Client client : clients.get(documentId)) {

@@ -32,13 +32,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jboss.aerogear.sync.diffsync.DefaultDiff;
 import org.jboss.aerogear.sync.diffsync.DefaultEdit;
+import org.jboss.aerogear.sync.diffsync.DefautEdits;
 import org.jboss.aerogear.sync.diffsync.Diff;
 import org.jboss.aerogear.sync.diffsync.Edit;
-import org.jboss.aerogear.sync.diffsync.Edits;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -54,8 +53,8 @@ public final class JsonMapper {
         module.addSerializer(DefaultDocument.class, new DocumentSerializer());
         module.addDeserializer(Edit.class, new EditDeserializer());
         module.addSerializer(Edit.class, new EditSerializer());
-        module.addDeserializer(Edits.class, new EditsDeserializer());
-        module.addSerializer(Edits.class, new EditsSerializer());
+        module.addDeserializer(DefautEdits.class, new EditsDeserializer());
+        module.addSerializer(DefautEdits.class, new EditsSerializer());
         om.registerModule(module);
         return om;
     }
@@ -166,20 +165,20 @@ public final class JsonMapper {
         }
     }
 
-    private static class EditsDeserializer extends JsonDeserializer<Edits> {
+    private static class EditsDeserializer extends JsonDeserializer<DefautEdits> {
 
         @Override
-        public Edits deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+        public DefautEdits deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
+            final String documentId = node.get("id").asText();
+            final String clientId = node.get("clientId").asText();
             final JsonNode jsonEdits = node.get("edits");
             final Queue<Edit> edits = new ConcurrentLinkedQueue<Edit>();
             if (jsonEdits.isArray()) {
-                final Iterator<JsonNode> iterator = jsonEdits.iterator();
-                while(iterator.hasNext()) {
-                    final JsonNode edit = iterator.next();
-                    final String clientId = edit.get("clientId").asText();
-                    final String documentId = edit.get("id").asText();
+                for (JsonNode edit : jsonEdits) {
+                    //final String clientId = edit.get("clientId").asText();
+                    //final String documentId = edit.get("id").asText();
                     final long clientVersion = edit.get("clientVersion").asLong();
                     final long serverVersion = edit.get("serverVersion").asLong();
                     final String checksum = edit.get("checksum").asText();
@@ -193,23 +192,25 @@ public final class JsonMapper {
                     edits.add(new DefaultEdit(clientId, documentId, clientVersion, serverVersion, checksum, diffs));
                 }
             }
-            return new Edits(edits);
+            return new DefautEdits(documentId, clientId, edits);
         }
     }
 
-    private static class EditsSerializer extends JsonSerializer<Edits> {
+    private static class EditsSerializer extends JsonSerializer<DefautEdits> {
 
         @Override
-        public void serialize(final Edits edits,
+        public void serialize(final DefautEdits edits,
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
-            jgen.writeStringField("msgType", edits.msgType());
+            jgen.writeStringField("msgType", "patch");
+            jgen.writeStringField("id", edits.documentId());
+            jgen.writeStringField("clientId", edits.clientId());
             jgen.writeArrayFieldStart("edits");
-            for (Edit edit : edits.getEdits()) {
+            for (Edit edit : edits.edits()) {
                 jgen.writeStartObject();
-                jgen.writeStringField("clientId", edit.clientId());
-                jgen.writeStringField("id", edit.documentId());
+                //jgen.writeStringField("clientId", edit.clientId());
+                //jgen.writeStringField("id", edit.documentId());
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
