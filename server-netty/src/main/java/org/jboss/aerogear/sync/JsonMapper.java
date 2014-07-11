@@ -34,10 +34,14 @@ import org.jboss.aerogear.sync.diffsync.DefaultDiff;
 import org.jboss.aerogear.sync.diffsync.DefaultEdit;
 import org.jboss.aerogear.sync.diffsync.Diff;
 import org.jboss.aerogear.sync.diffsync.Edit;
+import org.jboss.aerogear.sync.diffsync.Edits;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class JsonMapper {
 
@@ -48,8 +52,10 @@ public final class JsonMapper {
         final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(Document.class, new DocumentDeserializer());
         module.addSerializer(DefaultDocument.class, new DocumentSerializer());
-        module.addDeserializer(Edit.class, new EditsDeserializer());
-        module.addSerializer(DefaultEdit.class, new EditsSerializer());
+        module.addDeserializer(Edit.class, new EditDeserializer());
+        module.addSerializer(Edit.class, new EditSerializer());
+        module.addDeserializer(Edits.class, new EditsDeserializer());
+        module.addSerializer(Edits.class, new EditsSerializer());
         om.registerModule(module);
         return om;
     }
@@ -160,18 +166,82 @@ public final class JsonMapper {
         }
     }
 
-    private static class EditsDeserializer extends JsonDeserializer<Edit> {
+    private static class EditsDeserializer extends JsonDeserializer<Edits> {
+
+        @Override
+        public Edits deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+            final ObjectCodec oc = jp.getCodec();
+            final JsonNode node = oc.readTree(jp);
+            final JsonNode jsonEdits = node.get("edits");
+            final Queue<Edit> edits = new ConcurrentLinkedQueue<Edit>();
+            if (jsonEdits.isArray()) {
+                final Iterator<JsonNode> iterator = jsonEdits.iterator();
+                while(iterator.hasNext()) {
+                    final JsonNode edit = iterator.next();
+                    final String clientId = edit.get("clientId").asText();
+                    final String documentId = edit.get("id").asText();
+                    final long clientVersion = edit.get("clientVersion").asLong();
+                    final long serverVersion = edit.get("serverVersion").asLong();
+                    final String checksum = edit.get("checksum").asText();
+                    final JsonNode diffsNode = edit.get("diffs");
+                    final LinkedList<Diff> diffs = new LinkedList<Diff>();
+                    if (diffsNode.isArray()) {
+                        for (JsonNode d : diffsNode) {
+                            diffs.add(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
+                        }
+                    }
+                    edits.add(new DefaultEdit(clientId, documentId, clientVersion, serverVersion, checksum, diffs));
+                }
+            }
+            return new Edits(edits);
+        }
+    }
+
+    private static class EditsSerializer extends JsonSerializer<Edits> {
+
+        @Override
+        public void serialize(final Edits edits,
+                              final JsonGenerator jgen,
+                              final SerializerProvider provider) throws IOException {
+            jgen.writeStartObject();
+            jgen.writeStringField("msgType", edits.msgType());
+            jgen.writeArrayFieldStart("edits");
+            for (Edit edit : edits.getEdits()) {
+                jgen.writeStartObject();
+                jgen.writeStringField("clientId", edit.clientId());
+                jgen.writeStringField("id", edit.documentId());
+                jgen.writeNumberField("clientVersion", edit.clientVersion());
+                jgen.writeNumberField("serverVersion", edit.serverVersion());
+                jgen.writeStringField("checksum", edit.checksum());
+                jgen.writeArrayFieldStart("diffs");
+                if (!edit.diffs().isEmpty()) {
+                    for (Diff diff : edit.diffs()) {
+                        jgen.writeStartObject();
+                        jgen.writeStringField("operation", diff.operation().toString());
+                        jgen.writeStringField("text", diff.text());
+                        jgen.writeEndObject();
+                    }
+                    jgen.writeEndArray();
+                }
+                jgen.writeEndObject();
+            }
+            jgen.writeEndArray();
+            jgen.writeEndObject();
+        }
+    }
+
+    private static class EditDeserializer extends JsonDeserializer<Edit> {
 
         @Override
         public Edit deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
-            final JsonNode node = oc.readTree(jp);
-            final String clientId = node.get("clientId").asText();
-            final String documentId = node.get("id").asText();
-            final long clientVersion = node.get("clientVersion").asLong();
-            final long serverVersion = node.get("serverVersion").asLong();
-            final String checksum = node.get("checksum").asText();
-            final JsonNode diffsNode = node.get("diffs");
+            final JsonNode edit = oc.readTree(jp);
+            final String clientId = edit.get("clientId").asText();
+            final String documentId = edit.get("id").asText();
+            final long clientVersion = edit.get("clientVersion").asLong();
+            final long serverVersion = edit.get("serverVersion").asLong();
+            final String checksum = edit.get("checksum").asText();
+            final JsonNode diffsNode = edit.get("diffs");
             final LinkedList<Diff> diffs = new LinkedList<Diff>();
             if (diffsNode.isArray()) {
                 for (JsonNode d : diffsNode) {
@@ -182,7 +252,7 @@ public final class JsonMapper {
         }
     }
 
-    private static class EditsSerializer extends JsonSerializer<Edit> {
+    private static class EditSerializer extends JsonSerializer<Edit> {
 
         @Override
         public void serialize(final Edit edit,
@@ -195,17 +265,16 @@ public final class JsonMapper {
             jgen.writeNumberField("clientVersion", edit.clientVersion());
             jgen.writeNumberField("serverVersion", edit.serverVersion());
             jgen.writeStringField("checksum", edit.checksum());
+            jgen.writeArrayFieldStart("diffs");
             if (!edit.diffs().isEmpty()) {
-                jgen.writeArrayFieldStart("diffs");
                 for (Diff diff : edit.diffs()) {
                     jgen.writeStartObject();
                     jgen.writeStringField("operation", diff.operation().toString());
                     jgen.writeStringField("text", diff.text());
                     jgen.writeEndObject();
                 }
-                jgen.writeEndArray();
             }
-            jgen.writeEndObject();
+            jgen.writeEndArray();
         }
     }
 }

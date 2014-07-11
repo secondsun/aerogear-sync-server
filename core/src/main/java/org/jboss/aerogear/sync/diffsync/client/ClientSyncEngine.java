@@ -16,13 +16,16 @@
  */
 package org.jboss.aerogear.sync.diffsync.client;
 
+import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultBackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultShadowDocument;
+import org.jboss.aerogear.sync.diffsync.Document;
 import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
-import java.util.Set;
+import java.util.Iterator;
+import java.util.Queue;
 
 /**
  * The client side of the differential synchronization implementation.
@@ -61,48 +64,84 @@ public class ClientSyncEngine<T> {
      * @param document the updated document.
      * @return {@link Edit} containing the edits for the changes in the document.
      */
-    public Set<Edit> diff(final ClientDocument<T> document) {
-        final ShadowDocument<T> shadow = getShadowDocument(document);
-        final Edit newEdit = diff(document, shadow);
+    public Queue<Edit> diff(final ClientDocument<T> document) {
+        final ShadowDocument<T> shadow = getShadowDocument(document.clientId(), document.id());
+        final Edit edit = diff(document, shadow);
         //final Set<Edits> pendingEdits = getPendingEdits(document.clientId(), document.id());
         //final Edits mergedEdits = merge(pendingEdits, newEdits);
-        saveEdits(newEdit);
-        saveShadow(incrementClientVersion(shadow));
+        saveEdits(edit);
+        final ShadowDocument<T> patchedShadow = diffPatchShadow(shadow, edit);
+        saveShadow(incrementClientVersion(patchedShadow));
         return getPendingEdits(document.clientId(), document.id());
+    }
+
+    private ShadowDocument<T> diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {
+        return clientSynchronizer.patchShadow(edit, shadow);
     }
 
     /**
      * Patches the client side shadow with updates from the server.
      *
-     * @param edit the updates from the server.
+     * @param edits the updates from the server.
      */
-    public ClientDocument<T> patch(final Edit edit) {
-        final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit,
-                dataStore.getShadowDocument(edit.documentId(), edit.clientId()));
-        saveShadow(incrementServerVersion(patchedShadow));
-        saveBackupShadow(patchedShadow);
-        clearPendingEdits(edit);
-        return patchDocument(edit);
+    public void patch(final Queue<Edit> edits) {
+        final Edit first = edits.peek();
+        final ShadowDocument<T> shadow = getShadowDocument(first.clientId(), first.documentId());
+        final ShadowDocument<T> patchedShadow = patchShadow(edits, shadow);
+        saveShadow(patchedShadow);
+        patchDocument(patchedShadow);
+        saveBackupShadow(shadow);
     }
 
-    /*
-     * Patches the clients document with the edits from the server.
-     *
-     * @param edits edits containing changes from the server.
-     * @return {@code ClientDocument} the patched client document.
-     */
-    private ClientDocument<T> patchDocument(final Edit edit) {
-        final ClientDocument<T> document = dataStore.getClientDocument(edit.clientId(), edit.documentId());
+    private ShadowDocument<T> patchShadow(final Queue<Edit> edits, final ShadowDocument<T> shadowDocument) {
+        ShadowDocument<T> shadow = copy(shadowDocument);
+
+        final Iterator<Edit> iterator = edits.iterator();
+        while (iterator.hasNext()) {
+            final Edit edit = iterator.next();
+            if (edit.serverVersion() < shadow.serverVersion()) {
+                final BackupShadowDocument<T> backupShadow = getBackupShadowDocument(edit.clientId(), edit.documentId());
+                if (backupShadow.version() == edit.serverVersion()) {
+                    shadow = saveShadow(newShadowDoc(backupShadow.version(), shadow.clientVersion(), backupShadow.shadow().document()));
+                } else {
+                    throw new IllegalStateException(backupShadow + " server version does not match version of " + edit.serverVersion());
+                }
+            }
+            // the client has already seen this version from the server. Possibly because a packet has been
+            // dropped when sending from the client to the client. We don't need to apply it and can safely
+            // drop it and process the next edit.
+            if (edit.serverVersion() < shadow.serverVersion()) {
+                dataStore.removeEdit(edit);
+                iterator.remove();
+                continue;
+            }
+            if (edit.serverVersion() == shadow.serverVersion() && edit.clientVersion() == shadow.clientVersion()) {
+                final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit, shadow);
+                dataStore.removeEdit(edit);
+                shadow = saveShadow(incrementServerVersion(patchedShadow));
+            }
+        }
+        return shadow;
+    }
+
+    private Document<T> patchDocument(final ShadowDocument<T> shadowDocument) {
+        final ClientDocument<T> document = dataStore.getClientDocument(shadowDocument.document().id(), shadowDocument.document().clientId());
+        final Edit edit = diff(document, shadowDocument);
         final ClientDocument<T> patched = clientSynchronizer.patchDocument(edit, document);
         saveDocument(patched);
+        saveBackupShadow(shadowDocument);
         return patched;
     }
 
-    private ShadowDocument<T> getShadowDocument(final ClientDocument<T> clientDoc) {
-        return dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId());
+    private ShadowDocument<T> getShadowDocument(final String clientId, final String documentId) {
+        return dataStore.getShadowDocument(documentId, clientId);
     }
 
-    private Set<Edit> getPendingEdits(final String clientId, final String documentId) {
+    private BackupShadowDocument<T> getBackupShadowDocument(final String clientId, final String documentId) {
+        return dataStore.getBackupShadowDocument(documentId, clientId);
+    }
+
+    private Queue<Edit> getPendingEdits(final String clientId, final String documentId) {
         return dataStore.getEdits(clientId, documentId);
     }
 
@@ -116,7 +155,7 @@ public class ClientSyncEngine<T> {
 
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {
         final long clientVersion = shadow.clientVersion() + 1;
-        return shadowDoc(shadow.serverVersion(), clientVersion, shadow.document());
+        return newShadowDoc(shadow.serverVersion(), clientVersion, shadow.document());
     }
 
     private ShadowDocument<T> saveShadow(final ShadowDocument<T> newShadow) {
@@ -124,27 +163,25 @@ public class ClientSyncEngine<T> {
         return newShadow;
     }
 
-    private ShadowDocument<T> shadowDoc(final long serverVersion, final long clientVersion, final ClientDocument<T> doc) {
+    private ShadowDocument<T> newShadowDoc(final long serverVersion, final long clientVersion, final ClientDocument<T> doc) {
         return new DefaultShadowDocument<T>(serverVersion, clientVersion, doc);
     }
 
-
     private ShadowDocument<T> incrementServerVersion(final ShadowDocument<T> shadow) {
         final long serverVersion = shadow.serverVersion() + 1;
-        return shadowDoc(serverVersion, shadow.clientVersion(), shadow.document());
+        return newShadowDoc(serverVersion, shadow.clientVersion(), shadow.document());
     }
 
     private void saveBackupShadow(final ShadowDocument<T> newShadow) {
         dataStore.saveBackupShadowDocument(new DefaultBackupShadowDocument<T>(newShadow.clientVersion(), newShadow));
     }
 
-
     private void saveDocument(final ClientDocument<T> document) {
         dataStore.saveClientDocument(document);
     }
 
-    private void clearPendingEdits(final Edit edit) {
-        dataStore.removeEdits(edit);
+    private ShadowDocument<T> copy(final ShadowDocument<T> shadow) {
+        return new DefaultShadowDocument<T>(shadow.serverVersion(), shadow.clientVersion(), shadow.document());
     }
 
 }

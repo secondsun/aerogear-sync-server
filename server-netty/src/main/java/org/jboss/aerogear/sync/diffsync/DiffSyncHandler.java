@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,10 +67,10 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 respond(ctx, "ADDED");
                 break;
             case PATCH:
-                final Edit clientEdit = JsonMapper.fromJson(json.toString(), Edit.class);
-                patch(clientEdit);
+                final Edits clientEdits = JsonMapper.fromJson(json.toString(), Edits.class);
+                patch(clientEdits.getEdits());
                 respond(ctx, "PATCHED");
-                notifyClientListeners(clientEdit.clientId(), clientEdit.documentId());
+                notifyClientListeners(clientEdits);
                 break;
             case DETACH:
                 // detach the client from a specific document.
@@ -87,7 +88,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         syncEngine.addDocument(document, clientId);
     }
 
-    private void patch(final Edit clientEdit) {
+    private void patch(final Queue<Edit> clientEdit) {
         syncEngine.patch(clientEdit);
     }
 
@@ -121,7 +122,10 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private void notifyClientListeners(final String clientId, final String documentId) {
+    private void notifyClientListeners(final Edits edits) {
+        final Edit peek = edits.getEdits().peek();
+        final String documentId = peek.documentId();
+        final String clientId = peek.clientId();
         for (Client client : clients.get(documentId)) {
             if (!client.id().equals(clientId)) {
                 //TODO: this should be done async and not block the io thread!

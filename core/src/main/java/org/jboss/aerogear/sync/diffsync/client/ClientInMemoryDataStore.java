@@ -21,18 +21,20 @@ import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 public class ClientInMemoryDataStore implements ClientDataStore<String> {
 
+    private static final Queue<Edit> EMPTY_QUEUE = new LinkedList<Edit>();
     private final ConcurrentMap<Id, ClientDocument<String>> documents = new ConcurrentHashMap<Id, ClientDocument<String>>();
     private final ConcurrentMap<Id, ShadowDocument<String>> shadows = new ConcurrentHashMap<Id, ShadowDocument<String>>();
     private final ConcurrentMap<Id, BackupShadowDocument<String>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<String>>();
-    private static final ConcurrentHashMap<Id, Set<Edit>> pendingEdits =
-            new ConcurrentHashMap<Id, Set<Edit>>();
+    private final ConcurrentHashMap<Id, Queue<Edit>> pendingEdits = new ConcurrentHashMap<Id, Queue<Edit>>();
 
     @Override
     public void saveShadowDocument(final ShadowDocument<String> shadowDocument) {
@@ -50,7 +52,7 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     }
 
     @Override
-    public BackupShadowDocument<String> getBackupShadowDocument(final String clientId, final String documentId) {
+    public BackupShadowDocument<String> getBackupShadowDocument(final String documentId, final String clientId) {
         return backups.get(id(clientId, documentId));
     }
 
@@ -60,19 +62,19 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     }
 
     @Override
-    public ClientDocument<String> getClientDocument(final String clientId, final String documentId) {
+    public ClientDocument<String> getClientDocument(final String documentId, final String clientId) {
         return documents.get(id(clientId, documentId));
     }
 
     @Override
     public void saveEdits(final Edit edit) {
         final Id id = id(edit.clientId(), edit.documentId());
-        final Set<Edit> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edit, Boolean>());
+        final Queue<Edit> newEdits = new ConcurrentLinkedQueue<Edit>();
         newEdits.add(edit);
         while (true) {
-            final Set<Edit> currentEdits = pendingEdits.get(id);
+            final Queue<Edit> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
-                final Set<Edit> previous = pendingEdits.putIfAbsent(id, newEdits);
+                final Queue<Edit> previous = pendingEdits.putIfAbsent(id, newEdits);
                 if (previous != null) {
                     newEdits.addAll(previous);
                     if (pendingEdits.replace(id, previous, newEdits)) {
@@ -91,25 +93,35 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
     }
 
     @Override
-    public void removeEdits(final Edit edit) {
+    public void removeEdit(final Edit edit) {
         final Id id = id(edit.clientId(), edit.documentId());
         while (true) {
-            final Set<Edit> currentEdits = pendingEdits.get(id);
-            if (currentEdits != null || !currentEdits.isEmpty()) {
-                final Set<Edit> newEdits = Collections.newSetFromMap(new ConcurrentHashMap<Edit, Boolean>());
-                if (newEdits.addAll(currentEdits)) {
-                    if (newEdits.remove(edit)) {
-                        pendingEdits.replace(id, currentEdits, newEdits);
-                    }
-                    break;
+            final Queue<Edit> currentEdits = pendingEdits.get(id);
+            if (currentEdits == null) {
+                break;
+            }
+            final Queue<Edit> newEdits = new ConcurrentLinkedQueue<Edit>();
+            newEdits.addAll(currentEdits);
+            for (Iterator<Edit> iter = newEdits.iterator(); iter.hasNext();) {
+                final Edit oldEdit = iter.next();
+                if (oldEdit.clientVersion() <= edit.clientVersion()) {
+                    iter.remove();
                 }
+            }
+            if (pendingEdits.replace(id, currentEdits, newEdits)) {
+                break;
             }
         }
     }
 
+
     @Override
-    public Set<Edit> getEdits(final String clientId, final String documentId) {
-        return pendingEdits.get(id(clientId, documentId));
+    public Queue<Edit> getEdits(final String clientId, final String documentId) {
+        final Queue<Edit> edits = pendingEdits.get(id(clientId, documentId));
+        if (edits == null) {
+            return EMPTY_QUEUE;
+        }
+        return edits;
     }
 
     private static Id id(final ClientDocument<String> document) {

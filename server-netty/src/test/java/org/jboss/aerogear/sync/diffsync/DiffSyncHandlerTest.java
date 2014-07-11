@@ -82,7 +82,7 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client1Id, originalContent, channel1);
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
-        final Edit clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
+        final Edits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
         final JsonNode json = sendEditMsg(clientEdit, channel1);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
 
@@ -105,8 +105,8 @@ public class DiffSyncHandlerTest {
         assertThat(serverUpdates.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 
-    private static JsonNode sendEditMsg(final Edit edit, final EmbeddedChannel ch) {
-        return writeTextFrame(JsonMapper.toJson(edit), ch);
+    private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {
+        return writeTextFrame(JsonMapper.toJson(edits), ch);
     }
 
     private static JsonNode sendAddDocMsg(final String docId,
@@ -147,14 +147,14 @@ public class DiffSyncHandlerTest {
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }
 
-    private static Edit generateClientSideEdits(final String documentId,
+    private static Edits generateClientSideEdits(final String documentId,
                                                  final String originalContent,
                                                  final String clientId,
                                                  final String updatedContent) {
         final ClientDataStore<String> clientDataStore = new ClientInMemoryDataStore();
         final ClientSyncEngine<String> clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), clientDataStore);
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
-        return clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, updatedContent, clientId)).iterator().next();
+        return new Edits(clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, updatedContent, clientId)));
     }
 
 }

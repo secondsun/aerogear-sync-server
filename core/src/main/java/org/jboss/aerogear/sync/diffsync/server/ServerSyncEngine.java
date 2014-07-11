@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.diffsync.server;
 
+import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultBackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
@@ -24,7 +25,8 @@ import org.jboss.aerogear.sync.diffsync.Document;
 import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
-import java.util.Set;
+import java.util.Iterator;
+import java.util.Queue;
 
 /**
  * The server side of the differential synchronization implementation.
@@ -69,13 +71,15 @@ public class ServerSyncEngine<T> {
     /**
      * Performs the server side patching for a specific client.
      *
-     * @param clientEdit the changes made by a client.
+     * @param edits the changes made by a client.
      */
-    public void patch(final Edit clientEdit) {
-        final Document<T> document = getDocument(clientEdit.documentId());
-        final ShadowDocument<T> shadowDocument = patchShadow(clientEdit);
-        patchDocument(document, shadowDocument);
-        removeEdits(clientEdit);
+    public void patch(final Queue<Edit> edits) {
+        final Edit first = edits.peek();
+        final ShadowDocument<T> shadow = getShadowDocument(first.clientId(), first.documentId());
+        final ShadowDocument<T> patchedShadow = patchShadow(shadow, edits);
+        final Document<T> document = getDocument(patchedShadow.document().id());
+        patchDocument(document, patchedShadow);
+        saveBackupShadow(shadow);
     }
 
     /**
@@ -89,8 +93,12 @@ public class ServerSyncEngine<T> {
     public Edit diff(final String clientId, final String documentId) {
         final Document<T> document = getDocument(documentId);
         final Edit edit = serverDiffs(document, clientId);
-        patchShadow(edit);
+        diffPatchShadow(getShadowDocument(clientId, documentId), edit);
         return edit;
+    }
+
+    private void diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {
+        saveShadow(synchronizer.patchShadow(edit, shadow));
     }
 
     private void addShadow(final String documentId, final String clientId) {
@@ -103,8 +111,7 @@ public class ServerSyncEngine<T> {
     }
 
     private Edit clientDiffs(final Document<T> document, final ShadowDocument<T> shadow) {
-        final Edit newEdit = clientDiff(document, shadow);
-        return newEdit;
+        return clientDiff(document, shadow);
     }
 
     private Edit serverDiffs(final Document<T> document, final String clientId) {
@@ -115,20 +122,41 @@ public class ServerSyncEngine<T> {
         return newEdit;
     }
 
-    private ShadowDocument<T> patchShadow(final Edit edit) {
-        final ShadowDocument<T> shadow = getShadowDocument(edit.clientId(), edit.documentId());
-        if (shadow.clientVersion() != edit.clientVersion() || shadow.serverVersion() != edit.serverVersion()) {
-            return shadow;
+    private ShadowDocument<T> patchShadow(final ShadowDocument<T> shadowDocument, final Queue<Edit> edits) {
+        ShadowDocument<T> shadow = copy(shadowDocument);
+
+        final Iterator<Edit> iterator = edits.iterator();
+        while (iterator.hasNext()) {
+            final Edit edit = iterator.next();
+            if (edit.serverVersion() < shadow.serverVersion()) {
+                final BackupShadowDocument<T> backupShadow = getBackupShadowDocument(edit.clientId(), edit.documentId());
+                if (backupShadow.version() == edit.serverVersion()) {
+                    shadow = saveShadow(newShadowDoc(backupShadow.version(), shadow.clientVersion(), backupShadow.shadow().document()));
+                } else {
+                    throw new IllegalStateException(backupShadow + " server version does not match version of " + edit.serverVersion());
+                }
+            }
+            // the server has already seen this version from the client. Possibly because a packet has been
+            // dropped when sending from the server to the client. We don't need to apply it and can safely
+            // drop it and process the next edit.
+            if (edit.clientVersion() < shadow.clientVersion()) {
+                dataStore.removeEdit(edit);
+                iterator.remove();
+                continue;
+            }
+            if (edit.serverVersion() == shadow.serverVersion() && edit.clientVersion() == shadow.clientVersion()) {
+                final ShadowDocument<T> patchedShadow = synchronizer.patchShadow(edit, shadow);
+                dataStore.removeEdit(edit);
+                shadow = saveShadow(incrementClientVersion(patchedShadow));
+            }
         }
-        final ShadowDocument<T> patchedShadow = synchronizer.patchShadow(edit, shadow);
-        return saveShadow(incrementClientVersion(patchedShadow));
+        return shadow;
     }
 
     private Document<T> patchDocument(final Document<T> document, final ShadowDocument<T> shadowDocument) {
         final Edit edit = clientDiffs(document, shadowDocument);
         final Document<T> patched = synchronizer.patchDocument(edit, document);
         saveDocument(patched);
-        saveBackupShadow(shadowDocument);
         return patched;
     }
 
@@ -144,7 +172,11 @@ public class ServerSyncEngine<T> {
         return dataStore.getShadowDocument(documentId, clientId);
     }
 
-    private Set<Edit> getPendingEdits(final String clientId, final String documentId) {
+    private BackupShadowDocument<T> getBackupShadowDocument(final String clientId, final String documentId) {
+        return dataStore.getBackupShadowDocument(documentId, clientId);
+    }
+
+    private Queue<Edit> getPendingEdits(final String clientId, final String documentId) {
         return dataStore.getEdits(clientId, documentId);
     }
 
@@ -154,14 +186,6 @@ public class ServerSyncEngine<T> {
 
     private Edit serverDiff(final Document<T> doc, final ShadowDocument<T> shadow) {
         return synchronizer.serverDiff(doc, shadow);
-    }
-
-    private static Edit merge(final Edit pendingEdit, final Edit newEdit) {
-        if (pendingEdit == null) {
-            return newEdit;
-        }
-        pendingEdit.diffs().addAll(newEdit.diffs());
-        return pendingEdit;
     }
 
     private void saveEdits(final Edit edit) {
@@ -182,6 +206,9 @@ public class ServerSyncEngine<T> {
         return new DefaultShadowDocument<T>(serverVersion, clientVersion, doc);
     }
 
+    private ShadowDocument<T> copy(final ShadowDocument<T> shadow) {
+        return new DefaultShadowDocument<T>(shadow.serverVersion(), shadow.clientVersion(), shadow.document());
+    }
 
     private ShadowDocument<T> incrementServerVersion(final ShadowDocument<T> shadow) {
         final long serverVersion = shadow.serverVersion() + 1;
@@ -194,10 +221,6 @@ public class ServerSyncEngine<T> {
 
     private void saveDocument(final Document<T> document) {
         dataStore.saveDocument(document);
-    }
-
-    private void removeEdits(final Edit edit) {
-        dataStore.removeEdits(edit);
     }
 
 }

@@ -20,14 +20,21 @@ import org.jboss.aerogear.sync.common.DiffMatchPatch;
 import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
+import org.jboss.aerogear.sync.diffsync.DefaultDocument;
 import org.jboss.aerogear.sync.diffsync.Diff;
+import org.jboss.aerogear.sync.diffsync.Document;
 import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
+import org.jboss.aerogear.sync.diffsync.server.DefaultServerSynchronizer;
+import org.jboss.aerogear.sync.diffsync.server.ServerInMemoryDataStore;
+import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -36,80 +43,152 @@ import static org.hamcrest.MatcherAssert.*;
 
 public class ClientSyncEngineTest {
 
-    private static final String ORGINAL_TEXT = "Do or do not, there is no try.";
-    private static final String UPDATED_TEXT = "Do or do not, there is no try!";
-    private static final String DOC_ID = "123456";
-    private static final String CLIENT_ID = "clientA";
-    private ClientDocument<String> clientDoc;
     private ClientDataStore<String> dataStore;
-    private ClientSyncEngine<String> syncEngine;
+    private ClientSyncEngine<String> clientSyncEngine;
+    private ServerSyncEngine<String> serverSyncEngine;
 
     @Before
     public void setup() {
         dataStore = new ClientInMemoryDataStore();
-        syncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), dataStore);
-        clientDoc = new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, CLIENT_ID);
-        syncEngine.addDocument(clientDoc);
+        clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), dataStore);
+        serverSyncEngine = new ServerSyncEngine<String>(new DefaultServerSynchronizer(), new ServerInMemoryDataStore());
     }
 
     @Test
     public void addDocument() {
-        assertThat(dataStore.getClientDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
-        assertThat(dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId()), is(notNullValue()));
-        assertThat(dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id()), is(notNullValue()));
-    }
+        final String docId = "123456";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
 
-    @Test
-    public void addDocumentWithMultipleClients() {
-        final String clientId1 = "client1";
-        final String clientId2 = "client2";
-        syncEngine.addDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId1));
-        syncEngine.addDocument(new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, clientId2));
+        clientSyncEngine.addDocument(newClientDoc(docId, originalVersion, clientId));
 
-        assertThat(dataStore.getClientDocument(clientId1, DOC_ID).id(), equalTo(DOC_ID));
-        assertThat(dataStore.getShadowDocument(DOC_ID, clientId1).document().clientId(), equalTo(clientId1));
-        assertThat(dataStore.getBackupShadowDocument(clientId1, DOC_ID), is(notNullValue()));
+        final ClientDocument<String> clientDocument = dataStore.getClientDocument(docId, clientId);
+        assertThat(clientDocument.clientId(), equalTo(clientId));
+        assertThat(clientDocument.id(), equalTo(docId));
+        assertThat(clientDocument.content(), equalTo(originalVersion));
 
-        assertThat(dataStore.getClientDocument(clientId2, DOC_ID).id(), equalTo(DOC_ID));
-        assertThat(dataStore.getShadowDocument(DOC_ID, clientId2).document().clientId(), equalTo(clientId2));
-        assertThat(dataStore.getBackupShadowDocument(clientId2, DOC_ID), is(notNullValue()));
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(docId, clientId);
+        assertThat(shadowDocument.clientVersion(), is(0L));
+        assertThat(shadowDocument.serverVersion(), is(0L));
+        assertThat(shadowDocument.document(), equalTo(clientDocument));
+
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(docId, clientId);
+        assertThat(backupShadowDocument.version(), is(0L));
+        assertThat(backupShadowDocument.shadow(), equalTo(shadowDocument));
     }
 
     @Test
     public void diff() {
-        final Set<Edit> edits = syncEngine.diff(new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID));
+        final String docId = "123456";
+        final String clientOne = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        final String secondVersion = "Do or do not, there is no try!";
+
+        clientSyncEngine.addDocument(newClientDoc(docId, originalVersion, clientOne));
+
+        final Queue<Edit> edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
         assertThat(edits.size(), is(1));
         final Edit edit = edits.iterator().next();
-        assertEdits(edit);
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edit.documentId(), edit.clientId());
-        assertThat(shadowDocument.clientVersion(), is(1L));
-        assertThat(shadowDocument.serverVersion(), is(0L));
-    }
-
-    @Test
-    public void patch() {
-        final ClientDocument<String> clientDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
-        final ClientDocument<String> patched = syncEngine.patch(syncEngine.diff(clientDoc).iterator().next());
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(clientDoc.id(), clientDoc.clientId());
-        assertThat(shadowDocument.clientVersion(), is(0L));
-        assertThat(shadowDocument.serverVersion(), is(1L));
-        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(clientDoc.clientId(), clientDoc.id());
-        assertThat(backupShadowDocument.version(), is(0L));
-        assertThat(patched.content(), equalTo(UPDATED_TEXT));
-    }
-
-    private void assertEdits(final Edit edit) {
-        assertThat(edit.documentId(), is(DOC_ID));
+        assertThat(edit.documentId(), is(docId));
+        // client version is only incremented after the diff is taken. See shadowDocument asserts below.
         assertThat(edit.clientVersion(), is(0L));
-        final ClientDocument<String> document = dataStore.getShadowDocument(edit.documentId(), edit.clientId()).document();
-        assertThat(edit.checksum(), equalTo(DiffMatchPatch.checksum(document.content())));
-        assertThat(edit.diffs().size(), is(3));
+        assertThat(edit.serverVersion(), is(0L));
+
         final List<Diff> diffs = edit.diffs();
+        assertThat(edit.diffs().size(), is(3));
         assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
         assertThat(diffs.get(1).text(), equalTo("."));
         assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
         assertThat(diffs.get(2).text(), equalTo("!"));
+
+        final ClientDocument<String> document = dataStore.getShadowDocument(edit.documentId(), edit.clientId()).document();
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edit.documentId(), edit.clientId());
+        assertThat(shadowDocument.clientVersion(), is(1L));
+        assertThat(shadowDocument.serverVersion(), is(0L));
+        assertThat(shadowDocument.document(), equalTo(document));
+    }
+
+    @Test
+    public void patch() {
+        final String docId = "123456";
+        final String clientOne = "client1";
+        final String clientTwo = "client2";
+        final String originalVersion = "Do or do not, there is no try.";
+        final String secondVersion = "Do or do not, there is no try!";
+
+        clientSyncEngine.addDocument(newClientDoc(docId, originalVersion, clientOne));
+        clientSyncEngine.addDocument(newClientDoc(docId, originalVersion, clientTwo));
+        serverSyncEngine.addDocument(newDoc(docId, originalVersion), clientOne);
+        serverSyncEngine.addDocument(newDoc(docId, originalVersion), clientTwo);
+
+        final Queue<Edit> edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
+        assertThat(edits.size(), is(1));
+        final Edit edit = edits.peek();
+        assertThat(edit.clientId(), equalTo(clientOne));
+        assertThat(edit.clientVersion(), is(0L));
+        assertThat(edit.serverVersion(), is(0L));
+        final List<Diff> diffs = edit.diffs();
+        assertThat(diffs.size(), is(3));
+        assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
+        assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
+        assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
+        assertThat(diffs.get(1).text(), equalTo("."));
+        assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
+        assertThat(diffs.get(2).text(), equalTo("!"));
+
+        serverSyncEngine.patch(edits);
+
+        final Edit serverEdit = serverSyncEngine.diff(clientTwo, docId);
+        assertThat(serverEdit.clientId(), equalTo(clientTwo));
+        assertThat(serverEdit.clientVersion(), is(0L));
+        assertThat(serverEdit.serverVersion(), is(0L));
+        assertThat(serverEdit.diffs().size(), is(3));
+        final List<Diff> serverDiffs = edit.diffs();
+        assertThat(serverDiffs.size(), is(3));
+        assertThat(serverDiffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
+        assertThat(serverDiffs.get(0).text(), equalTo("Do or do not, there is no try"));
+        assertThat(serverDiffs.get(1).operation(), is(Diff.Operation.DELETE));
+        assertThat(serverDiffs.get(1).text(), equalTo("."));
+        assertThat(serverDiffs.get(2).operation(), is(Diff.Operation.ADD));
+        assertThat(serverDiffs.get(2).text(), equalTo("!"));
+
+        clientSyncEngine.patch(asList(serverEdit));
+        final Queue<Edit> clientOneEdits = dataStore.getEdits(clientTwo, docId);
+        assertThat(clientOneEdits.isEmpty(), is(true));
+        final Queue<Edit> clientTwoEdits = dataStore.getEdits(clientTwo, docId);
+        assertThat(clientTwoEdits.isEmpty(), is(true));
+
+        final Edit serverEdit1 = serverSyncEngine.diff(clientOne, docId);
+        assertThat(serverEdit1.diffs().size(), is(1));
+        assertThat(serverEdit1.diffs().get(0).operation(), is(Diff.Operation.UNCHANGED));
+
+        final Edit serverEdit2 = serverSyncEngine.diff(clientTwo, docId);
+        assertThat(serverEdit2.diffs().size(), is(1));
+        assertThat(serverEdit2.diffs().get(0).operation(), is(Diff.Operation.UNCHANGED));
+        assertThat(serverEdit2.diffs().get(0).text(), equalTo("Do or do not, there is no try!"));
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(docId, clientTwo);
+        assertThat(shadowDocument.clientVersion(), is(0L));
+        assertThat(shadowDocument.serverVersion(), is(1L));
+        assertThat(shadowDocument.document().content(), equalTo(secondVersion));
+
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(docId, clientTwo);
+        assertThat(backupShadowDocument.version(), is(0L));
+        assertThat(backupShadowDocument.shadow().document().content(), equalTo(originalVersion));
+    }
+
+    private static Queue<Edit> asList(final Edit edit) {
+        return new ConcurrentLinkedQueue<Edit>(Arrays.asList(edit));
+    }
+
+    private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {
+        return new DefaultClientDocument<String>(documentId, content, clientId);
+    }
+
+    private static Document<String> newDoc(final String documentId, final String content) {
+        return new DefaultDocument<String>(documentId, content);
     }
 }

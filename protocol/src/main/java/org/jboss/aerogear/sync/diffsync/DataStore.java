@@ -1,6 +1,6 @@
 package org.jboss.aerogear.sync.diffsync;
 
-import java.util.Set;
+import java.util.Queue;
 
 /**
  * A DataStore implementation is responible for storing and serving data for a
@@ -37,11 +37,11 @@ public interface DataStore<T> {
     /**
      * Retrieves the {@link BackupShadowDocument} matching the passed-in document documentId.
      *
-     * @param clientId the client identifier for which to fetch the document.
      * @param documentId the document identifier of the backup shadow document.
+     * @param clientId the client identifier for which to fetch the document.
      * @return {@link ShadowDocument} the backup shadow document matching the documentId.
      */
-    BackupShadowDocument<T> getBackupShadowDocument(String clientId, String documentId);
+    BackupShadowDocument<T> getBackupShadowDocument(String documentId, String clientId);
 
     /**
      * Saves edits for the document.
@@ -57,13 +57,13 @@ public interface DataStore<T> {
      * @param documentId the document identifier of the edit.
      * @return {@code Set<Edits>} the edit for the document.
      */
-    Set<Edit> getEdits(String clientId, String documentId);
+    Queue<Edit> getEdits(String clientId, String documentId);
 
     /**
-     * Removes the edits from the store.
+     * Removes the edit from the store.
      *
-     * @param edit the edits to be removed.
+     * @param edit the edit to be removed.
      */
-    void removeEdits(Edit edit);
+    void removeEdit(Edit edit);
 
 }

@@ -22,10 +22,10 @@ public interface ClientDataStore<T> extends DataStore<T> {
     /**
      * Retrieves the {@link Document} matching the passed-in document documentId.
      *
-     * @param clientId the client identifier for which to fetch the document.
      * @param documentId the document identifier of the shadow document.
+     * @param clientId the client identifier for which to fetch the document.
      * @return {@link Document} the document matching the documentId.
      */
-    ClientDocument<T> getClientDocument(String clientId, String documentId);
+    ClientDocument<T> getClientDocument(String documentId, String clientId);
 
 }
