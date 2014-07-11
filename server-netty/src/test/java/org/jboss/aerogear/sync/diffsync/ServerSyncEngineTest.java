@@ -178,7 +178,7 @@ public class ServerSyncEngineTest {
         return new DefaultClientDocument<String>(documentId, content, clientId);
     }
 
-    private static Queue<Edit> clientSideEdits(final String documentId,
+    private static Edits clientSideEdits(final String documentId,
                                          final String originalContent,
                                          final String clientId,
                                          final String updatedContent) {

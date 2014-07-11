@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.sync.diffsync.client;
 
-import org.jboss.aerogear.sync.common.DiffMatchPatch;
 import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.sync.diffsync.ClientDocument;
 import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
@@ -24,6 +23,7 @@ import org.jboss.aerogear.sync.diffsync.DefaultDocument;
 import org.jboss.aerogear.sync.diffsync.Diff;
 import org.jboss.aerogear.sync.diffsync.Document;
 import org.jboss.aerogear.sync.diffsync.Edit;
+import org.jboss.aerogear.sync.diffsync.Edits;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 import org.jboss.aerogear.sync.diffsync.server.DefaultServerSynchronizer;
 import org.jboss.aerogear.sync.diffsync.server.ServerInMemoryDataStore;
@@ -31,14 +31,13 @@ import org.jboss.aerogear.sync.diffsync.server.ServerSyncEngine;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.*;
 
 public class ClientSyncEngineTest {
@@ -86,10 +85,11 @@ public class ClientSyncEngineTest {
 
         clientSyncEngine.addDocument(newClientDoc(docId, originalVersion, clientOne));
 
-        final Queue<Edit> edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
-        assertThat(edits.size(), is(1));
-        final Edit edit = edits.iterator().next();
-        assertThat(edit.documentId(), is(docId));
+        final Edits edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
+        assertThat(edits.documentId(), equalTo(docId));
+        assertThat(edits.clientId(), equalTo(clientOne));
+        assertThat(edits.edits().size(), is(1));
+        final Edit edit = edits.edits().iterator().next();
         // client version is only incremented after the diff is taken. See shadowDocument asserts below.
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
@@ -124,10 +124,11 @@ public class ClientSyncEngineTest {
         serverSyncEngine.addDocument(newDoc(docId, originalVersion), clientOne);
         serverSyncEngine.addDocument(newDoc(docId, originalVersion), clientTwo);
 
-        final Queue<Edit> edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
-        assertThat(edits.size(), is(1));
-        final Edit edit = edits.peek();
-        assertThat(edit.clientId(), equalTo(clientOne));
+        final Edits edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
+        assertThat(edits.documentId(), equalTo(docId));
+        assertThat(edits.clientId(), equalTo(clientOne));
+        assertThat(edits.edits().size(), is(1));
+        final Edit edit = edits.edits().peek();
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         final List<Diff> diffs = edit.diffs();
@@ -181,7 +182,7 @@ public class ClientSyncEngineTest {
     }
 
     private static Queue<Edit> asList(final Edit edit) {
-        return new ConcurrentLinkedQueue<Edit>(Arrays.asList(edit));
+        return new ConcurrentLinkedQueue<Edit>(Collections.singletonList(edit));
     }
 
     private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {

@@ -39,7 +39,8 @@ public interface ServerSynchronizer<T> {
     /**
      * Called when the document should be patched.
      *
-     * @param edit
+     * @param edit the edit to use to path the document
+     * @param document the document to be patched.
      * @return {@link Document} a new patched document.
      */
     Document<T> patchDocument(Edit edit, Document<T> document);

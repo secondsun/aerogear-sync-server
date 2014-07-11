@@ -18,7 +18,6 @@ package org.jboss.aerogear.sync.diffsync.server;
 
 import org.jboss.aerogear.sync.common.DiffMatchPatch;
 import org.jboss.aerogear.sync.diffsync.*;
-import org.jboss.aerogear.sync.diffsync.DefaultEdit;
 
 import java.util.LinkedList;
 

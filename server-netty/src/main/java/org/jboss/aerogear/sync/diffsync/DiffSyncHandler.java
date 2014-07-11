@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -68,7 +67,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 break;
             case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), DefaultEdits.class);
-                patch(clientEdits.edits());
+                patch(clientEdits);
                 respond(ctx, "PATCHED");
                 notifyClientListeners(clientEdits);
                 break;
@@ -88,7 +87,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         syncEngine.addDocument(document, clientId);
     }
 
-    private void patch(final Queue<Edit> clientEdit) {
+    private void patch(final Edits clientEdit) {
         syncEngine.patch(clientEdit);
     }
 

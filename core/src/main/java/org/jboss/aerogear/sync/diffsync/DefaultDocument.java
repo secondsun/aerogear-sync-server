@@ -26,6 +26,7 @@ public class DefaultDocument<T> implements Document<T>{
         this.content = content;
     }
 
+    @Override
     public String id() {
         return id;
     }
@@ -37,6 +38,6 @@ public class DefaultDocument<T> implements Document<T>{
 
     @Override
     public String toString() {
-        return "DefaultDocument[id=" + id + ", content=" + content + "]";
+        return "DefaultDocument[id=" + id + ", content=" + content + ']';
     }
 }

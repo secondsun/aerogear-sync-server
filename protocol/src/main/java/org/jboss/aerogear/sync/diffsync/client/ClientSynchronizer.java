@@ -39,10 +39,9 @@ public interface ClientSynchronizer<T> {
 
     /**
      * Called when the document should be patched.
-     * If this engine is used on the server side this will patch the server document, and
-     * if run on the client side will patch the client document
      *
-     * @param edit
+     * @param edit the edit to use to patch the client document.
+     * @param document the client document that
      * @return {@link ClientDocument} a new patched document.
      */
     ClientDocument<T> patchDocument(Edit edit, ClientDocument<T> document);

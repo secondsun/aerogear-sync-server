@@ -81,7 +81,7 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client1Id, originalContent, channel1);
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
-        final DefaultEdits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
+        final Edits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
         final JsonNode json = sendEditMsg(clientEdit, channel1);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
 
@@ -105,7 +105,7 @@ public class DiffSyncHandlerTest {
         assertThat(edit.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 
-    private static JsonNode sendEditMsg(final DefaultEdits edits, final EmbeddedChannel ch) {
+    private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {
         return writeTextFrame(JsonMapper.toJson(edits), ch);
     }
 
@@ -147,7 +147,7 @@ public class DiffSyncHandlerTest {
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }
 
-    private static DefaultEdits generateClientSideEdits(final String documentId,
+    private static Edits generateClientSideEdits(final String documentId,
                                                  final String originalContent,
                                                  final String clientId,
                                                  final String updatedContent) {
@@ -155,7 +155,7 @@ public class DiffSyncHandlerTest {
                 new ClientInMemoryDataStore());
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
         final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, updatedContent, clientId);
-        return new DefaultEdits(documentId, clientId, clientSyncEngine.diff(doc));
+        return clientSyncEngine.diff(doc);
     }
 
 }

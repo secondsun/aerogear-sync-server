@@ -49,7 +49,6 @@
         var counter2 = 0;
         ws2.onmessage = function( evt ) {
             var json = JSON.parse( evt.data );
-            console.log (json);
             switch ( counter2 ) {
                 case 0:
                     equal( json.result, 'ADDED', 'Document should have been added' );

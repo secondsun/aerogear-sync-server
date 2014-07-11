@@ -66,10 +66,9 @@ public class ServerSyncEngine<T> {
      *
      * @param edits the changes made by a client.
      */
-    public void patch(final Queue<Edit> edits) {
-        final Edit first = edits.peek();
-        final ShadowDocument<T> shadow = getShadowDocument(first.clientId(), first.documentId());
-        final ShadowDocument<T> patchedShadow = patchShadow(shadow, edits);
+    public void patch(final Edits edits) {
+        final ShadowDocument<T> shadow = getShadowDocument(edits.clientId(), edits.documentId());
+        final ShadowDocument<T> patchedShadow = patchShadow(shadow, edits.edits());
         final Document<T> document = getDocument(patchedShadow.document().id());
         patchDocument(document, patchedShadow);
         saveBackupShadow(shadow);
