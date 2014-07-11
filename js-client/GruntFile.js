@@ -17,13 +17,13 @@ module.exports = function(grunt) {
                 options: {
                     stdout: true
                 },
-                command: ['cd  ../server-netty', 'mvn exec:exec -Prestserver'].join('&&')
+                command: ['cd  ../restsync/server-netty', 'mvn exec:exec -Pserver'].join('&&')
             },
             diffserver: {
                 options: {
                     stdout: true
                 },
-                command: ['cd  ../server-netty', 'mvn exec:exec -Pdiffserver'].join('&&')
+                command: ['cd  ../diffsync/server-netty', 'mvn exec:exec -Pserver'].join('&&')
             }
         }
     });

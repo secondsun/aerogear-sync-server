@@ -40,10 +40,9 @@
     </properties>
 
     <modules>
-        <module>protocol</module>
         <module>common</module>
-        <module>core</module>
-        <module>server-netty</module>
+        <module>restsync</module>
+        <module>diffsync</module>
     </modules>
 
     <dependencyManagement>
@@ -54,6 +53,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>restsync-protocol</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>diffsync-protocol</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-common</artifactId>
                 <version>${project.version}</version>
@@ -62,6 +71,16 @@
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-core</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>diffsync-core</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>restsync-core</artifactId>
+              <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
