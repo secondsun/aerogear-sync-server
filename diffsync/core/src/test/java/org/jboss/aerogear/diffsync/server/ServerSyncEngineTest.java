@@ -29,18 +29,11 @@ import org.jboss.aerogear.diffsync.client.ClientDataStore;
 import org.jboss.aerogear.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.diffsync.client.DefaultClientSynchronizer;
-import org.jboss.aerogear.diffsync.server.DefaultServerSynchronizer;
-import org.jboss.aerogear.diffsync.server.ServerDataStore;
-import org.jboss.aerogear.diffsync.server.ServerInMemoryDataStore;
-import org.jboss.aerogear.diffsync.server.ServerSyncEngine;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -184,10 +177,6 @@ public class ServerSyncEngineTest {
         assertThat(thirdDiffs.get(1).operation(), is(Operation.ADD));
         assertThat(thirdDiffs.get(1).text(), equalTo("hing"));
         assertThat(thirdDiffs.get(2).operation(), is(Operation.UNCHANGED));
-    }
-
-    private static Queue<Edit> asList(final Edit edit) {
-        return new ConcurrentLinkedQueue<Edit>(Arrays.asList(edit));
     }
 
     private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {

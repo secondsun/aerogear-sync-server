@@ -31,10 +31,8 @@ import org.jboss.aerogear.diffsync.server.ServerSyncEngine;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -182,10 +180,6 @@ public class ClientSyncEngineTest {
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(docId, clientTwo);
         assertThat(backupShadowDocument.version(), is(0L));
         assertThat(backupShadowDocument.shadow().document().content(), equalTo(originalVersion));
-    }
-
-    private static Queue<Edit> asList(final Edit edit) {
-        return new ConcurrentLinkedQueue<Edit>(Collections.singletonList(edit));
     }
 
     private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {
