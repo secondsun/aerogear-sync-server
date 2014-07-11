@@ -95,12 +95,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         return new DefaultDocument<String>(json.get("id").asText(), json.get("content").asText());
     }
 
-    private Edit diff(final String clientId, final String documentId) {
-        return syncEngine.diff(clientId, documentId);
-    }
-
     private Edits diffs(final String clientId, final String documentId) {
-        diff(clientId, documentId);
         return syncEngine.diffs(clientId, documentId);
     }
 

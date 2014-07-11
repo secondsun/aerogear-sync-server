@@ -37,16 +37,6 @@ public class ServerSyncEngine<T> {
     }
 
     /**
-     * Determines if a document exists in this sync engine.
-     *
-     * @param id the document id.
-     * @return {@code true} if the document exists in this engine
-     */
-    public boolean contains(final String id) {
-       return dataStore.getDocument(id) != null;
-    }
-
-    /**
      * Adds a new document which is "synchonrizable".
      *
      * A server does not create a new document itself, this would be created by a client
@@ -59,19 +49,6 @@ public class ServerSyncEngine<T> {
             dataStore.saveDocument(document);
         }
         addShadow(document.id(), clientId);
-    }
-
-    /**
-     * Performs the server side patching for a specific client.
-     *
-     * @param edits the changes made by a client.
-     */
-    public void patch(final Edits edits) {
-        final ShadowDocument<T> shadow = getShadowDocument(edits.clientId(), edits.documentId());
-        final ShadowDocument<T> patchedShadow = patchShadow(shadow, edits.edits());
-        final Document<T> document = getDocument(patchedShadow.document().id());
-        patchDocument(document, patchedShadow);
-        saveBackupShadow(shadow);
     }
 
     /**
@@ -89,8 +66,26 @@ public class ServerSyncEngine<T> {
         return edit;
     }
 
+    /**
+     * Performs the server side patching for a specific client.
+     *
+     * @param edits the changes made by a client.
+     */
+    public void patch(final Edits edits) {
+        final ShadowDocument<T> shadow = getShadowDocument(edits.clientId(), edits.documentId());
+        final ShadowDocument<T> patchedShadow = patchShadow(shadow, edits.edits());
+        final Document<T> document = getDocument(patchedShadow.document().id());
+        patchDocument(document, patchedShadow);
+        saveBackupShadow(shadow);
+    }
+
     public Edits diffs(final String clientId, final String documentId) {
+        diff(clientId, documentId);
         return new DefaultEdits(documentId, clientId, dataStore.getEdits(clientId, documentId));
+    }
+
+    private boolean contains(final String id) {
+        return dataStore.getDocument(id) != null;
     }
 
     private void diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {

@@ -27,7 +27,6 @@ import org.jboss.aerogear.sync.diffsync.Edits;
 import org.jboss.aerogear.sync.diffsync.ShadowDocument;
 
 import java.util.Iterator;
-import java.util.Queue;
 
 /**
  * The client side of the differential synchronization implementation.
@@ -69,8 +68,6 @@ public class ClientSyncEngine<T> {
     public Edits diff(final ClientDocument<T> document) {
         final ShadowDocument<T> shadow = getShadowDocument(document.clientId(), document.id());
         final Edit edit = diff(document, shadow);
-        //final Set<Edits> pendingEdits = getPendingEdits(document.clientId(), document.id());
-        //final Edits mergedEdits = merge(pendingEdits, newEdits);
         saveEdits(edit);
         final ShadowDocument<T> patchedShadow = diffPatchShadow(shadow, edit);
         saveShadow(incrementClientVersion(patchedShadow));
@@ -86,19 +83,18 @@ public class ClientSyncEngine<T> {
      *
      * @param edits the updates from the server.
      */
-    public void patch(final Queue<Edit> edits) {
-        final Edit first = edits.peek();
-        final ShadowDocument<T> shadow = getShadowDocument(first.clientId(), first.documentId());
+    public void patch(final Edits edits) {
+        final ShadowDocument<T> shadow = getShadowDocument(edits.clientId(), edits.documentId());
         final ShadowDocument<T> patchedShadow = patchShadow(edits, shadow);
         saveShadow(patchedShadow);
         patchDocument(patchedShadow);
         saveBackupShadow(shadow);
     }
 
-    private ShadowDocument<T> patchShadow(final Queue<Edit> edits, final ShadowDocument<T> shadowDocument) {
+    private ShadowDocument<T> patchShadow(final Edits edits, final ShadowDocument<T> shadowDocument) {
         ShadowDocument<T> shadow = copy(shadowDocument);
 
-        final Iterator<Edit> iterator = edits.iterator();
+        final Iterator<Edit> iterator = edits.edits().iterator();
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
             if (edit.serverVersion() < shadow.serverVersion()) {

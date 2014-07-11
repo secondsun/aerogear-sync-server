@@ -36,6 +36,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ServerSyncEngineTest {
@@ -62,12 +64,12 @@ public class ServerSyncEngineTest {
     public void containsDocument() {
         final String documentId = UUID.randomUUID().toString();
         serverSyncEngine.addDocument(newDoc(documentId, "What!"), "client1");
-        assertThat(serverSyncEngine.contains(documentId), is(true));
+        assertThat(dataStore.getDocument(documentId), is(notNullValue()));
     }
 
     @Test
     public void containsDocumentNonExistent() {
-        assertThat(serverSyncEngine.contains("bogusId"), is(false));
+        assertThat(dataStore.getDocument("bogusId"), is(nullValue()));
     }
 
     @Test
@@ -134,18 +136,24 @@ public class ServerSyncEngineTest {
 
         // create an update originating from client1.
         serverSyncEngine.patch(clientOneSyncEngine.diff(newClientDoc(documentId, versionTwo, clientOne)));
-        final Edit clientOneServerEdit = serverSyncEngine.diff(clientOne, documentId);
-        assertThat(clientOneServerEdit.clientId(), equalTo(clientOne));
+        final Edits clientOneServerEdits = serverSyncEngine.diffs(clientOne, documentId);
+        assertThat(clientOneServerEdits.clientId(), equalTo(clientOne));
+        assertThat(clientOneServerEdits.documentId(), equalTo(documentId));
+        assertThat(clientOneServerEdits.edits().size(), is(1));
+        final Edit clientOneServerEdit = clientOneServerEdits.edits().peek();
         assertThat(clientOneServerEdit.clientVersion(), is(1L));
         assertThat(clientOneServerEdit.serverVersion(), is(0L));
         assertThat(clientOneServerEdit.diffs().size(), is(1));
         assertThat(clientOneServerEdit.diffs().get(0).operation(), is(Operation.UNCHANGED));
         assertThat(clientOneServerEdit.diffs().get(0).text(), equalTo(versionTwo));
         // no patch required for clientOneSyncEngine as this was performed after the diff was taken.
-        clientOneSyncEngine.patch(asList(clientOneServerEdit));
+        clientOneSyncEngine.patch(clientOneServerEdits);
 
-        final Edit clientTwoServerEdit = serverSyncEngine.diff(clientTwo, documentId);
-        assertThat(clientTwoServerEdit.clientId(), equalTo(clientTwo));
+        final Edits clientTwoServerEdits = serverSyncEngine.diffs(clientTwo, documentId);
+        assertThat(clientTwoServerEdits.clientId(), equalTo(clientTwo));
+        assertThat(clientTwoServerEdits.documentId(), equalTo(documentId));
+        assertThat(clientTwoServerEdits.edits().size(), is(1));
+        final Edit clientTwoServerEdit = clientTwoServerEdits.edits().peek();
         assertThat(clientTwoServerEdit.clientVersion(), is(0L));
         assertThat(clientTwoServerEdit.serverVersion(), is(0L));
         final LinkedList<Diff> clientTwoServerDiffs = clientTwoServerEdit.diffs();
@@ -156,7 +164,7 @@ public class ServerSyncEngineTest {
         assertThat(clientTwoServerDiffs.get(1).text(), equalTo("."));
         assertThat(clientTwoServerDiffs.get(2).operation(), is(Operation.ADD));
         assertThat(clientTwoServerDiffs.get(2).text(), equalTo("!"));
-        clientTwoSyncEngine.patch(asList(clientTwoServerEdit));
+        clientTwoSyncEngine.patch(clientTwoServerEdits);
 
         serverSyncEngine.patch(clientOneSyncEngine.diff(newClientDoc(documentId, versionThree, clientOne)));
         final Edit thirdEdit = serverSyncEngine.diff(clientTwo, documentId);

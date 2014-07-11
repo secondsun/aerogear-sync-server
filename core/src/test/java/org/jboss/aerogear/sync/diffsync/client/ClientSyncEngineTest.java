@@ -142,8 +142,11 @@ public class ClientSyncEngineTest {
 
         serverSyncEngine.patch(edits);
 
-        final Edit serverEdit = serverSyncEngine.diff(clientTwo, docId);
-        assertThat(serverEdit.clientId(), equalTo(clientTwo));
+        final Edits serverEdits = serverSyncEngine.diffs(clientTwo, docId);
+        assertThat(serverEdits.clientId(), equalTo(clientTwo));
+        assertThat(serverEdits.documentId(), equalTo(docId));
+        assertThat(serverEdits.edits().size(), is(1));
+        final Edit serverEdit = serverEdits.edits().peek();
         assertThat(serverEdit.clientVersion(), is(0L));
         assertThat(serverEdit.serverVersion(), is(0L));
         assertThat(serverEdit.diffs().size(), is(3));
@@ -156,7 +159,7 @@ public class ClientSyncEngineTest {
         assertThat(serverDiffs.get(2).operation(), is(Diff.Operation.ADD));
         assertThat(serverDiffs.get(2).text(), equalTo("!"));
 
-        clientSyncEngine.patch(asList(serverEdit));
+        clientSyncEngine.patch(serverEdits);
         final Queue<Edit> clientOneEdits = dataStore.getEdits(clientTwo, docId);
         assertThat(clientOneEdits.isEmpty(), is(true));
         final Queue<Edit> clientTwoEdits = dataStore.getEdits(clientTwo, docId);
