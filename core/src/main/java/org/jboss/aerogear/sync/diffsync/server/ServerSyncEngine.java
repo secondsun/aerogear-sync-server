@@ -16,14 +16,7 @@
  */
 package org.jboss.aerogear.sync.diffsync.server;
 
-import org.jboss.aerogear.sync.diffsync.BackupShadowDocument;
-import org.jboss.aerogear.sync.diffsync.ClientDocument;
-import org.jboss.aerogear.sync.diffsync.DefaultBackupShadowDocument;
-import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.sync.diffsync.DefaultShadowDocument;
-import org.jboss.aerogear.sync.diffsync.Document;
-import org.jboss.aerogear.sync.diffsync.Edit;
-import org.jboss.aerogear.sync.diffsync.ShadowDocument;
+import org.jboss.aerogear.sync.diffsync.*;
 
 import java.util.Iterator;
 import java.util.Queue;
@@ -95,6 +88,10 @@ public class ServerSyncEngine<T> {
         final Edit edit = serverDiffs(document, clientId);
         diffPatchShadow(getShadowDocument(clientId, documentId), edit);
         return edit;
+    }
+
+    public Edits diffs(final String clientId, final String documentId) {
+        return new DefaultEdits(documentId, clientId, dataStore.getEdits(clientId, documentId));
     }
 
     private void diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {
@@ -174,10 +171,6 @@ public class ServerSyncEngine<T> {
 
     private BackupShadowDocument<T> getBackupShadowDocument(final String clientId, final String documentId) {
         return dataStore.getBackupShadowDocument(documentId, clientId);
-    }
-
-    private Queue<Edit> getPendingEdits(final String clientId, final String documentId) {
-        return dataStore.getEdits(clientId, documentId);
     }
 
     private Edit clientDiff(final Document<T> doc, final ShadowDocument<T> shadow) {

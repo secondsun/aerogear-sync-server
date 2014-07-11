@@ -2,7 +2,7 @@ package org.jboss.aerogear.sync;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.sync.diffsync.DefautEdits;
+import org.jboss.aerogear.sync.diffsync.DefaultEdits;
 import org.jboss.aerogear.sync.diffsync.Edit;
 import org.jboss.aerogear.sync.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffsync.client.ClientSyncEngine;
@@ -17,7 +17,7 @@ public class JsonMapperTest {
 
     @Test
     public void serializeEdits() {
-        final DefautEdits edits = generateClientSideEdits("1234", "version1", "client1", "version2");
+        final DefaultEdits edits = generateClientSideEdits("1234", "version1", "client1", "version2");
         final String json = JsonMapper.toJson(edits);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
         assertThat(jsonNode.get("msgType").asText(), equalTo("patch"));
@@ -36,8 +36,8 @@ public class JsonMapperTest {
 
     @Test
     public void deserializeEdits() {
-        final DefautEdits edits = generateClientSideEdits("1234", "version1", "client1", "version2");
-        final DefautEdits deserialized = JsonMapper.fromJson(JsonMapper.toJson(edits), DefautEdits.class);
+        final DefaultEdits edits = generateClientSideEdits("1234", "version1", "client1", "version2");
+        final DefaultEdits deserialized = JsonMapper.fromJson(JsonMapper.toJson(edits), DefaultEdits.class);
         assertThat(deserialized.edits().size(), is(1));
         final Edit edit = deserialized.edits().peek();
         assertThat(edit.documentId(), equalTo("1234"));
@@ -49,7 +49,7 @@ public class JsonMapperTest {
 
     @Test
     public void serializeEdit() {
-        final DefautEdits edits = generateClientSideEdits("1234", "version1", "client1", "version2");
+        final DefaultEdits edits = generateClientSideEdits("1234", "version1", "client1", "version2");
         final String json = JsonMapper.toJson(edits.edits().peek());
         final JsonNode edit = JsonMapper.asJsonNode(json);
         assertThat(edit.get("clientId").asText(), equalTo("client1"));
@@ -61,7 +61,7 @@ public class JsonMapperTest {
         assertThat(diffs.size(), is(3));
     }
 
-    private static DefautEdits generateClientSideEdits(final String documentId,
+    private static DefaultEdits generateClientSideEdits(final String documentId,
                                                        final String originalContent,
                                                        final String clientId,
                                                        final String updatedContent) {
@@ -69,6 +69,6 @@ public class JsonMapperTest {
                 new ClientInMemoryDataStore());
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
         final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, updatedContent, clientId);
-        return new DefautEdits(documentId, clientId, clientSyncEngine.diff(doc));
+        return new DefaultEdits(documentId, clientId, clientSyncEngine.diff(doc));
     }
 }

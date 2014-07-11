@@ -49,6 +49,7 @@
         var counter2 = 0;
         ws2.onmessage = function( evt ) {
             var json = JSON.parse( evt.data );
+            console.log (json);
             switch ( counter2 ) {
                 case 0:
                     equal( json.result, 'ADDED', 'Document should have been added' );
@@ -56,14 +57,16 @@
                     break;
                 case 1:
                     equal( json.msgType, 'patch', 'The server should have generated an edit' );
+                    equal( json.id, documentId, 'The document id should match' );
                     equal( json.clientId, 'client2', 'The clientId should match. This is who made the update.' );
-                    equal( json.serverVersion, 0, 'Version of the server document recieved.' );
-                    equal( json.diffs[0].operation, 'UNCHANGED', 'Since we made the change now change is required.' );
-                    equal( json.diffs[0].text, 'Do or do not, there is no try', 'The first part of the string should be unchanged.' );
-                    equal( json.diffs[1].operation, 'DELETE', 'The operation should be DELETE' );
-                    equal( json.diffs[1].text, '.', "text should be '.'" );
-                    equal( json.diffs[2].operation, 'ADD', 'The operation should be ADD' );
-                    equal( json.diffs[2].text, '!', "text should be '!'" );
+                    equal( json.edits[0].clientVersion, 0, 'Version of the server document recieved.' );
+                    equal( json.edits[0].serverVersion, 0, 'Version of the server document recieved.' );
+                    equal( json.edits[0].diffs[0].operation, 'UNCHANGED', 'Since we made the change now change is required.' );
+                    equal( json.edits[0].diffs[0].text, 'Do or do not, there is no try', 'The first part of the string should be unchanged.' );
+                    equal( json.edits[0].diffs[1].operation, 'DELETE', 'The operation should be DELETE' );
+                    equal( json.edits[0].diffs[1].text, '.', "text should be '.'" );
+                    equal( json.edits[0].diffs[2].operation, 'ADD', 'The operation should be ADD' );
+                    equal( json.edits[0].diffs[2].text, '!', "text should be '!'" );
                     start();
                     break;
             }

@@ -81,7 +81,7 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client1Id, originalContent, channel1);
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
-        final DefautEdits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
+        final DefaultEdits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
         final JsonNode json = sendEditMsg(clientEdit, channel1);
         assertThat(json.get("result").asText(), equalTo("PATCHED"));
 
@@ -90,21 +90,22 @@ public class DiffSyncHandlerTest {
 
         // get the update from channel2.
         final TextWebSocketFrame serverUpdate = channel2.readOutbound();
-        final Edit serverUpdates = JsonMapper.fromJson(serverUpdate.text(), Edit.class);
+        final Edits serverUpdates = JsonMapper.fromJson(serverUpdate.text(), DefaultEdits.class);
         assertThat(serverUpdates.documentId(), equalTo(docId));
         assertThat(serverUpdates.clientId(), equalTo(client2Id));
-        assertThat(serverUpdates.clientVersion(), is(0L));
-        assertThat(serverUpdates.serverVersion(), is(0L));
-        assertThat(serverUpdates.diffs().size(), is(4));
-        assertThat(serverUpdates.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(serverUpdates.diffs().get(1).operation(), is(Operation.DELETE));
-        assertThat(serverUpdates.diffs().get(1).text(), equalTo("."));
-        assertThat(serverUpdates.diffs().get(2).operation(), is(Operation.ADD));
-        assertThat(serverUpdates.diffs().get(2).text(), equalTo("!"));
-        assertThat(serverUpdates.diffs().get(3).operation(), is(Operation.UNCHANGED));
+        final Edit edit = serverUpdates.edits().peek();
+        assertThat(edit.clientVersion(), is(0L));
+        assertThat(edit.serverVersion(), is(0L));
+        assertThat(edit.diffs().size(), is(4));
+        assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edit.diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(edit.diffs().get(1).text(), equalTo("."));
+        assertThat(edit.diffs().get(2).operation(), is(Operation.ADD));
+        assertThat(edit.diffs().get(2).text(), equalTo("!"));
+        assertThat(edit.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 
-    private static JsonNode sendEditMsg(final DefautEdits edits, final EmbeddedChannel ch) {
+    private static JsonNode sendEditMsg(final DefaultEdits edits, final EmbeddedChannel ch) {
         return writeTextFrame(JsonMapper.toJson(edits), ch);
     }
 
@@ -146,7 +147,7 @@ public class DiffSyncHandlerTest {
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }
 
-    private static DefautEdits generateClientSideEdits(final String documentId,
+    private static DefaultEdits generateClientSideEdits(final String documentId,
                                                  final String originalContent,
                                                  final String clientId,
                                                  final String updatedContent) {
@@ -154,7 +155,7 @@ public class DiffSyncHandlerTest {
                 new ClientInMemoryDataStore());
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
         final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, updatedContent, clientId);
-        return new DefautEdits(documentId, clientId, clientSyncEngine.diff(doc));
+        return new DefaultEdits(documentId, clientId, clientSyncEngine.diff(doc));
     }
 
 }

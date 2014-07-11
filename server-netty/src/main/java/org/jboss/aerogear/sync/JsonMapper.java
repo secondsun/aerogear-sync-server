@@ -32,9 +32,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jboss.aerogear.sync.diffsync.DefaultDiff;
 import org.jboss.aerogear.sync.diffsync.DefaultEdit;
-import org.jboss.aerogear.sync.diffsync.DefautEdits;
+import org.jboss.aerogear.sync.diffsync.DefaultEdits;
 import org.jboss.aerogear.sync.diffsync.Diff;
 import org.jboss.aerogear.sync.diffsync.Edit;
+import org.jboss.aerogear.sync.diffsync.Edits;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -53,8 +54,8 @@ public final class JsonMapper {
         module.addSerializer(DefaultDocument.class, new DocumentSerializer());
         module.addDeserializer(Edit.class, new EditDeserializer());
         module.addSerializer(Edit.class, new EditSerializer());
-        module.addDeserializer(DefautEdits.class, new EditsDeserializer());
-        module.addSerializer(DefautEdits.class, new EditsSerializer());
+        module.addDeserializer(DefaultEdits.class, new EditsDeserializer());
+        module.addSerializer(Edits.class, new EditsSerializer());
         om.registerModule(module);
         return om;
     }
@@ -165,10 +166,10 @@ public final class JsonMapper {
         }
     }
 
-    private static class EditsDeserializer extends JsonDeserializer<DefautEdits> {
+    private static class EditsDeserializer extends JsonDeserializer<DefaultEdits> {
 
         @Override
-        public DefautEdits deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+        public DefaultEdits deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
             final String documentId = node.get("id").asText();
@@ -192,14 +193,14 @@ public final class JsonMapper {
                     edits.add(new DefaultEdit(clientId, documentId, clientVersion, serverVersion, checksum, diffs));
                 }
             }
-            return new DefautEdits(documentId, clientId, edits);
+            return new DefaultEdits(documentId, clientId, edits);
         }
     }
 
-    private static class EditsSerializer extends JsonSerializer<DefautEdits> {
+    private static class EditsSerializer extends JsonSerializer<Edits> {
 
         @Override
-        public void serialize(final DefautEdits edits,
+        public void serialize(final Edits edits,
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
