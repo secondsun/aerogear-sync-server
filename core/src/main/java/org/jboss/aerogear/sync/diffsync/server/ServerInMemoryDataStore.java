@@ -44,7 +44,7 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
 
     @Override
     public ShadowDocument<String> getShadowDocument(final String documentId, final String clientId) {
-        return shadows.get(id(clientId, documentId));
+        return shadows.get(id(documentId, clientId));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
 
     @Override
     public BackupShadowDocument<String> getBackupShadowDocument(final String documentId, final String clientId) {
-        return backups.get(id(clientId, documentId));
+        return backups.get(id(documentId, clientId));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
 
     @Override
     public void saveEdits(final Edit edit) {
-        final Id id = id(edit.clientId(), edit.documentId());
+        final Id id = id(edit.documentId(), edit.clientId());
         final Queue<Edit> newEdits = new ConcurrentLinkedQueue<Edit>();
         newEdits.add(edit);
         while (true) {
@@ -95,7 +95,7 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
 
     @Override
     public void removeEdit(final Edit edit) {
-        final Id id = id(edit.clientId(), edit.documentId());
+        final Id id = id(edit.documentId(), edit.clientId());
         while (true) {
             final Queue<Edit> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
@@ -116,8 +116,8 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     }
 
     @Override
-    public Queue<Edit> getEdits(final String clientId, final String documentId) {
-        final Queue<Edit> edits = pendingEdits.get(id(clientId, documentId));
+    public Queue<Edit> getEdits(final String documentId, final String clientId) {
+        final Queue<Edit> edits = pendingEdits.get(id(documentId, clientId));
         if (edits == null) {
             return EMPTY_QUEUE;
         }
@@ -125,11 +125,11 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     }
 
     private static Id id(final ClientDocument<String> document) {
-        return id(document.clientId(), document.id());
+        return id(document.id(), document.clientId());
     }
 
-    private static Id id(final String clientId, final String documentId) {
-        return new Id(clientId, documentId);
+    private static Id id(final String documentId, final String clientId) {
+        return new Id(documentId, clientId);
     }
 
     private static class Id {
@@ -137,7 +137,7 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
         private final String clientId;
         private final String documentId;
 
-        Id(final String clientId, final String documentId) {
+        Id(final String documentId, final String clientId) {
             this.clientId = clientId;
             this.documentId = documentId;
         }

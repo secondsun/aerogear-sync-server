@@ -53,11 +53,12 @@ public interface DataStore<T> {
     /**
      * Retreives the {@link Edit} for the specified document documentId.
      *
-     * @param clientId the client identifier for which to fetch the document.
+     *
      * @param documentId the document identifier of the edit.
+     * @param clientId the client identifier for which to fetch the document.
      * @return {@code Set<Edits>} the edit for the document.
      */
-    Queue<Edit> getEdits(String clientId, String documentId);
+    Queue<Edit> getEdits(String documentId, String clientId);
 
     /**
      * Removes the edit from the store.

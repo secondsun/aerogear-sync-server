@@ -43,8 +43,7 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String> {
     public Edit diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return new DefaultEdit(shadowDocument.document().clientId(),
-                document.id(),
+        return new DefaultEdit(document.id(), shadowDocument.document().clientId(),
                 shadowDocument.clientVersion(),
                 shadowDocument.serverVersion(),
                 checksum(shadowText),

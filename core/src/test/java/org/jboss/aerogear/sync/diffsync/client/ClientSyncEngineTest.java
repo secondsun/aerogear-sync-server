@@ -142,7 +142,7 @@ public class ClientSyncEngineTest {
 
         serverSyncEngine.patch(edits);
 
-        final Edits serverEdits = serverSyncEngine.diffs(clientTwo, docId);
+        final Edits serverEdits = serverSyncEngine.diffs(docId, clientTwo);
         assertThat(serverEdits.clientId(), equalTo(clientTwo));
         assertThat(serverEdits.documentId(), equalTo(docId));
         assertThat(serverEdits.edits().size(), is(1));
@@ -160,16 +160,16 @@ public class ClientSyncEngineTest {
         assertThat(serverDiffs.get(2).text(), equalTo("!"));
 
         clientSyncEngine.patch(serverEdits);
-        final Queue<Edit> clientOneEdits = dataStore.getEdits(clientTwo, docId);
+        final Queue<Edit> clientOneEdits = dataStore.getEdits(docId, clientTwo);
         assertThat(clientOneEdits.isEmpty(), is(true));
-        final Queue<Edit> clientTwoEdits = dataStore.getEdits(clientTwo, docId);
+        final Queue<Edit> clientTwoEdits = dataStore.getEdits(docId, clientTwo);
         assertThat(clientTwoEdits.isEmpty(), is(true));
 
-        final Edit serverEdit1 = serverSyncEngine.diff(clientOne, docId);
+        final Edit serverEdit1 = serverSyncEngine.diff(docId, clientOne);
         assertThat(serverEdit1.diffs().size(), is(1));
         assertThat(serverEdit1.diffs().get(0).operation(), is(Diff.Operation.UNCHANGED));
 
-        final Edit serverEdit2 = serverSyncEngine.diff(clientTwo, docId);
+        final Edit serverEdit2 = serverSyncEngine.diff(docId, clientTwo);
         assertThat(serverEdit2.diffs().size(), is(1));
         assertThat(serverEdit2.diffs().get(0).operation(), is(Diff.Operation.UNCHANGED));
         assertThat(serverEdit2.diffs().get(0).text(), equalTo("Do or do not, there is no try!"));

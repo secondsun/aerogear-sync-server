@@ -95,8 +95,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         return new DefaultDocument<String>(json.get("id").asText(), json.get("content").asText());
     }
 
-    private Edits diffs(final String clientId, final String documentId) {
-        return syncEngine.diffs(clientId, documentId);
+    private Edits diffs(final String documentId, final String clientId) {
+        return syncEngine.diffs(documentId, clientId);
     }
 
     private static void addClientListener(final String documentId, final String clientId, final ChannelHandlerContext ctx) {
@@ -128,7 +128,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         for (Client client : clients.get(documentId)) {
             if (!client.id().equals(clientId)) {
                 //TODO: this should be done async and not block the io thread!
-                final Edits edits = diffs(client.id(), documentId);
+                final Edits edits = diffs(documentId, client.id());
                 client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
             }
         }

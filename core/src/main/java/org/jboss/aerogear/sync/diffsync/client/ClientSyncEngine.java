@@ -66,12 +66,12 @@ public class ClientSyncEngine<T> {
      * @return {@link Edit} containing the edits for the changes in the document.
      */
     public Edits diff(final ClientDocument<T> document) {
-        final ShadowDocument<T> shadow = getShadowDocument(document.clientId(), document.id());
+        final ShadowDocument<T> shadow = getShadowDocument(document.id(), document.clientId());
         final Edit edit = diff(document, shadow);
         saveEdits(edit);
         final ShadowDocument<T> patchedShadow = diffPatchShadow(shadow, edit);
         saveShadow(incrementClientVersion(patchedShadow));
-        return getPendingEdits(document.clientId(), document.id());
+        return getPendingEdits(document.id(), document.clientId());
     }
 
     private ShadowDocument<T> diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {
@@ -84,7 +84,7 @@ public class ClientSyncEngine<T> {
      * @param edits the updates from the server.
      */
     public void patch(final Edits edits) {
-        final ShadowDocument<T> shadow = getShadowDocument(edits.clientId(), edits.documentId());
+        final ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
         final ShadowDocument<T> patchedShadow = patchShadow(edits, shadow);
         saveShadow(patchedShadow);
         patchDocument(patchedShadow);
@@ -98,7 +98,7 @@ public class ClientSyncEngine<T> {
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
             if (edit.serverVersion() < shadow.serverVersion()) {
-                final BackupShadowDocument<T> backupShadow = getBackupShadowDocument(edit.clientId(), edit.documentId());
+                final BackupShadowDocument<T> backupShadow = getBackupShadowDocument(edit.documentId(), edit.clientId());
                 if (backupShadow.version() == edit.serverVersion()) {
                     shadow = saveShadow(newShadowDoc(backupShadow.version(), shadow.clientVersion(), backupShadow.shadow().document()));
                 } else {
@@ -131,16 +131,16 @@ public class ClientSyncEngine<T> {
         return patched;
     }
 
-    private ShadowDocument<T> getShadowDocument(final String clientId, final String documentId) {
+    private ShadowDocument<T> getShadowDocument(final String documentId, final String clientId) {
         return dataStore.getShadowDocument(documentId, clientId);
     }
 
-    private BackupShadowDocument<T> getBackupShadowDocument(final String clientId, final String documentId) {
+    private BackupShadowDocument<T> getBackupShadowDocument(final String documentId, final String clientId) {
         return dataStore.getBackupShadowDocument(documentId, clientId);
     }
 
-    private Edits getPendingEdits(final String clientId, final String documentId) {
-        return new DefaultEdits(documentId, clientId, dataStore.getEdits(clientId, documentId));
+    private Edits getPendingEdits(final String documentId, final String clientId) {
+        return new DefaultEdits(documentId, clientId, dataStore.getEdits(documentId, clientId));
     }
 
     private Edit diff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {

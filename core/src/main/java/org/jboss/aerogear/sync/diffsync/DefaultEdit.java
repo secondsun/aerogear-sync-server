@@ -27,8 +27,8 @@ public class DefaultEdit implements Edit {
     private final String checksum;
     private final LinkedList<Diff> diffs;
 
-    public DefaultEdit(final String clientId,
-                       final String documentId,
+    public DefaultEdit(final String documentId,
+                       final String clientId,
                        final long clientVersion,
                        final long serverVersion,
                        final String checksum,

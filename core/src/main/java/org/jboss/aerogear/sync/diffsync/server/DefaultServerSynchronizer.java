@@ -45,8 +45,7 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     public Edit clientDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
-        return new DefaultEdit(shadowDocument.document().clientId(),
-                document.id(),
+        return new DefaultEdit(document.id(), shadowDocument.document().clientId(),
                 shadowDocument.clientVersion(),
                 shadowDocument.serverVersion(),
                 checksum(shadowText),
@@ -57,8 +56,7 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     public Edit serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return new DefaultEdit(shadowDocument.document().clientId(),
-                document.id(),
+        return new DefaultEdit(document.id(), shadowDocument.document().clientId(),
                 shadowDocument.clientVersion(),
                 shadowDocument.serverVersion(),
                 checksum(shadowText),

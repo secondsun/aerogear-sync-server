@@ -190,7 +190,7 @@ public final class JsonMapper {
                             diffs.add(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                         }
                     }
-                    edits.add(new DefaultEdit(clientId, documentId, clientVersion, serverVersion, checksum, diffs));
+                    edits.add(new DefaultEdit(documentId, clientId, clientVersion, serverVersion, checksum, diffs));
                 }
             }
             return new DefaultEdits(documentId, clientId, edits);
@@ -250,7 +250,7 @@ public final class JsonMapper {
                     diffs.add(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                 }
             }
-            return new DefaultEdit(clientId, documentId, clientVersion, serverVersion, checksum, diffs);
+            return new DefaultEdit(documentId, clientId, clientVersion, serverVersion, checksum, diffs);
         }
     }
 
