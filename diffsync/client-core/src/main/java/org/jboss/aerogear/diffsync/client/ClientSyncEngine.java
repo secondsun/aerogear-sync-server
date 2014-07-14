@@ -88,7 +88,7 @@ public class ClientSyncEngine<T> {
         final ShadowDocument<T> patchedShadow = patchShadow(edits, shadow);
         saveShadow(patchedShadow);
         patchDocument(patchedShadow);
-        saveBackupShadow(shadow);
+        saveBackupShadow(patchedShadow);
     }
 
     private ShadowDocument<T> patchShadow(final Edits edits, final ShadowDocument<T> shadowDocument) {

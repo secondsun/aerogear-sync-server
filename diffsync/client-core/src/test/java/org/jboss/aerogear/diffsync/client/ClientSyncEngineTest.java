@@ -136,6 +136,7 @@ public class ClientSyncEngineTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final String originalVersion = "Do or do not, there is no try.";
+        final String finalVersion = "Do or do nothing, there is no try!";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
         final Edit edit1 = EditBuilder.withDocumentId(documentId)
@@ -156,8 +157,12 @@ public class ClientSyncEngineTest {
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().content(), equalTo("Do or do nothing, there is no try!"));
-        assertThat(shadowDocument.serverVersion(), is(2L));
         assertThat(shadowDocument.clientVersion(), is(0L));
+        assertThat(shadowDocument.serverVersion(), is(2L));
+
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
+        assertThat(backupShadowDocument.version(), is(0L));
+        assertThat(backupShadowDocument.shadow().document().content(), equalTo(finalVersion));
     }
 
     @Test
