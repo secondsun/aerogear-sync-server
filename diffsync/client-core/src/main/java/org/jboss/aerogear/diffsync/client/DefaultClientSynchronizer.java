@@ -63,7 +63,7 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String> {
         final ClientDocument<String> doc = shadowDocument.document();
         final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
         final boolean[] patchResults = (boolean[]) results[1];
-        final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), (String) results[0], doc.clientId() );
+        final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), doc.clientId(), (String) results[0]);
         //TODO: results also contains a boolean array. Not sure what we should do with it.
         return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edit.clientVersion(), patchedDocument);
     }
@@ -73,7 +73,7 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String> {
         final LinkedList<Patch> patches = patchesFrom(edit);
         final Object[] results = diffMatchPatch.patchApply(patches, document.content());
         //TODO: results also contains a boolean array. Not sure what we should do with it.
-        return new DefaultClientDocument<String>(document.id(), (String) results[0], document.clientId());
+        return new DefaultClientDocument<String>(document.id(), document.clientId(), (String) results[0]);
     }
 
     private LinkedList<Patch> patchesFrom(final Edit edit) {

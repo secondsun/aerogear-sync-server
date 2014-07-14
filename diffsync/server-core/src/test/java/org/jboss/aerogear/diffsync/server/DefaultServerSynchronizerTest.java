@@ -36,7 +36,7 @@ public class DefaultServerSynchronizerTest {
     public void clientDiff() throws Exception {
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
-        final ClientDocument<String> clientDocument = new DefaultClientDocument<String>("1234", "testing", "client1");
+        final ClientDocument<String> clientDocument = new DefaultClientDocument<String>("1234", "client1", "testing");
         final ShadowDocument<String> shadowDocument = new DefaultShadowDocument<String>(0L,  0L, clientDocument);
 
         final Edit edit = synchronizer.clientDiff(document, shadowDocument);

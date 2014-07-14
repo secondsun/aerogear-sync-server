@@ -4,7 +4,7 @@ public class DefaultClientDocument<T> extends DefaultDocument<T> implements Clie
 
     private final String clientId;
 
-    public DefaultClientDocument(String id, T content, String clientId) {
+    public DefaultClientDocument(String id, String clientId, T content) {
         super(id, content);
         this.clientId = clientId;
     }

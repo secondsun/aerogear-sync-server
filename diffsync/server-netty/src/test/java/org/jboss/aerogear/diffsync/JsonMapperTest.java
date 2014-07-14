@@ -64,8 +64,8 @@ public class JsonMapperTest {
                                                        final String updatedContent) {
         final ClientSyncEngine<String> clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(),
                 new ClientInMemoryDataStore());
-        clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
-        final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, updatedContent, clientId);
+        clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, clientId, originalContent));
+        final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, clientId, updatedContent);
         return clientSyncEngine.diff(doc);
     }
 }

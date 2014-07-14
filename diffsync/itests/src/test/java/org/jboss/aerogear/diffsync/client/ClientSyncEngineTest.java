@@ -183,7 +183,7 @@ public class ClientSyncEngineTest {
     }
 
     private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {
-        return new DefaultClientDocument<String>(documentId, content, clientId);
+        return new DefaultClientDocument<String>(documentId, clientId, content);
     }
 
     private static Document<String> newDoc(final String documentId, final String content) {

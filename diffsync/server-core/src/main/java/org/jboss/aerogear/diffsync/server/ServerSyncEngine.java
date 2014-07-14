@@ -157,7 +157,7 @@ public class ServerSyncEngine<T> {
     }
 
     private ClientDocument<T> newClientDocument(final String documentId, final String clientId, final T content) {
-        return new DefaultClientDocument<T>(documentId, content, clientId);
+        return new DefaultClientDocument<T>(documentId, clientId, content);
     }
 
     private ShadowDocument<T> getShadowDocument(final String documentId, final String clientId) {

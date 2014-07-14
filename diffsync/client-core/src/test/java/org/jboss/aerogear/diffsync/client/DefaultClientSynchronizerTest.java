@@ -46,8 +46,8 @@ public class DefaultClientSynchronizerTest {
 
     @Before
     public void createDocuments() {
-        serverDoc = new DefaultClientDocument<String>(DOC_ID, ORGINAL_TEXT, CLIENT_ID);
-        clientDoc = new DefaultClientDocument<String>(DOC_ID, serverDoc.content(), CLIENT_ID);
+        serverDoc = new DefaultClientDocument<String>(DOC_ID, CLIENT_ID, ORGINAL_TEXT);
+        clientDoc = new DefaultClientDocument<String>(DOC_ID, CLIENT_ID, serverDoc.content());
         serverShadow = new DefaultShadowDocument<String>(0, 0, serverDoc);
         clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
         clientSynchronizer = new DefaultClientSynchronizer();
@@ -55,7 +55,7 @@ public class DefaultClientSynchronizerTest {
 
     @Test
     public void diff() {
-        final ClientDocument<String> updatedDoc = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
+        final ClientDocument<String> updatedDoc = new DefaultClientDocument<String>(DOC_ID, CLIENT_ID, UPDATED_TEXT);
         final Edit edit = clientSynchronizer.diff(updatedDoc, clientShadow);
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.checksum(), equalTo(checksum(clientShadow.document().content())));
@@ -71,7 +71,7 @@ public class DefaultClientSynchronizerTest {
 
     @Test
     public void patchShadow() {
-        final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
+        final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, CLIENT_ID, UPDATED_TEXT);
         // Produce and edits that would be sent over the network to the server.
         final Edit edit = clientSynchronizer.diff(clientUpdate, clientShadow);
         // On the server side, the server takes the edits and tries to patch the client's server side shadow.
@@ -84,7 +84,7 @@ public class DefaultClientSynchronizerTest {
     @Test
     public void patchDocument() {
         final ShadowDocument<String> clientShadow = new DefaultShadowDocument<String>(0, 0, clientDoc);
-        final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, UPDATED_TEXT, CLIENT_ID);
+        final ClientDocument<String> clientUpdate = new DefaultClientDocument<String>(DOC_ID, CLIENT_ID, UPDATED_TEXT);
         final Edit edit = clientSynchronizer.diff(clientUpdate, clientShadow);
         final Document<String> patched = clientSynchronizer.patchDocument(edit, serverDoc);
         assertThat(patched.content(), equalTo(UPDATED_TEXT));

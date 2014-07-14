@@ -69,7 +69,7 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
         final ClientDocument<String> doc = shadowDocument.document();
         final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
         final boolean[] patchResults = (boolean[]) results[1];
-        final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), (String) results[0], doc.clientId() );
+        final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), doc.clientId(), (String) results[0]);
         //TODO: results also contains a boolean array. Not sure what we should do with it.
         return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edit.clientVersion(), patchedDocument);
     }

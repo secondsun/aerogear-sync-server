@@ -180,7 +180,7 @@ public class ServerSyncEngineTest {
     }
 
     private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {
-        return new DefaultClientDocument<String>(documentId, content, clientId);
+        return new DefaultClientDocument<String>(documentId, clientId, content);
     }
 
     private static Edits clientSideEdits(final String documentId,
@@ -188,8 +188,8 @@ public class ServerSyncEngineTest {
                                          final String clientId,
                                          final String updatedContent) {
         final ClientSyncEngine<String> clientSyncEngine = clientSyncEngine();
-        clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, originalContent, clientId));
-        return clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, updatedContent, clientId));
+        clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, clientId, originalContent));
+        return clientSyncEngine.diff(new DefaultClientDocument<String>(documentId, clientId, updatedContent));
     }
 
     private static ClientSyncEngine<String> clientSyncEngine() {
