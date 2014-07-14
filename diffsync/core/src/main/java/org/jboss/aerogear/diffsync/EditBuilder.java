@@ -1,10 +1,6 @@
-package org.jboss.aerogear.diffsync.client;
+package org.jboss.aerogear.diffsync;
 
-import org.jboss.aerogear.diffsync.DefaultDiff;
-import org.jboss.aerogear.diffsync.DefaultEdit;
-import org.jboss.aerogear.diffsync.Diff;
 import org.jboss.aerogear.diffsync.Diff.Operation;
-import org.jboss.aerogear.diffsync.Edit;
 
 import java.util.LinkedList;
 
@@ -17,7 +13,11 @@ public class EditBuilder {
     private String checksum;
     private final LinkedList<Diff> diffs = new LinkedList<Diff>();
 
-    public EditBuilder(final String documentId) {
+    public static EditBuilder withDocumentId(final String documentId) {
+        return new EditBuilder(documentId);
+    }
+
+    private EditBuilder(final String documentId) {
         this.documentId = documentId;
     }
 
@@ -57,6 +57,9 @@ public class EditBuilder {
     }
 
     public Edit build() {
+        if (clientId == null) {
+            throw new IllegalArgumentException("clientId must not be null");
+        }
         return new DefaultEdit(documentId, clientId, clientVersion, serverVersion, checksum, diffs);
     }
 

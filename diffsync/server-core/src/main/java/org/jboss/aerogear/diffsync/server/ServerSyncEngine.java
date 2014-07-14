@@ -99,7 +99,9 @@ public class ServerSyncEngine<T> {
         // A clients shadow always begins with server version 0, and client version 0. Even if the server document
         // has existed for days and has been updated many time, the server version of the shadow is specific to this
         // client. The server version represents the latest version of the server document that the client has seen.
-        saveShadow(newShadowDoc(0, 0, clientDocument));
+        final ShadowDocument<T> shadowDocument = newShadowDoc(0, 0, clientDocument);
+        saveShadow(shadowDocument);
+        saveBackupShadow(shadowDocument);
     }
 
     private Edit clientDiffs(final Document<T> document, final ShadowDocument<T> shadow) {
@@ -124,6 +126,10 @@ public class ServerSyncEngine<T> {
                 final BackupShadowDocument<T> backupShadow = getBackupShadowDocument(edit.documentId(), edit.clientId());
                 if (backupShadow.version() == edit.serverVersion()) {
                     shadow = saveShadow(newShadowDoc(backupShadow.version(), shadow.clientVersion(), backupShadow.shadow().document()));
+                    final ShadowDocument<T> patchedShadow = synchronizer.patchShadow(edit, shadow);
+                    dataStore.removeEdit(edit);
+                    shadow = saveShadow(incrementClientVersion(patchedShadow));
+                    saveBackupShadow(shadow);
                 } else {
                     throw new IllegalStateException(backupShadow + " server version does not match version of " + edit.serverVersion());
                 }

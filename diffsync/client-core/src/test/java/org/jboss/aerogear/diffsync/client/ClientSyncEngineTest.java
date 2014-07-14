@@ -16,16 +16,8 @@
  */
 package org.jboss.aerogear.diffsync.client;
 
-import org.jboss.aerogear.diffsync.BackupShadowDocument;
-import org.jboss.aerogear.diffsync.ClientDocument;
-import org.jboss.aerogear.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.diffsync.DefaultEdits;
-import org.jboss.aerogear.diffsync.DefaultShadowDocument;
-import org.jboss.aerogear.diffsync.Diff;
+import org.jboss.aerogear.diffsync.*;
 import org.jboss.aerogear.diffsync.Diff.Operation;
-import org.jboss.aerogear.diffsync.Edit;
-import org.jboss.aerogear.diffsync.Edits;
-import org.jboss.aerogear.diffsync.ShadowDocument;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -97,7 +89,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit = new EditBuilder(documentId)
+        final Edit edit = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
@@ -119,14 +111,14 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit = new EditBuilder(documentId)
+        final Edit edit = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
                 .build();
-        engine.patch(edits(documentId, clientId, edit));
+        engine.patch(edits(documentId, clientId, edit, edit));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
@@ -146,14 +138,14 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit1 = new EditBuilder(documentId)
+        final Edit edit1 = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
                 .build();
-        final Edit edit2 = new EditBuilder(documentId)
+        final Edit edit2 = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(1)
                 .unchanged("Do or do not")
@@ -175,7 +167,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit1 = new EditBuilder(documentId)
+        final Edit edit1 = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
@@ -193,7 +185,7 @@ public class ClientSyncEngineTest {
         // simulate an client side diff that would update the client shadow.
         dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, "Do or do nothing, there is not trying"));
 
-        final Edit edit2 = new EditBuilder(documentId)
+        final Edit edit2 = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .clientVersion(0)
                 .serverVersion(1)

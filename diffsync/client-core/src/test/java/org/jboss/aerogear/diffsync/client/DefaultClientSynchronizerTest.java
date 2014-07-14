@@ -64,7 +64,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do not, there is no try!";
         final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, originalVersion);
 
-        final Edit edit = new EditBuilder(documentId)
+        final Edit edit = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
@@ -82,7 +82,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do nothing, there is no try.";
         final ClientDocument<String> clientShadow = new DefaultClientDocument<String>(documentId, clientId, originalVersion);
 
-        final Edit edit = new EditBuilder(documentId)
+        final Edit edit = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("Do or do not")
                 .add("hing")
