@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.diffsync.server;
 
-import org.jboss.aerogear.diffsync.ClientDocument;
 import org.jboss.aerogear.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.diffsync.DefaultDocument;
 import org.jboss.aerogear.diffsync.DefaultShadowDocument;
@@ -36,7 +35,7 @@ public class DefaultServerSynchronizerTest {
     public void clientDiff() throws Exception {
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
-        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
+        final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
         final Edit edit = synchronizer.clientDiff(document, shadowDocument);
         assertThat(edit.clientId(), equalTo("client1"));
@@ -53,7 +52,7 @@ public class DefaultServerSynchronizerTest {
     public void serverDiff() throws Exception {
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
-        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
+        final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
         final Edit edit = synchronizer.serverDiff(document, shadowDocument);
         assertThat(edit.clientId(), equalTo("client1"));
@@ -70,7 +69,7 @@ public class DefaultServerSynchronizerTest {
     public void patchShadow() throws Exception {
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
-        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
+        final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
         final Edit edit = synchronizer.serverDiff(document, shadowDocument);
         final ShadowDocument<String> patchedShadow = synchronizer.patchShadow(edit, shadowDocument);
@@ -81,17 +80,19 @@ public class DefaultServerSynchronizerTest {
     public void patchDocument() throws Exception {
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
-        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
+        final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
         final Edit edit = synchronizer.clientDiff(document, shadowDocument);
         final Document<String> patchedDocument = synchronizer.patchDocument(edit, document);
         assertThat(patchedDocument.content(), equalTo("testing"));
     }
 
-    private static ShadowDocument<String> shadowDocument(final String clientVersion, final String content) {
+    private static ShadowDocument<String> shadowDocument(final String documentId,
+                                                         final String clientVersion,
+                                                         final String content) {
         return new DefaultShadowDocument<String>(0L,
                 0L,
-                new DefaultClientDocument<String>("1234", "client1", "testing"));
+                new DefaultClientDocument<String>(documentId, clientVersion, content));
 
     }
 }
