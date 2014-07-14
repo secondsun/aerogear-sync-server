@@ -97,12 +97,16 @@ public class ClientSyncEngine<T> {
         final Iterator<Edit> iterator = edits.edits().iterator();
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
-            if (edit.serverVersion() < shadow.serverVersion()) {
+            if (shadow.clientVersion() > edit.clientVersion()) {
                 final BackupShadowDocument<T> backupShadow = getBackupShadowDocument(edit.documentId(), edit.clientId());
-                if (backupShadow.version() == edit.serverVersion()) {
+                if (backupShadow.version() == edit.clientVersion()) {
                     shadow = saveShadow(newShadowDoc(backupShadow.version(), shadow.clientVersion(), backupShadow.shadow().document()));
+                    final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit, shadow);
+                    dataStore.removeEdit(edit);
+                    shadow = saveShadow(incrementVersions(patchedShadow));
+                    continue;
                 } else {
-                    throw new IllegalStateException(backupShadow + " server version does not match version of " + edit.serverVersion());
+                    throw new IllegalStateException(backupShadow + " client version does not match version of " + edit.clientVersion());
                 }
             }
             // the client has already seen this version from the server. Possibly because a packet has been
@@ -154,6 +158,12 @@ public class ClientSyncEngine<T> {
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {
         final long clientVersion = shadow.clientVersion() + 1;
         return newShadowDoc(shadow.serverVersion(), clientVersion, shadow.document());
+    }
+
+    private ShadowDocument<T> incrementVersions(final ShadowDocument<T> shadow) {
+        final long clientVersion = shadow.clientVersion() + 1;
+        final long serverVersion = shadow.serverVersion() + 1;
+        return newShadowDoc(serverVersion, clientVersion, shadow.document());
     }
 
     private ShadowDocument<T> saveShadow(final ShadowDocument<T> newShadow) {

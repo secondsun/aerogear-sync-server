@@ -18,16 +18,10 @@ package org.jboss.aerogear.diffsync.client;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.jboss.aerogear.diffsync.ClientDocument;
-import org.jboss.aerogear.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.diffsync.DefaultDocument;
-import org.jboss.aerogear.diffsync.DefaultShadowDocument;
-import org.jboss.aerogear.diffsync.Diff;
-import org.jboss.aerogear.diffsync.Document;
-import org.jboss.aerogear.diffsync.Edit;
-import org.jboss.aerogear.diffsync.ShadowDocument;
+import org.jboss.aerogear.diffsync.*;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
 
@@ -60,6 +54,42 @@ public class DefaultClientSynchronizerTest {
         assertThat(diffs.get(1).text(), equalTo("."));
         assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
         assertThat(diffs.get(2).text(), equalTo("!"));
+    }
+
+    @Test
+    public void patchShadow() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        final String updatedVersion = "Do or do not, there is no try!";
+        final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, originalVersion);
+
+        final Edit edit = new EditBuilder(documentId)
+                .clientId(clientId)
+                .unchanged("Do or do not, there is no try")
+                .delete(".")
+                .add("!")
+                .build();
+        final ShadowDocument<String> patchedShadow = clientSynchronizer.patchShadow(edit, clientShadow);
+        assertThat(patchedShadow.document().content(), equalTo(updatedVersion));
+    }
+
+    @Test
+    public void patchDocument() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        final String updatedVersion = "Do or do nothing, there is no try.";
+        final ClientDocument<String> clientShadow = new DefaultClientDocument<String>(documentId, clientId, originalVersion);
+
+        final Edit edit = new EditBuilder(documentId)
+                .clientId(clientId)
+                .unchanged("Do or do not")
+                .add("hing")
+                .unchanged(", there is no try.")
+                .build();
+        final ClientDocument<String> patchedDocument = clientSynchronizer.patchDocument(edit, clientShadow);
+        assertThat(patchedDocument.content(), equalTo(updatedVersion));
     }
 
     private static ShadowDocument<String> shadowDocument(final String documentId,

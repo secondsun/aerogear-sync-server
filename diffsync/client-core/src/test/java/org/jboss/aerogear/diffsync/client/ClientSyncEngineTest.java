@@ -1,0 +1,230 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jboss.aerogear.diffsync.client;
+
+import org.jboss.aerogear.diffsync.BackupShadowDocument;
+import org.jboss.aerogear.diffsync.ClientDocument;
+import org.jboss.aerogear.diffsync.DefaultClientDocument;
+import org.jboss.aerogear.diffsync.DefaultEdits;
+import org.jboss.aerogear.diffsync.DefaultShadowDocument;
+import org.jboss.aerogear.diffsync.Diff;
+import org.jboss.aerogear.diffsync.Diff.Operation;
+import org.jboss.aerogear.diffsync.Edit;
+import org.jboss.aerogear.diffsync.Edits;
+import org.jboss.aerogear.diffsync.ShadowDocument;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class ClientSyncEngineTest {
+
+    private ClientSyncEngine<String> engine;
+    private ClientInMemoryDataStore dataStore;
+
+    @Before
+    public void setup() {
+        dataStore = new ClientInMemoryDataStore();
+        engine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), dataStore);
+    }
+
+    @Test
+    public void addDocument() throws Exception {
+        final String documentId = "1234";
+        final String clientId = "client2";
+        final String originalVersion = "{\"id\": 9999}";
+        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.serverVersion(), is(0L));
+        assertThat(shadowDocument.clientVersion(), is(0L));
+        assertThat(shadowDocument.document().content(), equalTo(originalVersion));
+
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
+        assertThat(backupShadowDocument.version(), is(0L));
+        assertThat(backupShadowDocument.shadow(), equalTo(shadowDocument));
+    }
+
+    @Test
+    public void diff() {
+        final String documentId = "1234";
+        final String clientId = "client2";
+        final String originalVersion = "{\"id\": 9999}";
+        final String updatedVersion = "{\"id\": 6666}";
+        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+
+        final Edits edits = engine.diff(clientDoc(documentId, clientId, updatedVersion));
+        assertThat(edits.documentId(), equalTo(documentId));
+        assertThat(edits.clientId(), equalTo(clientId));
+        assertThat(edits.edits().size(), is(1));
+        final Edit edit = edits.edits().peek();
+        assertThat(edit.diffs().size(), is(4));
+        final LinkedList<Diff> diffs = edit.diffs();
+        assertThat(diffs.size(), is(4));
+        assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(diffs.get(0).text(), is("{\"id\": "));
+        assertThat(diffs.get(1).operation(), is(Operation.DELETE));
+        assertThat(diffs.get(1).text(), is("9999"));
+        assertThat(diffs.get(2).operation(), is(Operation.ADD));
+        assertThat(diffs.get(2).text(), is("6666"));
+        assertThat(diffs.get(3).operation(), is(Operation.UNCHANGED));
+        assertThat(diffs.get(3).text(), is("}"));
+    }
+
+    @Test
+    public void patch() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+
+        final Edit edit = new EditBuilder(documentId)
+                .clientId(clientId)
+                .serverVersion(0)
+                .unchanged("Do or do not, there is no try")
+                .delete(".")
+                .add("!")
+                .build();
+        engine.patch(edits(documentId, clientId, edit));
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
+        assertThat(shadowDocument.serverVersion(), is(1L));
+        assertThat(shadowDocument.clientVersion(), is(0L));
+    }
+
+    @Test
+    public void patchVersionAlreadyOnClient() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+
+        final Edit edit = new EditBuilder(documentId)
+                .clientId(clientId)
+                .serverVersion(0)
+                .unchanged("Do or do not, there is no try")
+                .delete(".")
+                .add("!")
+                .build();
+        engine.patch(edits(documentId, clientId, edit));
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
+        assertThat(shadowDocument.serverVersion(), is(1L));
+        assertThat(shadowDocument.clientVersion(), is(0L));
+
+        final ShadowDocument<String> shadowDocument2 = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument2.document().content(), equalTo("Do or do not, there is no try!"));
+        assertThat(shadowDocument2.serverVersion(), is(1L));
+        assertThat(shadowDocument2.clientVersion(), is(0L));
+    }
+
+    @Test
+    public void patchMultipleVersions() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+
+        final Edit edit1 = new EditBuilder(documentId)
+                .clientId(clientId)
+                .serverVersion(0)
+                .unchanged("Do or do not, there is no try")
+                .delete(".")
+                .add("!")
+                .build();
+        final Edit edit2 = new EditBuilder(documentId)
+                .clientId(clientId)
+                .serverVersion(1)
+                .unchanged("Do or do not")
+                .add("hing")
+                .unchanged(", there is no try!")
+                .build();
+        engine.patch(edits(documentId, clientId, edit1, edit2));
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.document().content(), equalTo("Do or do nothing, there is no try!"));
+        assertThat(shadowDocument.serverVersion(), is(2L));
+        assertThat(shadowDocument.clientVersion(), is(0L));
+    }
+
+    @Test
+    public void patchRevertToBackup() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+
+        final Edit edit1 = new EditBuilder(documentId)
+                .clientId(clientId)
+                .serverVersion(0)
+                .unchanged("Do or do not, there is no try")
+                .delete(".")
+                .add("!")
+                .build();
+        engine.patch(edits(documentId, clientId, edit1));
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
+        assertThat(shadowDocument.serverVersion(), is(1L));
+        assertThat(shadowDocument.clientVersion(), is(0L));
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
+        assertThat(backupShadowDocument.version(), is(0L));
+
+        // simulate an client side diff that would update the client shadow.
+        dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, "Do or do nothing, there is not trying"));
+
+        final Edit edit2 = new EditBuilder(documentId)
+                .clientId(clientId)
+                .clientVersion(0)
+                .serverVersion(1)
+                .unchanged("Do or do not")
+                .add("hing")
+                .unchanged(", there is no try")
+                .delete("!")
+                .add("ing")
+                .build();
+        engine.patch(edits(documentId, clientId, edit2));
+        final ShadowDocument<String> shadowDocument2 = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument2.document().content(), equalTo("Do or do nothing, there is no trying"));
+        assertThat(shadowDocument2.clientVersion(), is(1L));
+        assertThat(shadowDocument2.serverVersion(), is(1L));
+    }
+
+    private static ClientDocument<String> clientDoc(final String docId, final String clientId, final String content) {
+        return new DefaultClientDocument<String>(docId, clientId, content);
+    }
+
+    private static Edits edits(final String docId, final String clientId, Edit... edit) {
+        return new DefaultEdits(docId, clientId, new LinkedList<Edit>(Arrays.asList(edit)));
+    }
+
+    private static ShadowDocument<String> shadowDoc(final String docId,
+                                                    final String clientId,
+                                                    final long serverVersion,
+                                                    final long clientVersion,
+                                                    final String content) {
+        return new DefaultShadowDocument<String>(serverVersion, clientVersion, clientDoc(docId, clientId, content));
+    }
+
+}
+
