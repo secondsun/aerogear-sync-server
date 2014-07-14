@@ -15,9 +15,9 @@ When running the RestServer you have to add a ```Xbootclasspath``` entry as this
 
 For example, add the following as a "VM Option" in the "Edit Configuration Settings":
 
-    -Xbootclasspath/p:restsync/netty-server/target/npn/npn-boot-1.1.6.v20130911.jar
+    -Xbootclasspath/p:restsync/server-netty/target/npn/npn-boot-1.1.6.v20130911.jar
 
-The exact version of this jar might be different but you an look in ```rest-sync/server-netty/target/npn/``` to see the version to
+The exact version of this jar might be different but you an look in ```restsync/server-netty/target/npn/``` to see the version to
 use.
 
 ### Troubleshooting

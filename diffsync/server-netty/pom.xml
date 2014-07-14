@@ -111,7 +111,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-protocol</artifactId>
+            <artifactId>diffsync-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>

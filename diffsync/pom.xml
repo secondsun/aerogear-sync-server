@@ -37,9 +37,12 @@
     </licenses>
 
     <modules>
-        <module>protocol</module>
+        <module>api</module>
         <module>core</module>
+        <module>server-core</module>
+        <module>client-core</module>
         <module>server-netty</module>
+        <module>itests</module>
     </modules>
 
 </project>
