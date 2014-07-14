@@ -110,8 +110,8 @@ public class ServerSyncEngineTest {
         assertThat(shadowDocument.document().content(), equalTo(updatedVersion));
 
         final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId, clientId);
-        assertThat(backupShadow.version(), is(0L));
-        assertThat(backupShadow.shadow().document().content(), equalTo(originalVersion));
+        assertThat(backupShadow.version(), is(1L));
+        assertThat(backupShadow.shadow().document().content(), equalTo(updatedVersion));
     }
 
     @Test
@@ -140,8 +140,8 @@ public class ServerSyncEngineTest {
         assertThat(shadowDocument.document().content(), equalTo(updatedVersion));
 
         final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId, clientId);
-        assertThat(backupShadow.version(), is(0L));
-        assertThat(backupShadow.shadow().document().content(), equalTo(originalVersion));
+        assertThat(backupShadow.version(), is(1L));
+        assertThat(backupShadow.shadow().document().content(), equalTo(updatedVersion));
     }
 
     @Test
@@ -181,9 +181,8 @@ public class ServerSyncEngineTest {
         assertThat(shadowDocument.serverVersion(), is(0L));
 
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
-        assertThat(backupShadowDocument.shadow().document().content(), equalTo(originalVersion));
-        assertThat(backupShadowDocument.version(), is(0L));
-        assertThat(backupShadowDocument.shadow().clientVersion(), is(0L));
+        assertThat(backupShadowDocument.shadow().document().content(), equalTo(secondVersion));
+        assertThat(backupShadowDocument.version(), is(2L));
     }
 
     private static Edits edits(final String docId, final String clientId, Edit... edit) {

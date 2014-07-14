@@ -77,7 +77,7 @@ public class ServerSyncEngine<T> {
         final ShadowDocument<T> patchedShadow = patchShadow(shadow, edits.edits());
         final Document<T> document = getDocument(patchedShadow.document().id());
         patchDocument(document, patchedShadow);
-        saveBackupShadow(shadow);
+        saveBackupShadow(patchedShadow);
     }
 
     public Edits diffs(final String documentId, final String clientId) {
