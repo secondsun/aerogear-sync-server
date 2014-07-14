@@ -56,11 +56,10 @@ public interface ServerSynchronizer<T> {
     Edit serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
 
     /**
-     * The first step in a sync is to produce a an edit for the changes.
-     * The produced edit can then be sent to the opposing side perform an update/sync.
+     * Is called to produce an {@link Edit} of changes coming from a client.
      *
-     * @param document the document containing
-     * @param shadowDocument the document shadow.
+     * @param document the server side document .
+     * @param shadowDocument the document shadow containing the client changes.
      * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
     Edit clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);

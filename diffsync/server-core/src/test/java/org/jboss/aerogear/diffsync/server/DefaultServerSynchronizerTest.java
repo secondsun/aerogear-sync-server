@@ -36,8 +36,7 @@ public class DefaultServerSynchronizerTest {
     public void clientDiff() throws Exception {
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
-        final ClientDocument<String> clientDocument = new DefaultClientDocument<String>("1234", "client1", "testing");
-        final ShadowDocument<String> shadowDocument = new DefaultShadowDocument<String>(0L,  0L, clientDocument);
+        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
 
         final Edit edit = synchronizer.clientDiff(document, shadowDocument);
         assertThat(edit.clientId(), equalTo("client1"));
@@ -48,5 +47,51 @@ public class DefaultServerSynchronizerTest {
         assertThat(edit.diffs().get(0).text(), is("test"));
         assertThat(edit.diffs().get(1).operation(), is(Operation.ADD));
         assertThat(edit.diffs().get(1).text(), is("ing"));
+    }
+
+    @Test
+    public void serverDiff() throws Exception {
+        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final Document<String> document = new DefaultDocument<String>("1234", "test");
+        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
+
+        final Edit edit = synchronizer.serverDiff(document, shadowDocument);
+        assertThat(edit.clientId(), equalTo("client1"));
+        assertThat(edit.clientVersion(), is(0L));
+        assertThat(edit.serverVersion(), is(0L));
+        assertThat(edit.diffs().size(), is(2));
+        assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edit.diffs().get(0).text(), is("test"));
+        assertThat(edit.diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(edit.diffs().get(1).text(), is("ing"));
+    }
+
+    @Test
+    public void patchShadow() throws Exception {
+        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final Document<String> document = new DefaultDocument<String>("1234", "test");
+        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
+
+        final Edit edit = synchronizer.serverDiff(document, shadowDocument);
+        final ShadowDocument<String> patchedShadow = synchronizer.patchShadow(edit, shadowDocument);
+        assertThat(patchedShadow.document().content(), equalTo("test"));
+    }
+
+    @Test
+    public void patchDocument() throws Exception {
+        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final Document<String> document = new DefaultDocument<String>("1234", "test");
+        final ShadowDocument<String> shadowDocument = shadowDocument("client1", "testing");
+
+        final Edit edit = synchronizer.clientDiff(document, shadowDocument);
+        final Document<String> patchedDocument = synchronizer.patchDocument(edit, document);
+        assertThat(patchedDocument.content(), equalTo("testing"));
+    }
+
+    private static ShadowDocument<String> shadowDocument(final String clientVersion, final String content) {
+        return new DefaultShadowDocument<String>(0L,
+                0L,
+                new DefaultClientDocument<String>("1234", "client1", "testing"));
+
     }
 }
