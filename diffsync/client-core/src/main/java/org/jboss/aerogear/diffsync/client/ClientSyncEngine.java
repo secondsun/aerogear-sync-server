@@ -84,15 +84,13 @@ public class ClientSyncEngine<T> {
      * @param edits the updates from the server.
      */
     public void patch(final Edits edits) {
-        final ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
-        final ShadowDocument<T> patchedShadow = patchShadow(edits, shadow);
-        saveShadow(patchedShadow);
+        final ShadowDocument<T> patchedShadow = patchShadow(edits);
         patchDocument(patchedShadow);
         saveBackupShadow(patchedShadow);
     }
 
-    private ShadowDocument<T> patchShadow(final Edits edits, final ShadowDocument<T> shadowDocument) {
-        ShadowDocument<T> shadow = copy(shadowDocument);
+    private ShadowDocument<T> patchShadow(final Edits edits) {
+        ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
 
         final Iterator<Edit> iterator = edits.edits().iterator();
         while (iterator.hasNext()) {
@@ -186,10 +184,6 @@ public class ClientSyncEngine<T> {
 
     private void saveDocument(final ClientDocument<T> document) {
         dataStore.saveClientDocument(document);
-    }
-
-    private ShadowDocument<T> copy(final ShadowDocument<T> shadow) {
-        return new DefaultShadowDocument<T>(shadow.serverVersion(), shadow.clientVersion(), shadow.document());
     }
 
 }

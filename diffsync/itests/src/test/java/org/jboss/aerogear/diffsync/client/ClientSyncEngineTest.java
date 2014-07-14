@@ -179,7 +179,7 @@ public class ClientSyncEngineTest {
 
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(docId, clientTwo);
         assertThat(backupShadowDocument.version(), is(0L));
-        assertThat(backupShadowDocument.shadow().document().content(), equalTo(originalVersion));
+        assertThat(backupShadowDocument.shadow().document().content(), equalTo(secondVersion));
     }
 
     private static ClientDocument<String> newClientDoc(final String documentId, final String content, final String clientId) {
