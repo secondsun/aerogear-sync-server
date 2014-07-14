@@ -119,8 +119,6 @@ public final class JsonMapper {
             final Queue<Edit> edits = new ConcurrentLinkedQueue<Edit>();
             if (jsonEdits.isArray()) {
                 for (JsonNode edit : jsonEdits) {
-                    //final String clientId = edit.get("clientId").asText();
-                    //final String documentId = edit.get("id").asText();
                     final long clientVersion = edit.get("clientVersion").asLong();
                     final long serverVersion = edit.get("serverVersion").asLong();
                     final String checksum = edit.get("checksum").asText();
@@ -151,8 +149,6 @@ public final class JsonMapper {
             jgen.writeArrayFieldStart("edits");
             for (Edit edit : edits.edits()) {
                 jgen.writeStartObject();
-                //jgen.writeStringField("clientId", edit.clientId());
-                //jgen.writeStringField("id", edit.documentId());
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
