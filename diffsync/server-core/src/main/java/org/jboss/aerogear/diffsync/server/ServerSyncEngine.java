@@ -19,7 +19,6 @@ package org.jboss.aerogear.diffsync.server;
 import org.jboss.aerogear.diffsync.*;
 
 import java.util.Iterator;
-import java.util.Queue;
 
 /**
  * The server side of the differential synchronization implementation.
@@ -73,10 +72,8 @@ public class ServerSyncEngine<T> {
      * @param edits the changes made by a client.
      */
     public void patch(final Edits edits) {
-        final ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
-        final ShadowDocument<T> patchedShadow = patchShadow(shadow, edits.edits());
-        final Document<T> document = getDocument(patchedShadow.document().id());
-        patchDocument(document, patchedShadow);
+        final ShadowDocument<T> patchedShadow = patchShadow(edits);
+        patchDocument(patchedShadow);
         saveBackupShadow(patchedShadow);
     }
 
@@ -116,10 +113,10 @@ public class ServerSyncEngine<T> {
         return newEdit;
     }
 
-    private ShadowDocument<T> patchShadow(final ShadowDocument<T> shadowDocument, final Queue<Edit> edits) {
-        ShadowDocument<T> shadow = copy(shadowDocument);
+    private ShadowDocument<T> patchShadow(final Edits edits) {
+        ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
 
-        final Iterator<Edit> iterator = edits.iterator();
+        final Iterator<Edit> iterator = edits.edits().iterator();
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
             if (edit.serverVersion() < shadow.serverVersion()) {
@@ -151,7 +148,8 @@ public class ServerSyncEngine<T> {
         return shadow;
     }
 
-    private Document<T> patchDocument(final Document<T> document, final ShadowDocument<T> shadowDocument) {
+    private Document<T> patchDocument(final ShadowDocument<T> shadowDocument) {
+        final Document<T> document = getDocument(shadowDocument.document().id());
         final Edit edit = clientDiffs(document, shadowDocument);
         final Document<T> patched = synchronizer.patchDocument(edit, document);
         saveDocument(patched);
@@ -198,10 +196,6 @@ public class ServerSyncEngine<T> {
 
     private ShadowDocument<T> newShadowDoc(final long serverVersion, final long clientVersion, final ClientDocument<T> doc) {
         return new DefaultShadowDocument<T>(serverVersion, clientVersion, doc);
-    }
-
-    private ShadowDocument<T> copy(final ShadowDocument<T> shadow) {
-        return new DefaultShadowDocument<T>(shadow.serverVersion(), shadow.clientVersion(), shadow.document());
     }
 
     private ShadowDocument<T> incrementServerVersion(final ShadowDocument<T> shadow) {
