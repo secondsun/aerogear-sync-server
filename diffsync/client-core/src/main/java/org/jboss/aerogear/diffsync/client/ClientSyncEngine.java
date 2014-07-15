@@ -94,11 +94,11 @@ public class ClientSyncEngine<T> {
         final Iterator<Edit> iterator = edits.edits().iterator();
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
-            if (clientPacketDropped(shadow, edit)) {
+            if (clientPacketDropped(edit, shadow)) {
                 shadow = restoreBackup(shadow, edit);
                 continue;
             }
-            if (hasServerVersion(shadow, edit)) {
+            if (hasServerVersion(edit, shadow)) {
                 discardEdit(edit, iterator);
                 continue;
             }
@@ -140,11 +140,11 @@ public class ClientSyncEngine<T> {
         return edit.serverVersion() == shadow.serverVersion() && edit.clientVersion() == shadow.clientVersion();
     }
 
-    private boolean clientPacketDropped(final ShadowDocument<T> shadow, final Edit edit) {
-        return shadow.clientVersion() > edit.clientVersion();
+    private boolean clientPacketDropped(final Edit edit, final ShadowDocument<T> shadow) {
+        return edit.clientVersion() < shadow.clientVersion();
     }
 
-    private boolean hasServerVersion(final ShadowDocument<T> shadow, final Edit edit) {
+    private boolean hasServerVersion(final Edit edit, final ShadowDocument<T> shadow) {
         return edit.serverVersion() < shadow.serverVersion();
 
     }
