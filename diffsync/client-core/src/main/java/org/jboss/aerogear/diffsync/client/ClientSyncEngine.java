@@ -91,37 +91,62 @@ public class ClientSyncEngine<T> {
 
     private ShadowDocument<T> patchShadow(final Edits edits) {
         ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
-
         final Iterator<Edit> iterator = edits.edits().iterator();
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
-            if (shadow.clientVersion() > edit.clientVersion()) {
-                final BackupShadowDocument<T> backupShadow = getBackupShadowDocument(edit.documentId(), edit.clientId());
-                if (backupShadow.version() == edit.clientVersion()) {
-                    shadow = saveShadow(newShadowDoc(backupShadow.version(), shadow.clientVersion(), backupShadow.shadow().document()));
-                    final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit, shadow);
-                    dataStore.removeEdit(edit);
-                    shadow = saveShadow(incrementVersions(patchedShadow));
-                    continue;
-                } else {
-                    throw new IllegalStateException(backupShadow + " client version does not match version of " + edit.clientVersion());
-                }
-            }
-            // the client has already seen this version from the server. Possibly because a packet has been
-            // dropped when sending from the client to the client. We don't need to apply it and can safely
-            // drop it and process the next edit.
-            if (edit.serverVersion() < shadow.serverVersion()) {
-                dataStore.removeEdit(edit);
-                iterator.remove();
+            if (clientPacketDropped(shadow, edit)) {
+                shadow = restoreBackup(shadow, edit);
                 continue;
             }
-            if (edit.serverVersion() == shadow.serverVersion() && edit.clientVersion() == shadow.clientVersion()) {
+            if (hasServerVersion(shadow, edit)) {
+                discardEdit(edit, iterator);
+                continue;
+            }
+            if (allVersionsMatch(edit, shadow)) {
                 final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit, shadow);
-                dataStore.removeEdit(edit);
-                shadow = saveShadow(incrementServerVersion(patchedShadow));
+                shadow = saveShadowAndRemoveEdit(incrementServerVersion(patchedShadow), edit);
             }
         }
         return shadow;
+    }
+
+    private ShadowDocument<T> restoreBackup(final ShadowDocument<T> shadow,
+                                            final Edit edit) {
+        final BackupShadowDocument<T> backup = getBackupShadowDocument(edit.documentId(), edit.clientId());
+        if (clientVersionMatch(edit, backup)) {
+            final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit,
+                    newShadowDoc(backup.version(), shadow.clientVersion(), backup.shadow().document()));
+            return saveShadowAndRemoveEdit(incrementServerVersion(patchedShadow), edit);
+        } else {
+            throw new IllegalStateException(backup + " server version does not match version of " + edit.serverVersion());
+        }
+    }
+
+    private boolean clientVersionMatch(final Edit edit, final BackupShadowDocument<T> backup) {
+        return edit.clientVersion() == backup.version();
+    }
+
+    private ShadowDocument<T> saveShadowAndRemoveEdit(final ShadowDocument<T> shadow, final Edit edit) {
+        dataStore.removeEdit(edit);
+        return saveShadow(shadow);
+    }
+
+    private void discardEdit(final Edit edit, final Iterator<Edit> iterator) {
+        dataStore.removeEdit(edit);
+        iterator.remove();
+    }
+
+    private boolean allVersionsMatch(final Edit edit, final ShadowDocument<T> shadow) {
+        return edit.serverVersion() == shadow.serverVersion() && edit.clientVersion() == shadow.clientVersion();
+    }
+
+    private boolean clientPacketDropped(final ShadowDocument<T> shadow, final Edit edit) {
+        return shadow.clientVersion() > edit.clientVersion();
+    }
+
+    private boolean hasServerVersion(final ShadowDocument<T> shadow, final Edit edit) {
+        return edit.serverVersion() < shadow.serverVersion();
+
     }
 
     private Document<T> patchDocument(final ShadowDocument<T> shadowDocument) {
@@ -156,12 +181,6 @@ public class ClientSyncEngine<T> {
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {
         final long clientVersion = shadow.clientVersion() + 1;
         return newShadowDoc(shadow.serverVersion(), clientVersion, shadow.document());
-    }
-
-    private ShadowDocument<T> incrementVersions(final ShadowDocument<T> shadow) {
-        final long clientVersion = shadow.clientVersion() + 1;
-        final long serverVersion = shadow.serverVersion() + 1;
-        return newShadowDoc(serverVersion, clientVersion, shadow.document());
     }
 
     private ShadowDocument<T> saveShadow(final ShadowDocument<T> newShadow) {
