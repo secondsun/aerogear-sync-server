@@ -16,15 +16,8 @@
  */
 package org.jboss.aerogear.diffsync.server;
 
-import org.jboss.aerogear.diffsync.BackupShadowDocument;
-import org.jboss.aerogear.diffsync.DefaultDocument;
-import org.jboss.aerogear.diffsync.DefaultEdits;
+import org.jboss.aerogear.diffsync.*;
 import org.jboss.aerogear.diffsync.Diff.Operation;
-import org.jboss.aerogear.diffsync.Document;
-import org.jboss.aerogear.diffsync.Edit;
-import org.jboss.aerogear.diffsync.EditBuilder;
-import org.jboss.aerogear.diffsync.Edits;
-import org.jboss.aerogear.diffsync.ShadowDocument;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,8 +44,7 @@ public class ServerSyncEngineTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
-        final Document<String> document = new DefaultDocument<String>(documentId, originalVersion);
-        engine.addDocument(document, clientId);
+        engine.addDocument(doc(documentId, originalVersion), clientId);
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().id(), equalTo(documentId));
@@ -71,8 +63,7 @@ public class ServerSyncEngineTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
-        final Document<String> document = new DefaultDocument<String>(documentId, originalVersion);
-        engine.addDocument(document, clientId);
+        engine.addDocument(doc(documentId, originalVersion), clientId);
 
         final Edit edit = engine.diff(documentId, clientId);
         assertThat(edit.documentId(), equalTo(documentId));
@@ -90,8 +81,7 @@ public class ServerSyncEngineTest {
         final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
-        final Document<String> document = new DefaultDocument<String>(documentId, originalVersion);
-        engine.addDocument(document, clientId);
+        engine.addDocument(doc(documentId, originalVersion), clientId);
 
         final Edit edit = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
@@ -110,8 +100,8 @@ public class ServerSyncEngineTest {
         assertThat(shadowDocument.document().content(), equalTo(updatedVersion));
 
         final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId, clientId);
-        assertThat(backupShadow.version(), is(1L));
         assertThat(backupShadow.shadow().document().content(), equalTo(updatedVersion));
+        assertThat(backupShadow.version(), is(0L));
     }
 
     @Test
@@ -120,8 +110,7 @@ public class ServerSyncEngineTest {
         final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
-        final Document<String> document = new DefaultDocument<String>(documentId, originalVersion);
-        engine.addDocument(document, clientId);
+        engine.addDocument(doc(documentId, originalVersion), clientId);
 
         final Edit edit = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
@@ -140,7 +129,7 @@ public class ServerSyncEngineTest {
         assertThat(shadowDocument.document().content(), equalTo(updatedVersion));
 
         final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId, clientId);
-        assertThat(backupShadow.version(), is(1L));
+        assertThat(backupShadow.version(), is(0L));
         assertThat(backupShadow.shadow().document().content(), equalTo(updatedVersion));
     }
 
@@ -150,8 +139,7 @@ public class ServerSyncEngineTest {
         final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
         final String secondVersion = "{\"name\": \"Mr.Poon\"}";
-        final Document<String> document = new DefaultDocument<String>(documentId, originalVersion);
-        engine.addDocument(document, clientId);
+        engine.addDocument(doc(documentId, originalVersion), clientId);
 
         final Edit edit1 = EditBuilder.withDocumentId(documentId)
                 .clientId(clientId)
@@ -182,10 +170,79 @@ public class ServerSyncEngineTest {
 
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
         assertThat(backupShadowDocument.shadow().document().content(), equalTo(secondVersion));
-        assertThat(backupShadowDocument.version(), is(2L));
+        assertThat(backupShadowDocument.version(), is(0L));
+    }
+
+    @Test
+    public void patchRevertToBackup() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "{\"name\": \"Mr.Babar\"}";
+        final String secondVersion = "{\"name\": \"Mr.Rosen\"}";
+        final String thirdVersion = "{\"name\": \"Mr.Poon\"}";
+        engine.addDocument(doc(documentId, originalVersion), clientId);
+
+        final Edit firstEdit = EditBuilder.withDocumentId(documentId)
+                .clientId(clientId)
+                .clientVersion(0)
+                .serverVersion(0)
+                .unchanged("{\"name\": ")
+                .delete("\"Mr.Babar\"")
+                .add("\"Mr.Rosen\"")
+                .unchanged("}")
+                .build();
+
+        engine.patch(edits(documentId, clientId, firstEdit));
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.document().content(), equalTo(secondVersion));
+        assertThat(shadowDocument.clientVersion(), is(1L));
+        assertThat(shadowDocument.serverVersion(), is(0L));
+
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
+        assertThat(backupShadowDocument.shadow().document().content(), equalTo(secondVersion));
+        assertThat(backupShadowDocument.version(), is(0L));
+
+        // simulate an server side diff that would update the server side client shadow.
+        dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, thirdVersion));
+
+        final Edit secondEdit = EditBuilder.withDocumentId(documentId)
+                .clientId(clientId)
+                .clientVersion(1)
+                .serverVersion(0)
+                .unchanged("{\"name\": ")
+                .delete("\"Mr.Rosen\"")
+                .add("\"Mr.Poon\"")
+                .unchanged("}")
+                .build();
+
+        engine.patch(edits(documentId, clientId, firstEdit, secondEdit));
+
+        final ShadowDocument<String> secondShadow = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(secondShadow.document().content(), equalTo(thirdVersion));
+        // client version would have been incremented on the client side during the post diff processing.
+        assertThat(secondShadow.clientVersion(), is(2L));
+        assertThat(secondShadow.serverVersion(), is(0L));
     }
 
     private static Edits edits(final String docId, final String clientId, Edit... edit) {
         return new DefaultEdits(docId, clientId, new LinkedList<Edit>(asList(edit)));
     }
+
+    private static ShadowDocument<String> shadowDoc(final String docId,
+                                                    final String clientId,
+                                                    final long serverVersion,
+                                                    final long clientVersion,
+                                                    final String content) {
+        return new DefaultShadowDocument<String>(serverVersion, clientVersion, clientDoc(docId, clientId, content));
+    }
+
+    private static ClientDocument<String> clientDoc(final String docId, final String clientId, final String content) {
+        return new DefaultClientDocument<String>(docId, clientId, content);
+    }
+
+    private static Document<String> doc(final String docId, final String content) {
+        return new DefaultDocument<String>(docId, content);
+    }
+
 }
