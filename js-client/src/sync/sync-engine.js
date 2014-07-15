@@ -33,13 +33,17 @@ Sync.Engine = function () {
      */
     this.diff = function( doc ) {
         var shadow = dm.stores.shadows.read( doc.id )[0];
-        return { msgType: 'patch',
+        return {
+            msgType: 'patch',
             id: doc.id,
             clientId: shadow.clientId,
-            version: shadow.clientVersion,
-            // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
-            checksum: '',
-            diffs: this._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+            edits: [{
+                clientVersion: shadow.clientVersion,
+                serverVersion: shadow.serverVersion,
+                // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
+                checksum: '',
+                diffs: this._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+            }]
         };
     };
 
@@ -84,12 +88,16 @@ Sync.Engine = function () {
         return "UNCHANGED";
     };
 
-    this.patchShadow = function( edits ) {
-        var shadow = this.getShadow( edits.docId ),
-            patched = this.applyEditsToShadow( edits, shadow );
+    this.patchShadow = function( patchMsg ) {
+        var shadow = this.getShadow( patchMsg.docId ), edits = patchMsg.edits, i, patched;
+        for ( i = 0; i < edits.length; i++ ) {
+            var edit = edits[i];
+            patched = this.applyEditsToShadow( edit, shadow );
+            shadow.doc.content = patched[0];
+            shadow.serverVersion++;
+        }
 
-        shadow.doc.content = patched[0];
-        shadow.serverVersion = edits.version;
+        console.log(patched);
         return shadow;
     };
 
@@ -101,24 +109,33 @@ Sync.Engine = function () {
         return dmp.patch_apply( patches, doc );
     };
 
-    this.patchDocument = function( edits ) {
-        var patched = this.applyEditsToDoc( edits ),
-            doc = this.getDocument( edits.docId );
-
-        doc.content = patched[0];
+    this.patchDocument = function( patchMsg ) {
+        console.log(patchMsg);
+        var patches = this.applyEditsToDoc( patchMsg );
+        var doc = this.getDocument( patchMsg.id );
+        console.log('patches: ', patches);
+        doc.content = patches[1][0];
         return doc;
     };
 
     this.patch = function( doc ) {
-        var edits = this.diff( doc );
-        return this.applyEditsToDoc( edits );
+        var patchMsg = this.diff( doc );
+        return this.applyEditsToDoc( patchMsg );
     };
 
-    this.applyEditsToDoc = function ( edits ) {
-        var doc = JSON.stringify( this.getDocument( edits.docId ).content);
-        var diffs = this._asDiffMatchPathDiffs( edits.diffs );
-        var patches = dmp.patch_make( doc, diffs );
-        return dmp.patch_apply( patches, doc );
+    this.applyEditsToDoc = function ( patchMsg ) {
+        var doc = JSON.stringify( this.getDocument( patchMsg.docId ).content);
+        var edits = patchMsg.edits;
+        var i;
+        var patches;
+        for (i = 0; i < edits.length; i++) {
+            var edit = edits[i];
+            var diffs = this._asDiffMatchPathDiffs( edit.diffs );
+            var patches = dmp.patch_make( doc, diffs );
+            patches.push( dmp.patch_apply( patches, doc ) );
+        }
+        console.log('patches:', patches);
+        return patches;
     };
 
     this._saveDocument = function( doc ) {

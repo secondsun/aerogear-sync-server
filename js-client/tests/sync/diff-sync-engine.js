@@ -22,12 +22,17 @@
         // update the name field
         doc.content.name = 'Mr.Poon';
 
-        var edits = engine.diff( doc );
-        equal ( edits.id, 1234, 'document id should be 1234');
-        equal ( edits.clientId, 'client1', 'clientId should be client1');
-        equal ( edits.version, 0, 'version should be zero');
-        equal ( edits.checksum, '', 'checksum is currently not implemented.');
-        var diffs = edits.diffs;
+        var patchMsg = engine.diff( doc );
+        equal ( patchMsg.msgType, 'patch', 'The message type should be "patch"');
+        equal ( patchMsg.id, 1234, 'document id should be 1234');
+        equal ( patchMsg.clientId, 'client1', 'clientId should be client1');
+
+        var edit = patchMsg.edits[0];
+        equal ( edit.clientVersion, 0, 'version should be zero');
+        equal ( edit.serverVersion, 0, 'version should be zero');
+        equal ( edit.checksum, '', 'checksum is currently not implemented.');
+
+        var diffs = edit.diffs;
         ok( diffs instanceof Array, 'diffs should be an array of tuples' );
         ok( diffs.length == 4, 'there should be 4 diff tuples generated');
         equal ( diffs[0].operation, 'UNCHANGED', 'operation should be UNCHANGED');
@@ -48,9 +53,10 @@
         // update the name field
         doc.content.name = 'Mr.Poon';
 
-        var patched = engine.patch( doc );
-        equal( patched[1][0], true, 'patch should have been successful.' );
-        equal( patched[0], '{"name":"Mr.Poon"}', 'name should have been updated to Mr.Poon' );
+        var patches = engine.patch( doc );
+        var patch = patches[1];
+        equal( patch[1][0], true, 'patch should have been successful.' );
+        equal( patch[0], '{"name":"Mr.Poon"}', 'name should have been updated to Mr.Poon' );
     });
 
     test( 'patch two documents', function() {
@@ -65,15 +71,17 @@
         // update the name field
         doc.content.name = 'Mr.Poon';
 
-        var patched = engine.patch( doc );
-        equal( patched[1][0], true, 'patch should have been successful.' );
-        equal( patched[0], '{"name":"Mr.Poon"}', 'name should have been updated to Mr.Poon' );
+        var patches = engine.patch( doc );
+        var patch = patches[1];
+        equal( patch[1][0], true, 'patch should have been successful.' );
+        equal( patch[0], '{"name":"Mr.Poon"}', 'name should have been updated to Mr.Poon' );
 
         doc2.content.name = 'Dr.Rosen';
 
-        var patched2 = engine.patch( doc2 );
-        equal( patched2[1][0], true, 'patch should have been successful.' );
-        equal( patched2[0], '{"name":"Dr.Rosen"}', 'name should have been updated to Dr.Rosen' );
+        var patches2 = engine.patch( doc2 );
+        var patch2 = patches2[1];
+        equal( patch2[1][0], true, 'patch should have been successful.' );
+        equal( patch2[0], '{"name":"Dr.Rosen"}', 'name should have been updated to Dr.Rosen' );
 
     });
 
@@ -83,12 +91,14 @@
         var doc = { id: 1234, clientId: 'client1', content: content };
         engine.addDocument( doc );
         doc.content.name = 'John Coctolstol';
-        var serverEdits = engine.diff( doc );
-        serverEdits.version = 2;
 
-        var shadow = engine.patchShadow( serverEdits );
+        var patchMsg = engine.diff( doc );
+        console.log('patchMsg', patchMsg);
+
+        var shadow = engine.patchShadow( patchMsg );
+        console.log(shadow);
         equal( shadow.doc.content, '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
-        equal( shadow.serverVersion, 2, 'Server version should have been updated.' );
+        equal( shadow.serverVersion, 1, 'Server version should have been updated.' );
         equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
     });
 
@@ -98,10 +108,10 @@
         var doc = { id: 1234, clientId: 'client1', content: content };
         engine.addDocument( doc );
         doc.content.name = 'John Coctolstol';
-        var serverEdits = engine.diff( doc );
-        serverEdits.version = 2;
+        var patchMsg = engine.diff( doc );
 
-        var doc = engine.patchDocument( serverEdits );
+        var doc = engine.patchDocument( patchMsg );
+        console.log ( 'doc?', doc );
         equal( doc.content, '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
     });
 
