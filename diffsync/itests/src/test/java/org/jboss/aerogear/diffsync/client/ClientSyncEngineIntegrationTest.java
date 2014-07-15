@@ -38,7 +38,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.*;
 
-public class ClientSyncEngineTest {
+public class ClientSyncEngineIntegrationTest {
 
     private ClientDataStore<String> dataStore;
     private ClientSyncEngine<String> clientSyncEngine;
