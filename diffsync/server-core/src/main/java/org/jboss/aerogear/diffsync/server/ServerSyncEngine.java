@@ -139,6 +139,7 @@ public class ServerSyncEngine<T> {
         if (serverVersionMatch(backup, edit)) {
             final ShadowDocument<T> patchedShadow = synchronizer.patchShadow(edit,
                     newShadowDoc(backup.version(), shadow.clientVersion(), backup.shadow().document()));
+            dataStore.removeEdits(edit.documentId(), edit.clientId());
             return saveShadowAndRemoveEdit(incrementClientVersion(patchedShadow), edit);
         } else {
             throw new IllegalStateException(backup + " server version does not match version of " + edit.serverVersion());

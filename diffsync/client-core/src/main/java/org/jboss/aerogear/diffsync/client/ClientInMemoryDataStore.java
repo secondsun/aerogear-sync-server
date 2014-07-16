@@ -124,6 +124,11 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
         return edits;
     }
 
+    @Override
+    public void removeEdits(final String documentId, final String clientId) {
+        pendingEdits.remove(id(documentId, clientId));
+    }
+
     private static Id id(final ClientDocument<String> document) {
         return id(document.id(), document.clientId());
     }

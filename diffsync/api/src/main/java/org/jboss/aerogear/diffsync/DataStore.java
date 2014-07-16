@@ -67,4 +67,12 @@ public interface DataStore<T> {
      */
     void removeEdit(Edit edit);
 
+    /**
+     * Removes all edits for the specific client and document pair.
+     *
+     * @param documentId the document identifier of the edit.
+     * @param clientId the client identifier.
+     */
+    void removeEdits(String documentId, String clientId);
+
 }

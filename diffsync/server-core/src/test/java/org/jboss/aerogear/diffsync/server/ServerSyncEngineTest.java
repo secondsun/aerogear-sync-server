@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.LinkedList;
+import java.util.Queue;
 
 import static java.util.Arrays.*;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -223,6 +224,9 @@ public class ServerSyncEngineTest {
         // client version would have been incremented on the client side during the post diff processing.
         assertThat(secondShadow.clientVersion(), is(2L));
         assertThat(secondShadow.serverVersion(), is(0L));
+
+        final Queue<Edit> edits = dataStore.getEdits(documentId, clientId);
+        assertThat(edits.isEmpty(), is(true));
     }
 
     private static Edits edits(final String docId, final String clientId, Edit... edit) {

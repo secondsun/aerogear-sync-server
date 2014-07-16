@@ -57,7 +57,7 @@ public class ClientSyncEngine<T> {
      * Performs the client side of a differential sync.
      * <p>
      * When a client makes an update to it's document, it is first diffed against the shadow
-     * document. The result of this is an {@link Edit} instance representing the changes.
+     * document. The result of this is an {@link Edits} instance representing the changes.
      * There might be pending edits that represent edits that have not made it to the server
      * for some reason (for example packet drop). If a pending edit exits the contents (the diffs)
      * of the pending edit will be included in the returned Edits from this method.
@@ -146,7 +146,6 @@ public class ClientSyncEngine<T> {
 
     private boolean hasServerVersion(final Edit edit, final ShadowDocument<T> shadow) {
         return edit.serverVersion() < shadow.serverVersion();
-
     }
 
     private Document<T> patchDocument(final ShadowDocument<T> shadowDocument) {
