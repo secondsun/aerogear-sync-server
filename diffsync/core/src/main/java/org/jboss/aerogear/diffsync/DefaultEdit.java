@@ -16,6 +16,8 @@
  */
 package org.jboss.aerogear.diffsync;
 
+import org.jboss.aerogear.diffsync.Diff.Operation;
+
 import java.util.LinkedList;
 
 public class DefaultEdit implements Edit {
@@ -27,18 +29,13 @@ public class DefaultEdit implements Edit {
     private final String checksum;
     private final LinkedList<Diff> diffs;
 
-    public DefaultEdit(final String documentId,
-                       final String clientId,
-                       final long clientVersion,
-                       final long serverVersion,
-                       final String checksum,
-                       final LinkedList<Diff> diffs) {
-        this.clientId = clientId;
-        this.documentId = documentId;
-        this.clientVersion = clientVersion;
-        this.serverVersion = serverVersion;
-        this.checksum = checksum;
-        this.diffs = diffs;
+    private DefaultEdit(final Builder builder) {
+        clientId = builder.clientId;
+        documentId = builder.documentId;
+        clientVersion = builder.clientVersion;
+        serverVersion = builder.serverVersion;
+        checksum = builder.checksum;
+        diffs = builder.diffs;
     }
 
     @Override
@@ -109,5 +106,79 @@ public class DefaultEdit implements Edit {
         result = 31 * result + checksum.hashCode();
         result = 31 * result + diffs.hashCode();
         return result;
+    }
+
+    public static Builder withDocumentId(final String documentId) {
+        return new Builder(documentId);
+    }
+
+    public static class Builder {
+
+        private final String documentId;
+        private String clientId;
+        private long serverVersion;
+        private long clientVersion;
+        private String checksum;
+        private final LinkedList<Diff> diffs = new LinkedList<Diff>();
+
+        public static Builder withDocumentId(final String documentId) {
+            return new Builder(documentId);
+        }
+
+        private Builder(final String documentId) {
+            this.documentId = documentId;
+        }
+
+        public Builder clientId(final String clientId) {
+            this.clientId = clientId;
+            return this;
+        }
+
+        public Builder serverVersion(final long serverVersion) {
+            this.serverVersion = serverVersion;
+            return this;
+        }
+
+        public Builder clientVersion(final long clientVersion) {
+            this.clientVersion = clientVersion;
+            return this;
+        }
+
+        public Builder unchanged(final String text) {
+            diffs.add(new DefaultDiff(Operation.UNCHANGED, text));
+            return this;
+        }
+
+        public Builder add(final String text) {
+            diffs.add(new DefaultDiff(Operation.ADD, text));
+            return this;
+        }
+
+        public Builder delete(final String text) {
+            diffs.add(new DefaultDiff(Operation.DELETE, text));
+            return this;
+        }
+
+        public Builder diff(final Diff diff) {
+            diffs.add(diff);
+            return this;
+        }
+
+        public Builder diffs(final LinkedList<Diff> diffs) {
+            this.diffs.addAll(diffs);
+            return this;
+        }
+
+        public Builder checksum(final String checksum) {
+            this.checksum = checksum;
+            return this;
+        }
+
+        public Edit build() {
+            if (clientId == null) {
+                throw new IllegalArgumentException("clientId must not be null");
+            }
+            return new DefaultEdit(this);
+        }
     }
 }

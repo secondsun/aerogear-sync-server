@@ -16,16 +16,9 @@
  */
 package org.jboss.aerogear.diffsync.client;
 
-import org.jboss.aerogear.diffsync.ClientDocument;
-import org.jboss.aerogear.diffsync.DefaultClientDocument;
-import org.jboss.aerogear.diffsync.DefaultDiff;
-import org.jboss.aerogear.diffsync.DefaultEdit;
-import org.jboss.aerogear.diffsync.DefaultShadowDocument;
-import org.jboss.aerogear.diffsync.Document;
-import org.jboss.aerogear.diffsync.Edit;
-import org.jboss.aerogear.diffsync.ShadowDocument;
-import org.jboss.aerogear.sync.common.DiffMatchPatch;
+import org.jboss.aerogear.diffsync.*;
 import org.jboss.aerogear.diffsync.Diff;
+import org.jboss.aerogear.sync.common.DiffMatchPatch;
 
 import java.util.LinkedList;
 
@@ -50,11 +43,11 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String> {
     public Edit diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return new DefaultEdit(document.id(), shadowDocument.document().clientId(),
-                shadowDocument.clientVersion(),
-                shadowDocument.serverVersion(),
-                checksum(shadowText),
-                asAeroGearDiffs(diffs));
+        return DefaultEdit.withDocumentId(document.id())
+                .clientId(shadowDocument.document().clientId())
+                .checksum(checksum(shadowText))
+                .diffs(asAeroGearDiffs(diffs))
+                .build();
     }
 
     @Override

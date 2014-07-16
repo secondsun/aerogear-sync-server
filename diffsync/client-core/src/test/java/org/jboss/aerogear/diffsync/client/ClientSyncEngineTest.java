@@ -90,7 +90,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit = EditBuilder.withDocumentId(documentId)
+        final Edit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
@@ -112,7 +112,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit = EditBuilder.withDocumentId(documentId)
+        final Edit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
@@ -140,14 +140,14 @@ public class ClientSyncEngineTest {
         final String finalVersion = "Do or do nothing, there is no try!";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit1 = EditBuilder.withDocumentId(documentId)
+        final Edit edit1 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
                 .build();
-        final Edit edit2 = EditBuilder.withDocumentId(documentId)
+        final Edit edit2 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(1)
                 .unchanged("Do or do not")
@@ -174,7 +174,7 @@ public class ClientSyncEngineTest {
         final String finalVersion = "Do or do nothing, there is no trying";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit1 = EditBuilder.withDocumentId(documentId)
+        final Edit edit1 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
@@ -194,7 +194,7 @@ public class ClientSyncEngineTest {
         // simulate an client side diff that would update the client shadow.
         dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, "Do or do nothing, there is not trying"));
 
-        final Edit edit2 = EditBuilder.withDocumentId(documentId)
+        final Edit edit2 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .clientVersion(0)
                 .serverVersion(1)

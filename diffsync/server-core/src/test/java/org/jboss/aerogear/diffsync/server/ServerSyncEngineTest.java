@@ -84,7 +84,7 @@ public class ServerSyncEngineTest {
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
         engine.addDocument(doc(documentId, originalVersion), clientId);
 
-        final Edit edit = EditBuilder.withDocumentId(documentId)
+        final Edit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Babar\"")
@@ -113,7 +113,7 @@ public class ServerSyncEngineTest {
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
         engine.addDocument(doc(documentId, originalVersion), clientId);
 
-        final Edit edit = EditBuilder.withDocumentId(documentId)
+        final Edit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Babar\"")
@@ -142,7 +142,7 @@ public class ServerSyncEngineTest {
         final String secondVersion = "{\"name\": \"Mr.Poon\"}";
         engine.addDocument(doc(documentId, originalVersion), clientId);
 
-        final Edit edit1 = EditBuilder.withDocumentId(documentId)
+        final Edit edit1 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .clientVersion(0)
                 .serverVersion(0)
@@ -151,7 +151,7 @@ public class ServerSyncEngineTest {
                 .add("\"Mr.Rosen\"")
                 .unchanged("}")
                 .build();
-        final Edit edit2 = EditBuilder.withDocumentId(documentId)
+        final Edit edit2 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 // after the first diff on the client, the shadow client version will have been incremented
                 // and the following diff will use that shadow, hence the incremented client version here.
@@ -183,7 +183,7 @@ public class ServerSyncEngineTest {
         final String thirdVersion = "{\"name\": \"Mr.Poon\"}";
         engine.addDocument(doc(documentId, originalVersion), clientId);
 
-        final Edit firstEdit = EditBuilder.withDocumentId(documentId)
+        final Edit firstEdit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .clientVersion(0)
                 .serverVersion(0)
@@ -207,7 +207,7 @@ public class ServerSyncEngineTest {
         // simulate an server side diff that would update the server side client shadow.
         dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, thirdVersion));
 
-        final Edit secondEdit = EditBuilder.withDocumentId(documentId)
+        final Edit secondEdit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .clientVersion(1)
                 .serverVersion(0)

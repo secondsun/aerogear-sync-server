@@ -29,10 +29,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jboss.aerogear.diffsync.DefaultEdit.Builder;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -119,17 +119,17 @@ public final class JsonMapper {
             final Queue<Edit> edits = new ConcurrentLinkedQueue<Edit>();
             if (jsonEdits.isArray()) {
                 for (JsonNode edit : jsonEdits) {
-                    final long clientVersion = edit.get("clientVersion").asLong();
-                    final long serverVersion = edit.get("serverVersion").asLong();
-                    final String checksum = edit.get("checksum").asText();
+                    final Builder eb = DefaultEdit.withDocumentId(documentId).clientId(clientId);
+                    eb.clientVersion(edit.get("clientVersion").asLong());
+                    eb.serverVersion(edit.get("serverVersion").asLong());
+                    eb.checksum(edit.get("checksum").asText());
                     final JsonNode diffsNode = edit.get("diffs");
-                    final LinkedList<Diff> diffs = new LinkedList<Diff>();
                     if (diffsNode.isArray()) {
                         for (JsonNode d : diffsNode) {
-                            diffs.add(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
+                            eb.diff(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                         }
                     }
-                    edits.add(new DefaultEdit(documentId, clientId, clientVersion, serverVersion, checksum, diffs));
+                    edits.add(eb.build());
                 }
             }
             return new DefaultEdits(documentId, clientId, edits);
@@ -175,19 +175,18 @@ public final class JsonMapper {
         public Edit deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode edit = oc.readTree(jp);
-            final String clientId = edit.get("clientId").asText();
-            final String documentId = edit.get("id").asText();
-            final long clientVersion = edit.get("clientVersion").asLong();
-            final long serverVersion = edit.get("serverVersion").asLong();
-            final String checksum = edit.get("checksum").asText();
+            final Builder eb = DefaultEdit.withDocumentId(edit.get("id").asText());
+            eb.clientId(edit.get("clientId").asText());
+            eb.clientVersion(edit.get("clientVersion").asLong());
+            eb.serverVersion(edit.get("serverVersion").asLong());
+            eb.checksum(edit.get("checksum").asText());
             final JsonNode diffsNode = edit.get("diffs");
-            final LinkedList<Diff> diffs = new LinkedList<Diff>();
             if (diffsNode.isArray()) {
                 for (JsonNode d : diffsNode) {
-                    diffs.add(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
+                    eb.diff(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                 }
             }
-            return new DefaultEdit(documentId, clientId, clientVersion, serverVersion, checksum, diffs);
+            return eb.build();
         }
     }
 
