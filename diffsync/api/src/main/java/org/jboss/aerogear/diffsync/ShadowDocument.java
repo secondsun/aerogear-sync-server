@@ -17,8 +17,8 @@
 package org.jboss.aerogear.diffsync;
 
 /**
- * A shadow document for each client will exist on the client side and
- * also on the server side.
+ * A shadow document for each client will exist on the client side and also on the server side.
+ *
  * A shadow document is update after a successful patch/merge as been performed. A patch/merge
  * is done with specific versions on the client and server document which are stored by instances
  * of this class.

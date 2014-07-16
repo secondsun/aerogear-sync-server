@@ -24,7 +24,7 @@ import java.util.LinkedList;
 public interface Edit {
 
     /**
-     * Identifies the client that this edit instance belongs to.
+     * Identifies the client that this edit belongs to.
      *
      * @return {@code String} the client identifier.
      */
@@ -52,19 +52,19 @@ public interface Edit {
     long serverVersion();
 
     /**
-     * A checksum of the opposing sides, client or server, shadow document.
+     * A checksum of the opposing sides shadow document.
      * The shadow document must patch strictly and this checksum is used to verify that the other sides
      * shadow document is in fact the same. This can then be used by when before patching to make sure that
      * the shadow documents on both sides are in fact identical.
      *
-     * @return {@code String} the opposing sides checksum of the shadow document
+     * @return {@code String} the opposing side's checksum of the shadow document
      */
     String checksum();
 
     /**
-     * The diff for this edit.
+     * The {@link Diff}s for this edit.
      *
-     * @return {@code String} the diff that represents the changes for this edit.
+     * @return {@code LinkedList<Diff>} the diff that represents the changes for this edit.
      */
     LinkedList<Diff> diffs();
 

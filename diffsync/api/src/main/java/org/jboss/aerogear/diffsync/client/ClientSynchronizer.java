@@ -32,7 +32,7 @@ public interface ClientSynchronizer<T> {
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.
      *
-     * @param edit The edits.
+     * @param edit The edit.
      * @return {@link ShadowDocument} a new patched shadow document.
      */
     ShadowDocument<T> patchShadow(Edit edit, ShadowDocument<T> shadowDocument);

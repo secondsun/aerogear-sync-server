@@ -4,7 +4,7 @@ import org.jboss.aerogear.diffsync.DataStore;
 import org.jboss.aerogear.diffsync.Document;
 
 /**
- * A server side DataStore implementation is responible for storing and serving data for a
+ * A server side DataStore implementation is responsible for storing and serving data for a
  * Differential Synchronization implementation.
  *
  * @param <T> The type of the Document that this data store can handle.

@@ -1,15 +1,15 @@
 package org.jboss.aerogear.diffsync;
 
 /**
- * A ClientDocument is a representation of a client document which can exist either
- * as a specific document or shadow document.
+ * A client document is used on both the server and client side and
+ * associates a client identifier with a {@link Document}.
  *
  * @param <T> the type of this documents content.
  */
 public interface ClientDocument<T> extends Document<T> {
 
     /**
-     * Identifies a client or session to whom this Document belongs.
+     * Identifies a client or session to which this Document belongs.
      *
      * @return {@code String} the client identifier.
      */

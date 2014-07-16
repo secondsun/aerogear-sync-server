@@ -5,7 +5,7 @@ import org.jboss.aerogear.diffsync.DataStore;
 import org.jboss.aerogear.diffsync.Document;
 
 /**
- * A client side DataStore implementation is responible for storing and serving data for a
+ * A client side DataStore implementation is responsible for storing and serving data for a
  * Differential Synchronization implementation.
  *
  * @param <T> The type of the Document that this data store can handle.
@@ -13,18 +13,18 @@ import org.jboss.aerogear.diffsync.Document;
 public interface ClientDataStore<T> extends DataStore<T> {
 
     /**
-     * Saves a client document document.
+     * Saves a client document.
      *
-     * @param document the {@link Document} to save.
+     * @param document the {@link ClientDocument} to save.
      */
     void saveClientDocument(ClientDocument<T> document);
 
     /**
      * Retrieves the {@link Document} matching the passed-in document documentId.
      *
-     * @param documentId the document identifier of the shadow document.
+     * @param documentId the document identifier of the document.
      * @param clientId the client identifier for which to fetch the document.
-     * @return {@link Document} the document matching the documentId.
+     * @return {@link ClientDocument} the document matching the documentId.
      */
     ClientDocument<T> getClientDocument(String documentId, String clientId);
 

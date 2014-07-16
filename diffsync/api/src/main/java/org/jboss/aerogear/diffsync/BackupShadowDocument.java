@@ -19,8 +19,6 @@ package org.jboss.aerogear.diffsync;
 /**
  * A backup of the ShadowDocument.
  *
- * The backup
- *
  * @param <T> The type of the Document that this instance backups.
  */
 public interface BackupShadowDocument<T> {
