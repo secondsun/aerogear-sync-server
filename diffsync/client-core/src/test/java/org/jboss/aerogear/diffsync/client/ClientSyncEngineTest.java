@@ -19,7 +19,6 @@ package org.jboss.aerogear.diffsync.client;
 import org.jboss.aerogear.diffsync.*;
 import org.jboss.aerogear.diffsync.Diff.Operation;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -158,7 +157,7 @@ public class ClientSyncEngineTest {
         engine.patch(edits(documentId, clientId, edit1, edit2));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
-        assertThat(shadowDocument.document().content(), equalTo("Do or do nothing, there is no try!"));
+        assertThat(shadowDocument.document().content(), equalTo(finalVersion));
         assertThat(shadowDocument.clientVersion(), is(0L));
         assertThat(shadowDocument.serverVersion(), is(2L));
 
@@ -218,56 +217,6 @@ public class ClientSyncEngineTest {
 
         final Queue<Edit> edits = dataStore.getEdits(documentId, clientId);
         assertThat(edits.isEmpty(), is(true));
-    }
-
-    @Test @Ignore("work in progress....")
-    public void patchRevertToBackupMultipleVersions() {
-        final String documentId = "1234";
-        final String clientId = "client1";
-        final String originalVersion = "Do or do not, there is no try.";
-        final String finalVersion = "Do or do nothing, there is no trying";
-        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
-
-        final Edit edit1 = EditBuilder.withDocumentId(documentId)
-                .clientId(clientId)
-                .serverVersion(0)
-                .unchanged("Do or do not, there is no try")
-                .delete(".")
-                .add("!")
-                .build();
-        engine.patch(edits(documentId, clientId, edit1));
-
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
-        assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
-        assertThat(shadowDocument.clientVersion(), is(0L));
-        assertThat(shadowDocument.serverVersion(), is(1L));
-
-        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
-        assertThat(backupShadowDocument.version(), is(0L));
-
-        // simulate an client side diff that would update the client shadow.
-        dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 4L, "Do or do nothing, there is not trying"));
-
-        final Edit edit2 = EditBuilder.withDocumentId(documentId)
-                .clientId(clientId)
-                .clientVersion(3)
-                .serverVersion(1)
-                .unchanged("Do or do not")
-                .add("hing")
-                .unchanged(", there is no try")
-                .delete("!")
-                .add("ing")
-                .build();
-        engine.patch(edits(documentId, clientId, edit2));
-
-        final ShadowDocument<String> shadowDocument2 = dataStore.getShadowDocument(documentId, clientId);
-        assertThat(shadowDocument2.document().content(), equalTo(finalVersion));
-        assertThat(shadowDocument2.clientVersion(), is(0L));
-        assertThat(shadowDocument2.serverVersion(), is(1L));
-
-        final BackupShadowDocument<String> backupShadowDocument2 = dataStore.getBackupShadowDocument(documentId, clientId);
-        assertThat(backupShadowDocument2.version(), is(0L));
-        assertThat(backupShadowDocument2.shadow().document().content(), equalTo(finalVersion));
     }
 
     private static ClientDocument<String> clientDoc(final String docId, final String clientId, final String content) {
