@@ -13,6 +13,15 @@ Install the required plugins before running the build the first time, or after a
 
     npm install -g bower
 
+    bower install
+
+## Running the test app
+After running the ``npm``` and ```bower``` commands above, run the following from the command line:
+
+    node server.js
+
+This will start a server listening to port ```8080```. Next open a browser with the url http://localhost:8080/app/index.html
+
 ## Testing
 
 ### Testing the RESTful Sync Client
