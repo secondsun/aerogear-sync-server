@@ -6,8 +6,13 @@ Sync.Engine = function () {
         return new Sync.Engine();
     }
 
-    var dm = AeroGear.DataManager( ['docs', 'shadows', 'backups', 'edits'] ), // Shouldn't depend on AG Datamaanger in the future
-        dmp = new diff_match_patch();
+    var stores = {
+        docs: [],
+        shadows: [],
+        backups: [],
+        edits: []
+    },
+    dmp = new diff_match_patch();
 
     /**
      * Adds a new document to this sync engine.
@@ -33,7 +38,7 @@ Sync.Engine = function () {
      */
     this.diff = function( doc ) {
         var diffDoc,
-        shadow = dm.stores.shadows.read( doc.id )[0];
+        shadow = this._readData( doc.id, 'shadows' )[ 0 ];
 
         patchMsg = {
             msgType: 'patch',
@@ -203,54 +208,67 @@ Sync.Engine = function () {
 
     };
 
+    this._saveData = function( data, type ) {
+        data = Array.isArray( data ) ? data : [ data ];
+
+        stores[ type ] = data;
+    };
+
+    this._readData = function( id, type ) {
+        return stores[ type ].filter( function( doc ) {
+            return doc.id === id;
+        });
+    };
+
     this._saveDocument = function( doc ) {
-        dm.stores.docs.save( doc );
+        this._saveData( doc, 'docs' );
+        return doc;
     };
 
     this._saveShadow = function( doc ) {
         var shadow = { id: doc.id, serverVersion: doc.serverVersion || 0, clientId: doc.clientId, clientVersion: doc.clientVersion || 0, doc: doc.doc ? doc.doc : doc };
-        dm.stores.shadows.save( shadow );
+        this._saveData( shadow, 'shadows' );
         return shadow;
     };
 
     this._saveShadowBackup = function( doc ) {
         var backup = { id: doc.id, clientVersion: 0, doc: doc };
-        dm.stores.backups.save( backup );
+        this._saveData( backup, 'backups' );
+        return backup;
     };
 
     this.getDocument = function( id ) {
-        return dm.stores.docs.read( id )[0];
+        return this._readData( id, 'docs' )[ 0 ];
     };
 
     this.getShadow = function( id ) {
-        return dm.stores.shadows.read( id )[0];
+        return this._readData( id, 'shadows' )[ 0 ];
     };
 
     this.getBackup = function( id ) {
-        return dm.stores.backups.read( id )[0];
+        return this._readData( id, 'backups' )[ 0 ];
     };
 
     this._saveEdits = function( patchMsg ) {
         var record = { id: patchMsg.id, clientId: patchMsg.clientId, edits: patchMsg.edits};
-        dm.stores.edits.save( record );
+        this._saveData( record, 'edits' );
+        return record;
     };
 
     this._getEdits = function( id ) {
-        var patchMessages = dm.stores.edits.read( id );
-        if ( patchMessages.length === 0 ) {
-            return [];
-        }
-        return patchMessages.edits;
+        var patchMessages = this._readData( id, 'edits' );
+
+        return patchMessages.length ? patchMessages.edits : [];
     };
 
     this._removeEdit = function( documentId,  edit ) {
-        var patchMessages = dm.stores.edits.read( documentId ), i;
+        var patchMessages = this._readData( documentId, 'edits' ), i;
         if ( patchMessages.length !== 0 ) {
             var edits = patchMessages.edits;
             for ( i = 0; i < edits.length; i++ ) {
                 if ( edit[i].serverVersion === edit.serverVersion && edit[i].clientVersion === edit.clientVersion) {
                     edits.splice(i, 1);
-                };
+                }
             }
         }
     };
