@@ -118,7 +118,7 @@ public class ClientSyncEngine<T> {
                     newShadowDoc(backup.version(), shadow.clientVersion(), backup.shadow().document()));
             return saveShadowAndRemoveEdit(incrementServerVersion(patchedShadow), edit);
         } else {
-            throw new IllegalStateException(backup + " server version does not match version of " + edit.serverVersion());
+            throw new IllegalStateException("Backup version [" + backup.version() + "] does not match edit client version [" + edit.clientVersion() + ']');
         }
     }
 
