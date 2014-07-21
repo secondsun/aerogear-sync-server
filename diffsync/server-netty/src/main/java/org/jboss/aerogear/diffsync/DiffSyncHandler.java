@@ -17,6 +17,8 @@
 package org.jboss.aerogear.diffsync;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -99,8 +101,9 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
     }
 
     private static void addClientListener(final String documentId, final String clientId, final ChannelHandlerContext ctx) {
+        final Client client = new Client(clientId, ctx);
         final Set<Client> newClient = Collections.newSetFromMap(new ConcurrentHashMap<Client, Boolean>());
-        newClient.add(new Client(clientId, ctx));
+        newClient.add(client);
         while(true) {
             final Set<Client> currentClients = clients.get(documentId);
             if (currentClients == null) {
@@ -118,6 +121,27 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 }
             }
         }
+
+        ctx.channel().closeFuture().addListener(new ChannelFutureListener() {
+
+            @Override
+            public void operationComplete(final ChannelFuture future) throws Exception {
+                while (true) {
+                    final Set<Client> currentClients = clients.get(documentId);
+                    if (currentClients == null || currentClients.isEmpty()) {
+                        break;
+                    }
+                    final Set<Client> newClients = Collections.newSetFromMap(new ConcurrentHashMap<Client, Boolean>());
+                    newClients.addAll(currentClients);
+                    final boolean removed = newClients.remove(client);
+                    if (removed) {
+                        if (clients.replace(documentId, currentClients, newClients)) {
+                            break;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void notifyClientListeners(final Edits clientEdits) {
