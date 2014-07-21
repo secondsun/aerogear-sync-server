@@ -1,10 +1,14 @@
 package org.jboss.aerogear.diffsync;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jboss.aerogear.diffsync.DefaultEdit.Builder;
 import org.jboss.aerogear.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.diffsync.client.DefaultClientSynchronizer;
 import org.junit.Test;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -42,6 +46,26 @@ public class JsonMapperTest {
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.diffs().size(), is(3));
+    }
+
+    @Test
+    public void deserializeEditsWithNullElement() {
+        final String json = "{\"msgType\":\"patch\",\"id\":\"1234\",\"clientId\":\"client1\",\"edits\":[null]}";
+        final DefaultEdits deserialized = JsonMapper.fromJson(json, DefaultEdits.class);
+        assertThat(deserialized.edits().isEmpty(), is(true));
+    }
+
+    @Test
+    public void deserializeEditsWithNullDiffElement() {
+        final String json = "{\"msgType\":\"patch\",\"id\":\"1234\",\"clientId\":\"client1\",\"edits\":[{\"clientVersion\":0,\"serverVersion\":0,\"checksum\":\"73ceb67f36054ea2c697aa7b587234ea3776f27f\",\"diffs\":[null]}]}";
+        final DefaultEdits deserialized = JsonMapper.fromJson(json, DefaultEdits.class);
+        assertThat(deserialized.edits().size(), is(1));
+        final Edit edit = deserialized.edits().peek();
+        assertThat(edit.documentId(), equalTo("1234"));
+        assertThat(edit.clientId(), equalTo("client1"));
+        assertThat(edit.clientVersion(), is(0L));
+        assertThat(edit.clientVersion(), is(0L));
+        assertThat(edit.diffs().isEmpty(), is(true));
     }
 
     @Test

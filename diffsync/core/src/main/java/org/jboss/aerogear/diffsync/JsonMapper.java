@@ -119,6 +119,9 @@ public final class JsonMapper {
             final Queue<Edit> edits = new ConcurrentLinkedQueue<Edit>();
             if (jsonEdits.isArray()) {
                 for (JsonNode edit : jsonEdits) {
+                    if (edit.isNull()) {
+                        continue;
+                    }
                     final Builder eb = DefaultEdit.withDocumentId(documentId).clientId(clientId);
                     eb.clientVersion(edit.get("clientVersion").asLong());
                     eb.serverVersion(edit.get("serverVersion").asLong());
@@ -126,6 +129,9 @@ public final class JsonMapper {
                     final JsonNode diffsNode = edit.get("diffs");
                     if (diffsNode.isArray()) {
                         for (JsonNode d : diffsNode) {
+                            if (d.isNull()) {
+                                continue;
+                            }
                             eb.diff(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                         }
                     }
@@ -148,6 +154,9 @@ public final class JsonMapper {
             jgen.writeStringField("clientId", edits.clientId());
             jgen.writeArrayFieldStart("edits");
             for (Edit edit : edits.edits()) {
+                if (edit == null) {
+                    continue;
+                }
                 jgen.writeStartObject();
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
