@@ -262,13 +262,10 @@ Sync.Engine = function () {
     };
 
     this._removeEdit = function( documentId,  edit ) {
-        var patchMessages = this._readData( documentId, 'edits' ), i;
-        if ( patchMessages.length !== 0 ) {
-            var edits = patchMessages.edits;
-            for ( i = 0; i < edits.length; i++ ) {
-                if ( edit[i].serverVersion === edit.serverVersion && edit[i].clientVersion === edit.clientVersion) {
-                    edits.splice(i, 1);
-                }
+        var edits = this._readData( documentId, 'edits' ), i;
+        for ( i = 0; i < edits.length; i++ ) {
+            if ( edits[i].serverVersion === edit.serverVersion && edits[i].clientVersion === edit.clientVersion) {
+                edits.splice(i, 1);
             }
         }
     };

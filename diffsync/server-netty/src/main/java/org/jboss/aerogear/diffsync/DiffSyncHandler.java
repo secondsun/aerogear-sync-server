@@ -69,7 +69,6 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), DefaultEdits.class);
                 patch(clientEdits);
-                respond(ctx, "PATCHED");
                 notifyClientListeners(clientEdits);
                 break;
             case DETACH:
@@ -146,14 +145,18 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private void notifyClientListeners(final Edits clientEdits) {
         final Edit peek = clientEdits.edits().peek();
+        if (peek == null) {
+            // edits could be null as a client is allowed to send an patch message
+            // that only contains an acknowledgement that it has received a specific
+            // version from the server.
+            return;
+        }
+
         final String documentId = peek.documentId();
-        final String clientId = peek.clientId();
         for (Client client : clients.get(documentId)) {
-            if (!client.id().equals(clientId)) {
-                //TODO: this should be done async and not block the io thread!
-                final Edits edits = diffs(documentId, client.id());
-                client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
-            }
+            //TODO: this should be done async and not block the io thread!
+            final Edits edits = diffs(documentId, client.id());
+            client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
         }
     }
 

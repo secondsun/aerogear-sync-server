@@ -81,8 +81,12 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
         final Edits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
-        final JsonNode json = sendEditMsg(clientEdit, channel1);
-        assertThat(json.get("result").asText(), equalTo("PATCHED"));
+        final String responseOne = sendEdit(clientEdit, channel1);
+        final Edits edits = JsonMapper.fromJson(responseOne, DefaultEdits.class);
+        assertThat(edits.documentId(), equalTo(docId));
+        assertThat(edits.clientId(), equalTo(client1Id));
+        assertThat(edits.edits().size(), is(1));
+        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         // client1 should not get an update as it was the one making the change.
         assertThat(channel1.readOutbound(), is(nullValue()));
@@ -104,8 +108,93 @@ public class DiffSyncHandlerTest {
         assertThat(edit.diffs().get(3).operation(), is(Operation.UNCHANGED));
     }
 
+    @Test
+    public void patchJedi() {
+        final ClientSyncEngine<String> clientSyncEngine = newClientSyncEngine();
+        final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
+        final EmbeddedChannel channel1 = embeddedChannel(dataStore);
+        final EmbeddedChannel channel2 = embeddedChannel(dataStore);
+        final String docId = UUID.randomUUID().toString();
+        final String original = "I'm a Jedi";
+        final String updateOne = "I'm a Sith";
+        final String updateTwo = "Oh Yeah";
+        final String client1Id = "client1";
+        final String client2Id = "client2";
+
+        // add same document but with two different clients/channels.
+        sendAddDocMsg(docId, client1Id, original, channel1);
+        sendAddDocMsg(docId, client2Id, original, channel2);
+
+        clientSyncEngine.addDocument(new DefaultClientDocument<String>(docId, client1Id, original));
+
+        final Edits clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
+        final String responseOne = sendEdit(clientEdit, channel1);
+        final Edits edits = JsonMapper.fromJson(responseOne, DefaultEdits.class);
+        assertThat(edits.documentId(), equalTo(docId));
+        assertThat(edits.clientId(), equalTo(client1Id));
+        assertThat(edits.edits().size(), is(1));
+        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        // patch the client engine so that version are updated and edits cleared
+        clientSyncEngine.patch(edits);
+
+        // get the update from channel2.
+        final TextWebSocketFrame serverUpdateOne = channel2.readOutbound();
+        final Edits serverUpdates = JsonMapper.fromJson(serverUpdateOne.text(), DefaultEdits.class);
+        assertThat(serverUpdates.documentId(), equalTo(docId));
+        assertThat(serverUpdates.clientId(), equalTo(client2Id));
+        final Edit editOne = serverUpdates.edits().peek();
+        assertThat(editOne.clientVersion(), is(0L));
+        assertThat(editOne.serverVersion(), is(0L));
+
+        assertThat(editOne.diffs().size(), is(5));
+        assertThat(editOne.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(editOne.diffs().get(0).text(), equalTo("I'm a "));
+        assertThat(editOne.diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(editOne.diffs().get(1).text(), equalTo("Jed"));
+        assertThat(editOne.diffs().get(2).operation(), is(Operation.ADD));
+        assertThat(editOne.diffs().get(2).text(), equalTo("S"));
+        assertThat(editOne.diffs().get(3).operation(), is(Operation.UNCHANGED));
+        assertThat(editOne.diffs().get(3).text(), equalTo("i"));
+        assertThat(editOne.diffs().get(4).operation(), is(Operation.ADD));
+        assertThat(editOne.diffs().get(4).text(), equalTo("th"));
+
+        final Edits clientEditTwo = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateTwo));
+        final String responseTwo = sendEdit(clientEditTwo, channel1);
+        final Edits editsTwo = JsonMapper.fromJson(responseTwo, DefaultEdits.class);
+        assertThat(editsTwo.edits().size(), is(1));
+        assertThat(editsTwo.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+
+        final TextWebSocketFrame serverUpdateTwo = channel2.readOutbound();
+        final Edits serverUpdatesTwo = JsonMapper.fromJson(serverUpdateTwo.text(), DefaultEdits.class);
+        assertThat(serverUpdatesTwo.documentId(), equalTo(docId));
+        assertThat(serverUpdatesTwo.clientId(), equalTo(client2Id));
+        final Edit editTwo = serverUpdatesTwo.edits().peek();
+        assertThat(editTwo.clientVersion(), is(0L));
+        assertThat(editTwo.serverVersion(), is(1L));
+
+        assertThat(editTwo.diffs().size(), is(7));
+        assertThat(editTwo.diffs().get(0).operation(), is(Operation.DELETE));
+        assertThat(editTwo.diffs().get(0).text(), equalTo("I'm"));
+        assertThat(editTwo.diffs().get(1).operation(), is(Operation.ADD));
+        assertThat(editTwo.diffs().get(1).text(), equalTo("Oh"));
+        assertThat(editTwo.diffs().get(2).operation(), is(Operation.UNCHANGED));
+        assertThat(editTwo.diffs().get(2).text(), equalTo(" "));
+        assertThat(editTwo.diffs().get(3).operation(), is(Operation.ADD));
+        assertThat(editTwo.diffs().get(3).text(), equalTo("Ye"));
+        assertThat(editTwo.diffs().get(4).operation(), is(Operation.UNCHANGED));
+        assertThat(editTwo.diffs().get(4).text(), equalTo("a"));
+        assertThat(editTwo.diffs().get(5).operation(), is(Operation.DELETE));
+        assertThat(editTwo.diffs().get(5).text(), equalTo(" Sit"));
+        assertThat(editTwo.diffs().get(6).operation(), is(Operation.UNCHANGED));
+        assertThat(editTwo.diffs().get(6).text(), equalTo("h"));
+    }
+
     private static JsonNode sendEditMsg(final Edits edits, final EmbeddedChannel ch) {
         return writeTextFrame(JsonMapper.toJson(edits), ch);
+    }
+
+    private static String sendEdit(final Edits edits, final EmbeddedChannel ch) {
+        return writeFrame(JsonMapper.toJson(edits), ch);
     }
 
     private static JsonNode sendAddDocMsg(final String docId,
@@ -132,6 +221,12 @@ public class DiffSyncHandlerTest {
         return JsonMapper.asJsonNode(textFrame.text());
     }
 
+    private static String writeFrame(final String content, final EmbeddedChannel ch) {
+        ch.writeInbound(textFrame(content));
+        final TextWebSocketFrame textFrame = ch.readOutbound();
+        return textFrame.text();
+    }
+
     private static TextWebSocketFrame textFrame(final String content) {
         return new TextWebSocketFrame(content);
     }
@@ -150,11 +245,14 @@ public class DiffSyncHandlerTest {
                                                  final String originalContent,
                                                  final String clientId,
                                                  final String updatedContent) {
-        final ClientSyncEngine<String> clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(),
-                new ClientInMemoryDataStore());
+        final ClientSyncEngine<String> clientSyncEngine = newClientSyncEngine();
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, clientId, originalContent));
         final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, clientId, updatedContent);
         return clientSyncEngine.diff(doc);
+    }
+
+    private static ClientSyncEngine<String> newClientSyncEngine() {
+        return new ClientSyncEngine<String>(new DefaultClientSynchronizer(), new ClientInMemoryDataStore());
     }
 
 }

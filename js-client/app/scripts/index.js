@@ -102,9 +102,6 @@ var app = {
         case 'ADDED':
             console.log('ADDED');
             break;
-        case 'PATCHED':
-            console.log('PATCHED');
-            break;
         default:
             console.log(data);
             break;

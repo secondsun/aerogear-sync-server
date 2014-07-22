@@ -39,7 +39,8 @@
                     equal( json.result, 'ADDED', 'Document should have been added' );
                     break;
                 case 1:
-                    equal( json.result, 'PATCHED', 'The patch should have been applied' );
+                    equal( json.msgType, 'patch', 'A patch should return a patch message type' );
+                    equal( json.edits[0].diffs[0].operation, 'UNCHANGED', 'The client that sent the patch msg should also recieve a patch back.' );
                     break;
                     start();
             }

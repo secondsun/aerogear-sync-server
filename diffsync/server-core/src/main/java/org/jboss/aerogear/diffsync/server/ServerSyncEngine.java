@@ -17,6 +17,8 @@
 package org.jboss.aerogear.diffsync.server;
 
 import org.jboss.aerogear.diffsync.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
@@ -29,6 +31,7 @@ public class ServerSyncEngine<T> {
 
     private final ServerSynchronizer<T> synchronizer;
     private final ServerDataStore<T> dataStore;
+    private static final Logger logger = LoggerFactory.getLogger(ServerSyncEngine.class);
 
     public ServerSyncEngine(final ServerSynchronizer<T> synchronizer, final ServerDataStore<T> dataStore) {
         this.synchronizer = synchronizer;
@@ -178,6 +181,7 @@ public class ServerSyncEngine<T> {
         final Edit edit = clientDiffs(document, shadowDocument);
         final Document<T> patched = synchronizer.patchDocument(edit, document);
         saveDocument(patched);
+        logger.info("Patched Document [" + patched.id() + "] content: " + patched.content());
         return patched;
     }
 
