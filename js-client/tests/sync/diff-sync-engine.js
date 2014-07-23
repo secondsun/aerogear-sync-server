@@ -158,4 +158,38 @@
         equal( shadow.serverVersion, 1, 'Server version should have been updated.' );
         equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
     });
+
+    test( 'restore from backup', function() {
+        var engine = Sync.Engine();
+        var dmp = new diff_match_patch();
+        var content = { name: 'Fletch' };
+        var doc = { id: 1234, clientId: 'client1', content: content };
+        var shadow;
+        engine.addDocument( doc );
+        doc.content.name = 'John Coctolstol';
+
+        shadow = engine.getShadow( doc.id );
+        var patchMsg = {
+            msgType: 'patch',
+            id: doc.id,
+            clientId: shadow.clientId,
+            edits: [{
+                clientVersion: 0,
+                serverVersion: 0,
+                checksum: '',
+                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+            }]
+        };
+
+        // simulate that the client has performed a diff which will increment the client version.
+        shadow.clientVersion = 1;
+        engine._saveShadow( shadow );
+
+        // patch twice, second patch should not change the outcome and should simply be discarded.
+        updatedShadow = engine.patchShadow( patchMsg );
+
+        equal( JSON.stringify(updatedShadow.doc.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
+        equal( shadow.serverVersion, 0, 'Server version should have been updated.' );
+        equal( shadow.clientVersion, 1, 'Client version should not have been updated.' );
+    });
 })();
