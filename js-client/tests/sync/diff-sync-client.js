@@ -36,7 +36,8 @@
             var json = JSON.parse( evt.data );
             switch ( counter1 ) {
                 case 0:
-                    equal( json.result, 'ADDED', 'Document should have been added' );
+                    equal( json.msgType, 'patch', 'A patch should return a patch message type' );
+                    equal( json.edits[0].diffs[0].operation, 'UNCHANGED', 'The client that sent the patch msg should also recieve a patch back.' );
                     break;
                 case 1:
                     equal( json.msgType, 'patch', 'A patch should return a patch message type' );
@@ -52,7 +53,8 @@
             var json = JSON.parse( evt.data );
             switch ( counter2 ) {
                 case 0:
-                    equal( json.result, 'ADDED', 'Document should have been added' );
+                    equal( json.msgType, 'patch', 'A patch should return a patch message type' );
+                    equal( json.edits[0].diffs[0].operation, 'UNCHANGED', 'The client that sent the patch msg should also recieve a patch back.' );
                     ws.send( JSON.stringify ( clientEdits ) );
                     break;
                 case 1:
@@ -102,7 +104,8 @@
     asyncTest('sendDoc to Sync Server', function() {
         var onmessage = function( e ) {
             var json = JSON.parse( e.data );
-            equal( json.result, 'ADDED', 'Document should have been added' );
+            equal( json.msgType, 'patch', 'A patch should return a patch message type' );
+            equal( json.edits[0].diffs[0].operation, 'UNCHANGED', 'The client that sent the patch msg should also recieve a patch back.' );
             client.disconnect();
             start();
         };

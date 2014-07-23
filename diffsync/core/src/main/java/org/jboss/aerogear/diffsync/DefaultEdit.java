@@ -108,6 +108,15 @@ public class DefaultEdit implements Edit {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "DefaultEdit[documentId=" + documentId  +
+                ", clientId=" + clientId +
+                ", serverVersion=" + serverVersion +
+                ", clientVersion=" + clientVersion +
+                ", diffs=" + diffs + ']';
+    }
+
     public static Builder withDocumentId(final String documentId) {
         return new Builder(documentId);
     }

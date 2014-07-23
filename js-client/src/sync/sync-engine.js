@@ -105,7 +105,7 @@ Sync.Engine = function () {
 
             //Check for dropped packets?
             // edit.clientVersion < shadow.ClientVersion
-            if( edit.clientVersion < shadow.clientVersion ) {
+            if( edit.clientVersion < shadow.clientVersion && !this._isSeeded( edit ) ) {
                 // Dropped packet?  // restore from back
                 shadow = this._restoreBackup( shadow, edit );
                 continue;
@@ -121,7 +121,7 @@ Sync.Engine = function () {
             }
 
             //make sure the versions match
-            if( edit.serverVersion === shadow.serverVersion && edit.clientVersion === shadow.clientVersion ) {
+            if( (edit.serverVersion === shadow.serverVersion && edit.clientVersion === shadow.clientVersion) || this._isSeeded( edit )) {
                 // Good ,  Patch the shadow
                 patched = this.applyEditsToShadow( edit, shadow );
                 // increment the server version
@@ -131,8 +131,11 @@ Sync.Engine = function () {
                 } catch( e ) {
                     shadow.doc.content = patched[ 0 ];
                 }
-                shadow.serverVersion++;
-
+                if ( this._isSeeded( edit ) ) {
+                    shadow.clientVersion = 0;
+                } else if ( edit.clientVersion >= 0 ) {
+                    shadow.serverVersion++;
+                }
                 this._saveShadow( shadow );
             }
         }
@@ -140,6 +143,14 @@ Sync.Engine = function () {
         console.log('patched:', patched);
         return shadow;
     };
+
+    // A seeded patch is when all clients start with a base document. They all send this base version as
+    // part of the addDocument call. The server will respond with a patchMsg enabling the client to 
+    // patch it's local version to get the latest updates. Such an edit is identified by a clientVersion
+    // set to '-1'.
+    this._isSeeded = function( edit ) {
+        return edit.clientVersion === -1;
+    }
 
     this.applyEditsToShadow = function ( edits, shadow ) {
         var doc, diffs, patches;
@@ -271,7 +282,7 @@ Sync.Engine = function () {
     };
 
     this._restoreBackup = function( shadow, edit) {
-        var backup = getBackup( shadow.id ), patchedShadow;
+        var backup = this.getBackup( shadow.id ), patchedShadow;
         if ( edit.clientVersion === backup.clientVersion) {
             var restored = { id: backup.id, serverVersion: backup.serverVersion, clientId: shadow.clientId, clientVersion: backup.clientVersion, doc: backup.doc };
             patchedShadow = this.patchShadow( restored );

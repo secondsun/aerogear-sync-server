@@ -20,7 +20,9 @@ import org.jboss.aerogear.diffsync.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * The server side of the differential synchronization implementation.
@@ -32,6 +34,8 @@ public class ServerSyncEngine<T> {
     private final ServerSynchronizer<T> synchronizer;
     private final ServerDataStore<T> dataStore;
     private static final Logger logger = LoggerFactory.getLogger(ServerSyncEngine.class);
+    private static final int SEEDED_CLIENT_VERSION = -1;
+    private static final int SEEDED_SERVER_VERSION = 1;
 
     public ServerSyncEngine(final ServerSynchronizer<T> synchronizer, final ServerDataStore<T> dataStore) {
         this.synchronizer = synchronizer;
@@ -46,11 +50,31 @@ public class ServerSyncEngine<T> {
      *
      * @param document the document to add.
      */
-    public void addDocument(final Document<T> document, final String clientId) {
-        if (!contains(document.id())) {
+    public Edits addDocument(final Document<T> document, final String clientId) {
+        final boolean hasDocument = contains(document.id());
+        if (!hasDocument) {
             dataStore.saveDocument(document);
         }
-        addShadow(document.id(), clientId);
+
+        final ShadowDocument<T> shadow = addShadowForClient(document.id(), clientId);
+        final Edit edit;
+        if (hasDocument) {
+            logger.info("Document with id [" + document.id() + "] already exists.");
+            // create a edit for the updates required to bring the client to the latest version.
+            edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
+            // patch the shadow to match the latest version.
+            patchDocument(shadow);
+        } else {
+            // need to increment the server version as we return a edits/patch message
+            edit = serverDiff(shadow.document(), incrementServerVersion(shadow));
+        }
+        logger.info("addDocument edit=" + edit);
+        return new DefaultEdits(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
+    }
+
+    private ShadowDocument<T> seededShadowFrom(final ShadowDocument<T> shadow, final Document<T> doc) {
+        final ClientDocument<T> clientDoc = newClientDocument(doc.id(), shadow.document().clientId(), doc.content());
+        return new DefaultShadowDocument<T>(SEEDED_SERVER_VERSION, SEEDED_CLIENT_VERSION, clientDoc);
     }
 
     /**
@@ -92,15 +116,17 @@ public class ServerSyncEngine<T> {
         saveShadow(synchronizer.patchShadow(edit, shadow));
     }
 
-    private void addShadow(final String documentId, final String clientId) {
+    private ShadowDocument<T> addShadowForClient(final String documentId, final String clientId) {
+        return addShadow(documentId, clientId, 0L);
+    }
+
+    private ShadowDocument<T> addShadow(final String documentId, final String clientId, final long clientVersion) {
         final Document<T> document = getDocument(documentId);
         final ClientDocument<T> clientDocument = newClientDocument(documentId, clientId, document.content());
-        // A clients shadow always begins with server version 0, and client version 0. Even if the server document
-        // has existed for days and has been updated many time, the server version of the shadow is specific to this
-        // client. The server version represents the latest version of the server document that the client has seen.
-        final ShadowDocument<T> shadowDocument = newShadowDoc(0, 0, clientDocument);
+        final ShadowDocument<T> shadowDocument = newShadowDoc(0, clientVersion, clientDocument);
         saveShadow(shadowDocument);
         saveBackupShadow(shadowDocument);
+        return shadowDocument;
     }
 
     private Edit clientDiffs(final Document<T> document, final ShadowDocument<T> shadow) {

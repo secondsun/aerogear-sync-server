@@ -42,4 +42,11 @@ public class DefaultShadowDocument<T> implements ShadowDocument<T> {
     public ClientDocument<T> document() {
         return document;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultShadowDocument[serverVersion=" +
+                serverVersion + ", clientVersion=" +
+                clientVersion + ", document=" + document() + ']';
+    }
 }

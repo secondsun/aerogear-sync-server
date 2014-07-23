@@ -102,12 +102,20 @@ public class ClientSyncEngine<T> {
                 discardEdit(edit, iterator);
                 continue;
             }
-            if (allVersionsMatch(edit, shadow)) {
+            if (allVersionsMatch(edit, shadow) || isSeedVersion(edit)) {
                 final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit, shadow);
-                shadow = saveShadowAndRemoveEdit(incrementServerVersion(patchedShadow), edit);
+                if (isSeedVersion(edit)) {
+                    shadow = saveShadowAndRemoveEdit(withClientVersion(patchedShadow, 0), edit);
+                } else {
+                    shadow = saveShadowAndRemoveEdit(incrementServerVersion(patchedShadow), edit);
+                }
             }
         }
         return shadow;
+    }
+
+    private static boolean isSeedVersion(final Edit edit) {
+        return edit.clientVersion() == -1;
     }
 
     private ShadowDocument<T> restoreBackup(final ShadowDocument<T> shadow,
@@ -179,6 +187,10 @@ public class ClientSyncEngine<T> {
 
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {
         final long clientVersion = shadow.clientVersion() + 1;
+        return newShadowDoc(shadow.serverVersion(), clientVersion, shadow.document());
+    }
+
+    private ShadowDocument<T> withClientVersion(final ShadowDocument<T> shadow, final long clientVersion) {
         return newShadowDoc(shadow.serverVersion(), clientVersion, shadow.document());
     }
 

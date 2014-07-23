@@ -57,14 +57,13 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
         if (frame instanceof TextWebSocketFrame) {
             final JsonNode json = JsonMapper.asJsonNode(((TextWebSocketFrame) frame).text());
-            logger.debug(json.toString());
             switch (MessageType.from(json.get("msgType").asText())) {
             case ADD:
                 final Document<String> doc = documentFromJson(json);
                 final String clientId = json.get("clientId").asText();
-                addDocument(doc, clientId);
                 addClientListener(doc.id(), clientId, ctx);
-                respond(ctx, "ADDED");
+                final Edits edits = addDocument(doc, clientId);
+                ctx.channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
                 break;
             case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), DefaultEdits.class);
@@ -83,8 +82,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private void addDocument(final Document<String> document, final String clientId) {
-        syncEngine.addDocument(document, clientId);
+    private Edits addDocument(final Document<String> document, final String clientId) {
+        return syncEngine.addDocument(document, clientId);
     }
 
     private void patch(final Edits clientEdit) {

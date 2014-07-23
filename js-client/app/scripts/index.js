@@ -97,17 +97,9 @@ var app = {
     onmessage: function ( e ) {
         var data = JSON.parse(e.data),
             doc;
+        console.log('data:', data);
 
-        switch(data.result) {
-        case 'ADDED':
-            console.log('ADDED');
-            break;
-        default:
-            console.log(data);
-            break;
-        }
-
-        if(!data.result) {
+        if( data ) {
             app.syncEngine.patch(data);
         }
 

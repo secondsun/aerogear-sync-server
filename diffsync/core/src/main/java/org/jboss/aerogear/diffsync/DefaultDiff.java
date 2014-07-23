@@ -60,4 +60,9 @@ public class DefaultDiff implements Diff {
         result = 31 * result + (text != null ? text.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultDiff[operation=" + operation + ", text=" + text + ']';
+    }
 }
