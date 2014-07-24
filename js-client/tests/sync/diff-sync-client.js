@@ -28,6 +28,7 @@
 
         ws2.onopen = function( evt ) {
             addDocument.clientId = "client2";
+            delete addDocument.content;
             ws2.send( JSON.stringify ( addDocument ) );
         };
 
@@ -54,7 +55,10 @@
             switch ( counter2 ) {
                 case 0:
                     equal( json.msgType, 'patch', 'A patch should return a patch message type' );
+                    equal( json.clientId, 'client2', 'The clientId should be client2' );
+                    equal( json.edits[0].clientVersion, -1, 'The clientVersion should be -1 indicating that the document was seeded by a different client.' );
                     equal( json.edits[0].diffs[0].operation, 'UNCHANGED', 'The client that sent the patch msg should also recieve a patch back.' );
+                    equal( json.edits[0].diffs[0].text, 'Do or do not, there is no try.', 'The text should match the base document version.' );
                     ws.send( JSON.stringify ( clientEdits ) );
                     break;
                 case 1:

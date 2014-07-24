@@ -100,6 +100,31 @@ public class DiffSyncHandlerTest {
     }
 
     @Test
+    public void addDocumentWithoutContent() {
+        final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
+        final EmbeddedChannel channel1 = embeddedChannel(dataStore);
+        final EmbeddedChannel channel2 = embeddedChannel(dataStore);
+        final String docId = UUID.randomUUID().toString();
+        final String client1Id = "client1";
+        final String client2Id = "client2";
+        final String baseContent = "You shall not pass";
+
+        // client1 sends the initial base document.
+        sendAddDoc(docId, client1Id, baseContent, channel1);
+
+        // client2 sends a add document request without any content.
+        final Edits edits = sendAddDoc(docId, client2Id, channel2);
+        assertThat(edits.documentId(), equalTo(docId));
+        assertThat(edits.clientId(), equalTo(client2Id));
+        assertThat(edits.edits().size(), is(1));
+        final Edit edit = edits.edits().peek();
+        assertThat(edit.clientVersion(), is(-1L));
+        assertThat(edit.serverVersion(), is(1L));
+        assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edit.diffs().get(0).text(), equalTo(baseContent));
+    }
+
+    @Test
     public void patch() {
         final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
         final EmbeddedChannel channel1 = embeddedChannel(dataStore);
@@ -330,6 +355,14 @@ public class DiffSyncHandlerTest {
         docMsg.put("id", docId);
         docMsg.put("clientId", clientId);
         docMsg.put("content", content);
+        return fromJson(writeFrame(docMsg.toString(), ch), DefaultEdits.class);
+    }
+
+    private static Edits sendAddDoc(final String docId, final String clientId, final EmbeddedChannel ch) {
+        final ObjectNode docMsg = message("add");
+        docMsg.put("msgType", "add");
+        docMsg.put("id", docId);
+        docMsg.put("clientId", clientId);
         return fromJson(writeFrame(docMsg.toString(), ch), DefaultEdits.class);
     }
 

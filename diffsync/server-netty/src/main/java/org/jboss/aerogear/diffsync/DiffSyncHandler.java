@@ -92,7 +92,9 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
     }
 
     private static Document<String> documentFromJson(final JsonNode json) {
-        return new DefaultDocument<String>(json.get("id").asText(), json.get("content").asText());
+        final JsonNode contentNode = json.get("content");
+        final String content = contentNode != null && !contentNode.isNull() ? contentNode.asText() : null;
+        return new DefaultDocument<String>(json.get("id").asText(), content);
     }
 
     private Edits diffs(final String documentId, final String clientId) {

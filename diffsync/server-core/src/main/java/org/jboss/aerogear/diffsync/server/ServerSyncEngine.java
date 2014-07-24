@@ -73,7 +73,8 @@ public class ServerSyncEngine<T> {
     }
 
     private ShadowDocument<T> seededShadowFrom(final ShadowDocument<T> shadow, final Document<T> doc) {
-        final ClientDocument<T> clientDoc = newClientDocument(doc.id(), shadow.document().clientId(), doc.content());
+        final Document<T> document = doc.content() == null ? getDocument(doc.id()) : doc;
+        final ClientDocument<T> clientDoc = newClientDocument(doc.id(), shadow.document().clientId(), document.content());
         return new DefaultShadowDocument<T>(SEEDED_SERVER_VERSION, SEEDED_CLIENT_VERSION, clientDoc);
     }
 
