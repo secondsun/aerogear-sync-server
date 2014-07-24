@@ -37,8 +37,11 @@ import org.jboss.aerogear.diffsync.server.ServerSynchronizer;
  */
 public class DiffSyncServer {
 
-    public static void main(final String args[]) throws InterruptedException {
-        final int port = 7777;
+    private final static String DEFAULT_CONFIG = "/sync.config";
+
+    public static void main(final String args[]) throws Exception {
+        final String configFile = args.length == 0 ? DEFAULT_CONFIG : args[0];
+        final StandaloneConfig config = ConfigReader.parse(configFile);
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
@@ -61,8 +64,8 @@ public class DiffSyncServer {
                         }
                     });
 
-            final Channel ch = sb.bind(port).sync().channel();
-            System.out.println("Web socket server started at port " + port);
+            final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
+            System.out.println("SyncServer bound to " + config.host() + ":" + config.port());
 
             ch.closeFuture().sync();
         } finally {
