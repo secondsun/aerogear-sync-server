@@ -238,6 +238,73 @@ public class DiffSyncHandlerTest {
         assertThat(editTwo.diffs().get(6).text(), equalTo("h"));
     }
 
+    @Test
+    public void patchCompletReplacementOfContent() {
+        final ClientSyncEngine<String> clientSyncEngine = newClientSyncEngine();
+        final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
+        final EmbeddedChannel channel1 = embeddedChannel(dataStore);
+        final EmbeddedChannel channel2 = embeddedChannel(dataStore);
+        final String docId = UUID.randomUUID().toString();
+        final String client1Id = "client1";
+        final String client2Id = "client2";
+        final String original = "Beve";
+        final String updateOne = "I'm the man";
+
+        // Add original document using client1/channal1
+        final Edits addPatchClient1 = sendAddDoc(docId, client1Id, original, channel1);
+        assertThat(addPatchClient1.documentId(), equalTo(docId));
+        assertThat(addPatchClient1.clientId(), equalTo(client1Id));
+        assertThat(addPatchClient1.edits().size(), is(1));
+        final Edit patchOne = addPatchClient1.edits().peek();
+        assertThat(patchOne.clientVersion(), is(0L));
+        assertThat(patchOne.serverVersion(), is(1L));
+        assertThat(patchOne.diffs().get(0).operation(), is(Operation.UNCHANGED));
+
+        // Add document using client2/channel2
+        final Edits addPatchClient2 = sendAddDoc(docId, client2Id, original, channel2);
+        assertThat(addPatchClient2.documentId(), equalTo(docId));
+        assertThat(addPatchClient2.clientId(), equalTo(client2Id));
+        assertThat(addPatchClient2.edits().size(), is(1));
+        final Edit patchTwo = addPatchClient2.edits().peek();
+        assertThat(patchTwo.clientVersion(), is(-1L));
+        assertThat(patchTwo.serverVersion(), is(1L));
+        assertThat(patchTwo.diffs().get(0).operation(), is(Operation.UNCHANGED));
+
+        // Add the document to the client sync engine. Only used to help produce diffs.
+        clientSyncEngine.addDocument(new DefaultClientDocument<String>(docId, client1Id, original));
+        final Edits clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
+
+        final Edits edits = sendEdit(clientEdit, channel1);
+        assertThat(edits.documentId(), equalTo(docId));
+        assertThat(edits.clientId(), equalTo(client1Id));
+        assertThat(edits.edits().size(), is(1));
+        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+
+        // patch the client engine so that version are updated and edits cleared
+        clientSyncEngine.patch(edits);
+
+        // get the update from channel2.
+        final TextWebSocketFrame serverUpdateOne = channel2.readOutbound();
+        final Edits serverUpdates = fromJson(serverUpdateOne.text(), DefaultEdits.class);
+        assertThat(serverUpdates.documentId(), equalTo(docId));
+        assertThat(serverUpdates.clientId(), equalTo(client2Id));
+        final Edit editOne = serverUpdates.edits().peek();
+        assertThat(editOne.clientVersion(), is(0L));
+        assertThat(editOne.serverVersion(), is(0L));
+
+        assertThat(editOne.diffs().size(), is(5));
+        assertThat(editOne.diffs().get(0).operation(), is(Operation.DELETE));
+        assertThat(editOne.diffs().get(0).text(), equalTo("B"));
+        assertThat(editOne.diffs().get(1).operation(), is(Operation.ADD));
+        assertThat(editOne.diffs().get(1).text(), equalTo("I'm th"));
+        assertThat(editOne.diffs().get(2).operation(), is(Operation.UNCHANGED));
+        assertThat(editOne.diffs().get(2).text(), equalTo("e"));
+        assertThat(editOne.diffs().get(3).operation(), is(Operation.DELETE));
+        assertThat(editOne.diffs().get(3).text(), equalTo("ve"));
+        assertThat(editOne.diffs().get(4).operation(), is(Operation.ADD));
+        assertThat(editOne.diffs().get(4).text(), equalTo(" man"));
+    }
+
     private static Edits sendEdit(final Edits edits, final EmbeddedChannel ch) {
         return fromJson(writeFrame(JsonMapper.toJson(edits), ch), DefaultEdits.class);
     }

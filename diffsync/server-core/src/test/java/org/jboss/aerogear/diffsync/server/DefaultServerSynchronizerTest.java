@@ -18,6 +18,8 @@ package org.jboss.aerogear.diffsync.server;
 
 import org.jboss.aerogear.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.diffsync.DefaultDocument;
+import org.jboss.aerogear.diffsync.DefaultEdit;
+import org.jboss.aerogear.diffsync.DefaultEdits;
 import org.jboss.aerogear.diffsync.DefaultShadowDocument;
 import org.jboss.aerogear.diffsync.Diff.Operation;
 import org.jboss.aerogear.diffsync.Document;
@@ -74,6 +76,34 @@ public class DefaultServerSynchronizerTest {
         final Edit edit = synchronizer.serverDiff(document, shadowDocument);
         final ShadowDocument<String> patchedShadow = synchronizer.patchShadow(edit, shadowDocument);
         assertThat(patchedShadow.document().content(), equalTo("test"));
+    }
+
+    @Test
+    public void patchShadowFromClientDiff() throws Exception {
+        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final Document<String> document = new DefaultDocument<String>("1234", "Beve");
+        final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "I'm the man");
+
+        final Edit edit = synchronizer.clientDiff(document, shadowDocument);
+        final ShadowDocument<String> patchedShadow = synchronizer.patchShadow(edit, shadowDocument);
+        assertThat(patchedShadow.document().content(), equalTo("I'm the man"));
+    }
+
+    @Test
+    public void patchShadowFromClientDiffCustomEdit() throws Exception {
+        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "Beve");
+
+        final Edit edit1 = DefaultEdit.withDocumentId("1234")
+                .clientId("client1")
+                .delete("B")
+                .add("I'm th")
+                .unchanged("e")
+                .delete("ve")
+                .add(" man")
+                .build();
+        final ShadowDocument<String> patchedShadow = synchronizer.patchShadow(edit1, shadowDocument);
+        assertThat(patchedShadow.document().content(), equalTo("I'm the man"));
     }
 
     @Test

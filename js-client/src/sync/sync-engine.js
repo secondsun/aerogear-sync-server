@@ -38,7 +38,17 @@ Sync.Engine = function () {
      */
     this.diff = function( doc ) {
         var diffDoc,
-        shadow = this._readData( doc.id, 'shadows' )[ 0 ];
+            shadow = this._readData( doc.id, 'shadows' )[ 0 ],
+            docContent,
+            shadowContent;
+
+        if ( typeof doc.content === 'string' ) {
+            docContent = doc.content;
+            shadowContent = shadow.doc.content;
+        } else {
+            docContent = JSON.stringify( doc.content );
+            shadowContent = JSON.stringify( shadow.doc.content );
+        }
 
         patchMsg = {
             msgType: 'patch',
@@ -49,7 +59,7 @@ Sync.Engine = function () {
                 serverVersion: shadow.serverVersion,
                 // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
                 checksum: '',
-                diffs: this._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+                diffs: this._asAeroGearDiffs( dmp.diff_main( shadowContent, docContent ) )
             }]
         };
 

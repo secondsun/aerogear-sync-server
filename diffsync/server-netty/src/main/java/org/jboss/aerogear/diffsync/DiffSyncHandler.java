@@ -67,6 +67,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 break;
             case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), DefaultEdits.class);
+                logger.debug("Client Edits=" + clientEdits);
                 patch(clientEdits);
                 notifyClientListeners(clientEdits);
                 break;
@@ -155,6 +156,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         for (Client client : clients.get(documentId)) {
             //TODO: this should be done async and not block the io thread!
             final Edits edits = diffs(documentId, client.id());
+            logger.debug("Sending to [" + client.id + "] : " + edits);
             client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
         }
     }
