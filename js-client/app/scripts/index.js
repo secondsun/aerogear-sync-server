@@ -111,6 +111,17 @@ var app = {
         app.syncEngine.addDocument(seedData);
         app.syncClient.addDoc(seedData);
     },
+    onconnection: function( e ) {
+        if ( $( "#connection" ).html() == 'Disconnect' ) {
+            console.log('Going to disconnect...');
+            app.syncClient.disconnect();
+            $("#connection" ).html('Connect');
+        } else {
+            console.log('Going to connect...');
+            app.syncClient.connect();
+            $("#connection" ).html('Disconnect');
+        }
+    },
     init: function () {
 
         console.log( 'initing' );
@@ -127,6 +138,7 @@ var app = {
 
         this.content = $( "div .detail" );
         this.list = $( "#hobby-list" );
+        this.connection = $( "#connection" );
 
         this.content.on( "dblclick", "label", this.edit );
         this.content.on( "keypress", '.edit', this.blurOnEnter );
@@ -134,7 +146,7 @@ var app = {
         this.list.on( "dblclick", "label", this.edit );
         this.list.on( "keypress", '.edit', this.blurOnEnter );
         this.list.on( "blur", ".edit", this.update );
-
+        this.connection.click( this.onconnection );
     }
 };
 

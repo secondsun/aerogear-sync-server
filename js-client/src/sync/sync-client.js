@@ -13,37 +13,45 @@ Sync.Client = function ( config ) {
         throw new Error("'config.serverUrl' must be specified" );
     }
 
-    ws = new WebSocket( config.serverUrl );
-    ws.onopen = function ( e ) {
-        if ( config.onopen ) {
-            config.onopen.apply( this, arguments );
-        }
+    this.connect = function() {
+        ws = new WebSocket( config.serverUrl );
+        ws.onopen = function ( e ) {
+            if ( config.onopen ) {
+                config.onopen.apply( this, arguments );
+            }
 
-        console.log ( 'WebSocket opened' );
+            console.log ( 'WebSocket opened' );
 
-        while ( sendQueue.length ) {
-            send ( 'add', sendQueue.pop() );
-        }
-    };
-    ws.onmessage = function( e ) {
-        if( config.onmessage ) {
-            config.onmessage.apply( this, arguments );
-        }
-    };
-    ws.onerror = function( e ) {
-        if ( config.onerror ) {
-            config.onerror.apply( this, arguments );
-        } else {
-            console.log ( 'Error: ' + e );
-        }
-    };
-    ws.onclose = function( e ) {
-        if ( config.onclose ) {
-             config.onclose.apply( this, arguments);
-        } else {
-            console.log ( 'Close [code=' + e.code + ', reason=' + e.reason + ', wasClean=' + e.wasClean + ']' );
-        }
-    };
+            while ( sendQueue.length ) {
+                send ( 'add', sendQueue.pop() );
+            }
+        };
+        ws.onmessage = function( e ) {
+            if( config.onmessage ) {
+                config.onmessage.apply( this, arguments );
+            }
+        };
+        ws.onerror = function( e ) {
+            if ( config.onerror ) {
+                config.onerror.apply( this, arguments );
+            } else {
+                console.log ( 'Error: ' + e );
+            }
+        };
+        ws.onclose = function( e ) {
+            if ( config.onclose ) {
+                 config.onclose.apply( this, arguments);
+            } else {
+                console.log ( 'Close [code=' + e.code + ', reason=' + e.reason + ', wasClean=' + e.wasClean + ']' );
+            }
+        };
+    }
+    this.connect();
+
+    this.disconnect = function() {
+        console.log('Closing Connection');
+        ws.close();
+    }
 
     this.addDoc = function( doc ) {
         if ( ws.readyState === 0 ) {
@@ -54,7 +62,11 @@ Sync.Client = function ( config ) {
     };
 
     this.sendEdit = function( edit ) {
-        ws.send( JSON.stringify( edit ) );
+        if ( ws.readyState === WebSocket.OPEN ) {
+            ws.send( JSON.stringify( edit ) );
+        } else {
+            console.log("Client is not connected");
+        }
     };
 
     this.disconnect = function () {
