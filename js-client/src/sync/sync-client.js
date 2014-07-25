@@ -6,6 +6,8 @@ Sync.Client = function ( config ) {
     }
 
     var sendQueue = [], ws;
+    var that = this;
+    var syncEngine = config.syncEngine || new Sync.Engine();
 
     config = config || {};
 
@@ -20,10 +22,14 @@ Sync.Client = function ( config ) {
                 config.onopen.apply( this, arguments );
             }
 
-            console.log ( 'WebSocket opened' );
-
+            console.log ( 'WebSocket opened. SendQueue.length=', sendQueue.length );
             while ( sendQueue.length ) {
-                send ( 'add', sendQueue.pop() );
+                var task = sendQueue.pop();
+                if ( task.type === 'add' ) {
+                    send ( task.type, task.msg );
+                } else {
+                    that.sendEdits( task.msg );
+                }
             }
         };
         ws.onmessage = function( e ) {
@@ -55,17 +61,18 @@ Sync.Client = function ( config ) {
 
     this.addDoc = function( doc ) {
         if ( ws.readyState === 0 ) {
-            sendQueue.push( doc );
+            sendQueue.push( { type: 'add', msg: doc } );
         } else if ( ws.readyState === 1 ) {
             send( 'add', doc );
         }
     };
 
-    this.sendEdit = function( edit ) {
+    this.sendEdits = function( edit ) {
         if ( ws.readyState === WebSocket.OPEN ) {
             ws.send( JSON.stringify( edit ) );
         } else {
-            console.log("Client is not connected");
+            console.log("Client is not connected. Add edit to queue");
+            sendQueue.push( { type: 'patch', msg: edit } );
         }
     };
 
@@ -75,6 +82,23 @@ Sync.Client = function ( config ) {
 
     this.removeDoc = function( doc ) {
         console.log( "removing  doc from engine" );
+    };
+
+    this.update = function( docId ) {
+        if ( sendQueue.length === 0 ) {
+            var doc = syncEngine.getDocument( docId );
+            var edits = syncEngine.diff( doc );
+            that.sendEdits( edits );
+        } else {
+            while ( sendQueue.length ) {
+                var task = sendQueue.pop();
+                if ( task.type === 'add' ) {
+                    send ( task.type, task.msg );
+                } else {
+                    that.sendEdits( task.msg );
+                }
+            }
+        }
     };
 
     var send = function ( msgType, doc ) {

@@ -73,7 +73,7 @@ var app = {
         }
 
         var edits = app.syncEngine.diff(app.currentData);
-        app.syncClient.sendEdit(edits);
+        app.syncClient.sendEdits(edits);
         //app.syncClient.addDoc(app.currentData);
 
         // app.ag.syncer.save( app.currentData, {
@@ -107,9 +107,13 @@ var app = {
         app.updateUI(doc);
     },
     onopen: function ( e ) {
-        console.log( e );
-        app.syncEngine.addDocument(seedData);
-        app.syncClient.addDoc(seedData);
+        if ( app.initializing === true ) {
+            app.syncEngine.addDocument(seedData);
+            app.syncClient.addDoc(seedData);
+            app.initializing = false;
+        } else {
+            app.syncClient.update( "12345" );
+        }
     },
     onconnection: function( e ) {
         if ( $( "#connection" ).html() == 'Disconnect' ) {
@@ -128,10 +132,12 @@ var app = {
 
         this.syncEngine = new Sync.Engine();
 
+        this.initializing = true;
         this.syncClient = new Sync.Client({
             serverUrl: 'ws://localhost:7777/sync',
             onmessage: this.onmessage,
-            onopen: this.onopen
+            onopen: this.onopen,
+            syncEngine: this.syncEngine
         });
 
         this.ENTER_KEY = 13;
