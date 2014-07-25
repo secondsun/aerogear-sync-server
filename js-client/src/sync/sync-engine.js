@@ -74,6 +74,37 @@ Sync.Engine = function () {
         return patchMsg;
     };
 
+    /**
+     * Performs the client side patch process.
+     *
+     * @param patchMsg the patch message that is sent from the server
+     *
+     * @example:
+     * {
+     *   "msgType":"patch",
+     *   "id":"12345",
+     *   "clientId":"3346dff7-aada-4d5f-a3da-c93ff0ffc472",
+     *   "edits":[{
+     *     "clientVersion":0,
+     *     "serverVersion":0,
+     *     "checksum":"5f9844b21c298ea1f3ed7bf37f96e42df03395b",
+     *     "diffs":[
+     *       {"operation":"UNCHANGED","text":"I'm a Je"},
+     *       {"operation":"DELETE","text":"di"}]
+     *   }]
+     * }
+    */
+    this.patch = function( patchMsg ) {
+        // Flow is based on the server side
+        // patch the shadow
+        var patchedShadow = this.patchShadow( patchMsg );
+        // Then patch the document
+        this.patchDocument( patchedShadow );
+        // then save backup shadow
+        this._saveShadowBackup( patchedShadow );
+
+    };
+
     this._asAeroGearDiffs = function( diffs ) {
         return diffs.map(function( value ) {
             return {operation: this._asAgOperation( value[0] ), text: value[1] };
@@ -192,40 +223,6 @@ Sync.Engine = function () {
         //return the applied patch?
         console.log('patches: ', patchApplied);
         return patchApplied;
-    };
-
-    /**
-        Performs the client side patch process.
-
-
-        @param patchMsg the patch message that is sent from the server
-
-        @example:
-
-            {
-                "msgType":"patch",
-                "id":"12345",
-                "clientId":"3346dff7-aada-4d5f-a3da-c93ff0ffc472",
-                "edits":[{
-                        "clientVersion":0,
-                        "serverVersion":0,
-                        "checksum":"5f9844b21c298ea1f3ed7bf37f96e42df03395b",
-                        "diffs":[{
-                            "operation":"UNCHANGED","text":"I'm a Je"},
-                            {"operation":"DELETE","text":"di"
-                        }]
-                }]
-            }"
-    */
-    this.patch = function( patchMsg ) {
-        // Flow is based on the server side
-        // patch the shadow
-        var patchedShadow = this.patchShadow( patchMsg );
-        // Then patch the document
-        this.patchDocument( patchedShadow );
-        // then save backup shadow
-        this._saveShadowBackup( patchedShadow );
-
     };
 
     this._saveData = function( data, type ) {
