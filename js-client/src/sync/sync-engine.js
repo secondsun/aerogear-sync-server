@@ -171,6 +171,7 @@ Sync.Engine = function () {
                     shadow.serverVersion++;
                 }
                 this._saveShadow( shadow );
+                this._removeEdit( patchMsg.id, edit );
             }
         }
 
@@ -279,10 +280,15 @@ Sync.Engine = function () {
     };
 
     this._removeEdit = function( documentId,  edit ) {
-        var edits = this._readData( documentId, 'edits' ), i;
-        for ( i = 0; i < edits.length; i++ ) {
-            if ( edits[i].serverVersion === edit.serverVersion && edits[i].clientVersion === edit.clientVersion) {
-                edits.splice(i, 1);
+        var pendingEdits = this._readData( documentId, 'edits' ), i, j, pendingEdit;
+        for ( i = 0; i < pendingEdits.length; i++ ) {
+            pendingEdit = pendingEdits[i];
+            for ( j = 0; j < pendingEdit.edits.length; j++) {
+                if ( pendingEdit.edits[j].serverVersion === edit.serverVersion && pendingEdit.edits[j].clientVersion <= edit.clientVersion) {
+                    console.log('Removing edit', edit);
+                    pendingEdits.splice(i, 1);
+                    break;
+                }
             }
         }
     };
