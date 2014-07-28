@@ -125,6 +125,7 @@ var app = {
             app.syncClient.connect();
             $("#connection" ).html('Disconnect');
         }
+        e.target.blur();
     },
     init: function () {
 
