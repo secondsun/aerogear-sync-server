@@ -25,6 +25,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.AttributeKey;
 import org.jboss.aerogear.diffsync.server.MessageType;
 import org.jboss.aerogear.diffsync.server.ServerSyncEngine;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
     private static final ConcurrentHashMap<String, Set<Client>> clients =
             new ConcurrentHashMap<String, Set<Client>>();
     private final ServerSyncEngine<String> syncEngine;
+    private static final AttributeKey<Boolean> DOC_ADD = AttributeKey.valueOf(DiffSyncHandler.class, "DOC_ADD");
 
     public DiffSyncHandler(final ServerSyncEngine<String> syncEngine) {
         this.syncEngine = syncEngine;
@@ -63,10 +65,12 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 final String clientId = json.get("clientId").asText();
                 addClientListener(doc.id(), clientId, ctx);
                 final Edits edits = addDocument(doc, clientId);
+                ctx.attr(DOC_ADD).set(true);
                 ctx.channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
                 break;
             case PATCH:
                 final Edits clientEdits = JsonMapper.fromJson(json.toString(), DefaultEdits.class);
+                checkForReconnect(clientEdits.documentId(), clientEdits.clientId(), ctx);
                 logger.debug("Client Edits=" + clientEdits);
                 patch(clientEdits);
                 notifyClientListeners(clientEdits);
@@ -99,6 +103,16 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private Edits diffs(final String documentId, final String clientId) {
         return syncEngine.diffs(documentId, clientId);
+    }
+
+    private static void checkForReconnect(final String documentId, final String clientId, final ChannelHandlerContext ctx) {
+        if (ctx.attr(DOC_ADD).get() == Boolean.TRUE) {
+            return;
+        }
+
+        logger.info("Reconnected client [" + clientId + "]. Adding as listener.");
+        // the context was used to reconnect so we need to add client as a listener
+        addClientListener(documentId, clientId, ctx);
     }
 
     private static void addClientListener(final String documentId, final String clientId, final ChannelHandlerContext ctx) {

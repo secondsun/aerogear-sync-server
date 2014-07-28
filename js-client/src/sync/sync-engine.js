@@ -40,7 +40,8 @@ Sync.Engine = function () {
         var diffDoc,
             shadow = this._readData( doc.id, 'shadows' )[ 0 ],
             docContent,
-            shadowContent;
+            shadowContent,
+            pendingEdits;
 
         if ( typeof doc.content === 'string' ) {
             docContent = doc.content;
@@ -68,8 +69,10 @@ Sync.Engine = function () {
         this._saveShadow( shadow );
 
         // add any pending edits from the store
-        patchMsg.edits = patchMsg.edits.concat( this._getEdits( doc.id ) );
-        this._saveEdits( patchMsg );
+        pendingEdits = this._getEdits( doc.id );
+        if ( pendingEdits && pendingEdits.length > 0 ) {
+            patchMsg.edits = patchMsg.edits.concat( pendingEdits );
+        }
 
         return patchMsg;
     };
@@ -285,8 +288,7 @@ Sync.Engine = function () {
             pendingEdit = pendingEdits[i];
             for ( j = 0; j < pendingEdit.edits.length; j++) {
                 if ( pendingEdit.edits[j].serverVersion === edit.serverVersion && pendingEdit.edits[j].clientVersion <= edit.clientVersion) {
-                    console.log('Removing edit', edit);
-                    pendingEdits.splice(i, 1);
+                    pendingEdit.edits.splice(i, 1);
                     break;
                 }
             }
