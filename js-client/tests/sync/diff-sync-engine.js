@@ -52,7 +52,7 @@
 
         var shadowDoc = engine.getShadow( doc.id );
 
-        shadowDoc.doc.content.name = 'Mr.Poon';
+        shadowDoc.content.name = 'Mr.Poon';
 
         var patch = engine.patchDocument( shadowDoc );
         equal( patch[1][0], true, 'patch should have been successful.' );
@@ -82,7 +82,7 @@
                 serverVersion: shadow.serverVersion,
                 // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
                 checksum: '',
-                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.content ), JSON.stringify( doc.content ) ) )
             }]
         };
         //var patchMsg = engine.diff( doc );
@@ -90,7 +90,7 @@
 
         updatedShadow = engine.patchShadow( patchMsg );
         console.log(updatedShadow);
-        equal( updatedShadow.doc.content, 'John Coctolstol', 'name should have been updated to John Coctolstol' );
+        equal( updatedShadow.content, 'John Coctolstol', 'name should have been updated to John Coctolstol' );
         equal( shadow.serverVersion, 1, 'Server version should have been updated.' );
         equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
     });
@@ -115,7 +115,7 @@
                 serverVersion: shadow.serverVersion,
                 // currently not implemented but we probably need this for checking the client and server shadow are identical be for patching.
                 checksum: '',
-                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.content ), JSON.stringify( doc.content ) ) )
             }]
         };
         //var patchMsg = engine.diff( doc );
@@ -123,7 +123,7 @@
 
         updatedShadow = engine.patchShadow( patchMsg );
         console.log(updatedShadow);
-        equal( JSON.stringify(updatedShadow.doc.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
+        equal( JSON.stringify(updatedShadow.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
         equal( shadow.serverVersion, 1, 'Server version should have been updated.' );
         equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
     });
@@ -146,7 +146,7 @@
                 clientVersion: shadow.clientVersion,
                 serverVersion: shadow.serverVersion,
                 checksum: '',
-                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.content ), JSON.stringify( doc.content ) ) )
             }]
         };
 
@@ -154,7 +154,7 @@
         engine.patchShadow( patchMsg );
         updatedShadow = engine.patchShadow( patchMsg );
 
-        equal( JSON.stringify(updatedShadow.doc.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
+        equal( JSON.stringify(updatedShadow.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
         equal( shadow.serverVersion, 1, 'Server version should have been updated.' );
         equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
     });
@@ -177,7 +177,7 @@
                 clientVersion: 0,
                 serverVersion: 0,
                 checksum: '',
-                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.content ), JSON.stringify( doc.content ) ) )
             }]
         };
 
@@ -185,10 +185,9 @@
         shadow.clientVersion = 1;
         engine._saveShadow( shadow );
 
-        // patch twice, second patch should not change the outcome and should simply be discarded.
         updatedShadow = engine.patchShadow( patchMsg );
 
-        equal( JSON.stringify(updatedShadow.doc.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
+        equal( JSON.stringify(updatedShadow.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
         equal( shadow.serverVersion, 0, 'Server version should have been updated.' );
         equal( shadow.clientVersion, 1, 'Client version should not have been updated.' );
     });

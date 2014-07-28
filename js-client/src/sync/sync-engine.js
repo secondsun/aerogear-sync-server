@@ -22,7 +22,7 @@ Sync.Engine = function () {
     this.addDocument = function( doc ) {
         this._saveDocument( JSON.parse( JSON.stringify( doc ) ) );
         this._saveShadow( JSON.parse( JSON.stringify( doc ) ) );
-        this._saveShadowBackup( JSON.parse( JSON.stringify( doc ) ) );
+        this._saveShadowBackup( JSON.parse( JSON.stringify( doc ) ), 0 );
     };
 
     /**
@@ -45,10 +45,10 @@ Sync.Engine = function () {
 
         if ( typeof doc.content === 'string' ) {
             docContent = doc.content;
-            shadowContent = shadow.doc.content;
+            shadowContent = shadow.content;
         } else {
             docContent = JSON.stringify( doc.content );
-            shadowContent = JSON.stringify( shadow.doc.content );
+            shadowContent = JSON.stringify( shadow.content );
         }
 
         patchMsg = {
@@ -65,7 +65,7 @@ Sync.Engine = function () {
         };
 
         shadow.clientVersion++;
-        shadow.doc.content = doc.content;
+        shadow.content = doc.content;
         this._saveShadow( shadow );
 
         // add any pending edits from the store
@@ -104,7 +104,7 @@ Sync.Engine = function () {
         // Then patch the document
         this.patchDocument( patchedShadow );
         // then save backup shadow
-        this._saveShadowBackup( patchedShadow );
+        this._saveShadowBackup( patchedShadow, patchedShadow.clientVersion );
 
     };
 
@@ -193,15 +193,15 @@ Sync.Engine = function () {
     this.applyEditsToShadow = function ( edits, shadow ) {
         var doc, diffs, patches, patchResult;
 
-        doc = typeof shadow.doc.content === 'string' ? shadow.doc.content : JSON.stringify( shadow.doc.content );
+        doc = typeof shadow.content === 'string' ? shadow.content : JSON.stringify( shadow.content );
         diffs = this._asDiffMatchPathDiffs( edits.diffs );
         patches = dmp.patch_make( doc, diffs );
 
         patchResult = dmp.patch_apply( patches, doc );
         try {
-            shadow.doc.content = JSON.parse( patchResult[ 0 ] );
+            shadow.content = JSON.parse( patchResult[ 0 ] );
         } catch( e ) {
-            shadow.doc.content = patchResult[ 0 ];
+            shadow.content = patchResult[ 0 ];
         }
         return shadow;
     };
@@ -213,7 +213,7 @@ Sync.Engine = function () {
         doc = this.getDocument( shadow.id );
 
         // diff the doc and shadow and patch that shizzel
-        diffs = dmp.diff_main( JSON.stringify( doc.content ), JSON.stringify( shadow.doc.content ) );
+        diffs = dmp.diff_main( JSON.stringify( doc.content ), JSON.stringify( shadow.content ) );
 
         patches = dmp.patch_make( JSON.stringify( doc.content ), diffs );
 
@@ -247,13 +247,13 @@ Sync.Engine = function () {
     };
 
     this._saveShadow = function( doc ) {
-        var shadow = { id: doc.id, serverVersion: doc.serverVersion || 0, clientId: doc.clientId, clientVersion: doc.clientVersion || 0, doc: doc.doc ? doc.doc : doc };
+        var shadow = { id: doc.id, serverVersion: doc.serverVersion || 0, clientId: doc.clientId, clientVersion: doc.clientVersion || 0, content: doc.content };
         this._saveData( shadow, 'shadows' );
         return shadow;
     };
 
-    this._saveShadowBackup = function( doc ) {
-        var backup = { id: doc.id, clientVersion: 0, doc: doc };
+    this._saveShadowBackup = function( shadow, clientVersion ) {
+        var backup = { id: shadow.id, clientVersion: clientVersion, content: shadow.content };
         this._saveData( backup, 'backups' );
         return backup;
     };
@@ -301,13 +301,15 @@ Sync.Engine = function () {
     };
 
     this._restoreBackup = function( shadow, edit) {
-        var backup = this.getBackup( shadow.id ), patched;
+        var backup = this.getBackup( shadow.id ), patchedShadow;
         if ( edit.clientVersion === backup.clientVersion) {
-            var restored = { id: backup.id, serverVersion: backup.serverVersion, clientId: shadow.clientId, clientVersion: backup.clientVersion, doc: backup.doc };
-            this.applyEditsToShadow( edit, restored );
-            restored.serverVersion++;
+            var restoredBackup = { id: backup.id, clientVersion: backup.clientVersion, content: backup.content };
+            patchedShadow = this.applyEditsToShadow( edit, restoredBackup );
+            restoredBackup.serverVersion++;
+            //patchedShadow = this.applyEditsToShadow( edit, backup );
+            //patchedShadow.serverVersion++;
             this._removeEdits( shadow.id );
-            return this._saveShadow( restored );
+            return this._saveShadow( patchedShadow );
         } else {
             throw "Edit's clientVersion '" + backup.clientVersion + "' does not match the backups clientVersion '" + backup.clientVersion + "'";
         }
