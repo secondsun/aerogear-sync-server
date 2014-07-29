@@ -91,7 +91,7 @@ Sync.Client = function ( config ) {
             that.sendEdits( edits );
         } else {
             while ( sendQueue.length ) {
-                var task = sendQueue.pop();
+                var task = sendQueue.shift();
                 if ( task.type === 'add' ) {
                     send ( task.type, task.msg );
                 } else {
