@@ -306,14 +306,11 @@ Sync.Engine = function () {
             var restoredBackup = { id: backup.id, clientVersion: backup.clientVersion, content: backup.content };
             patchedShadow = this.applyEditsToShadow( edit, restoredBackup );
             restoredBackup.serverVersion++;
-            //patchedShadow = this.applyEditsToShadow( edit, backup );
-            //patchedShadow.serverVersion++;
             this._removeEdits( shadow.id );
             return this._saveShadow( patchedShadow );
         } else {
-            throw "Edit's clientVersion '" + backup.clientVersion + "' does not match the backups clientVersion '" + backup.clientVersion + "'";
+            throw "Edit's clientVersion '" + edit.clientVersion + "' does not match the backups clientVersion '" + backup.clientVersion + "'";
         }
-        return {};
     };
 
 };

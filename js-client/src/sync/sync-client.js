@@ -69,10 +69,27 @@ Sync.Client = function ( config ) {
 
     this.sendEdits = function( edit ) {
         if ( ws.readyState === WebSocket.OPEN ) {
+            console.log( 'sending edits:', edit );
             ws.send( JSON.stringify( edit ) );
         } else {
             console.log("Client is not connected. Add edit to queue");
-            sendQueue.push( { type: 'patch', msg: edit } );
+            if ( sendQueue.length === 0 ) {
+                sendQueue.push( { type: 'patch', msg: edit } );
+            } else {
+                var updated = false;
+                for (var i = 0 ; i < sendQueue.length; i++ ) {
+                    var task = sendQueue[i];
+                    if (task.type === 'patch' && task.msg.clientId === edit.clientId && task.msg.id === edit.id) {
+                        for (var j = 0 ; j < edit.edits.length; j++) {
+                            task.msg.edits.push( edit.edits[j] );
+                        }
+                        updated = true;
+                    }
+                }
+                if ( !updated ) {
+                    sendQueue.push( { type: 'patch', msg: edit } );
+                }
+            }
         }
     };
 
