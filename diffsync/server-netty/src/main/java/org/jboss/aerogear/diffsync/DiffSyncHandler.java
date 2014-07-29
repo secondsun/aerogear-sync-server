@@ -183,12 +183,6 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         ctx.channel().writeAndFlush(textFrame("{\"result\": \"" + cause.getMessage() + "\"}"));
     }
 
-    private static void respond(final ChannelHandlerContext ctx, final String msg) {
-        final TextWebSocketFrame textWebSocketFrame = textFrame("{\"result\": \"" + msg + "\"}");
-        logger.info("Responding: " + textWebSocketFrame.text());
-        ctx.channel().writeAndFlush(textWebSocketFrame);
-    }
-
     private static void unknownMessageType(final ChannelHandlerContext ctx, final JsonNode json) {
         ctx.channel().writeAndFlush(textFrame("{\"result\": \"Unknown msgType '" + json.get("msgType").asText() + "'\"}"));
     }

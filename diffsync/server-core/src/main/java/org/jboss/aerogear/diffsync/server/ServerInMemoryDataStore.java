@@ -71,10 +71,10 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     public void saveEdits(final Edit edit) {
         final Id id = id(edit.documentId(), edit.clientId());
         final Queue<Edit> newEdits = new ConcurrentLinkedQueue<Edit>();
-        newEdits.add(edit);
         while (true) {
             final Queue<Edit> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
+                newEdits.add(edit);
                 final Queue<Edit> previous = pendingEdits.putIfAbsent(id, newEdits);
                 if (previous != null) {
                     newEdits.addAll(previous);
@@ -86,6 +86,7 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
                 }
             } else {
                 newEdits.addAll(currentEdits);
+                newEdits.add(edit);
                 if (pendingEdits.replace(id, currentEdits, newEdits)) {
                     break;
                 }

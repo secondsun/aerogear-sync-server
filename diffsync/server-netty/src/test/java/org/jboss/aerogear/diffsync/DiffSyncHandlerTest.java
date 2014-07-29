@@ -179,7 +179,7 @@ public class DiffSyncHandlerTest {
         final String updateOne = "I'm a Sith";
         final String updateTwo = "Oh Yeah";
 
-        // Add original document using client1/channal1
+        // Add original document using client1/channel1
         final Edits addPatchClient1 = sendAddDoc(docId, client1Id, original, channel1);
         assertThat(addPatchClient1.documentId(), equalTo(docId));
         assertThat(addPatchClient1.clientId(), equalTo(client1Id));
@@ -208,6 +208,8 @@ public class DiffSyncHandlerTest {
         assertThat(edits.clientId(), equalTo(client1Id));
         assertThat(edits.edits().size(), is(1));
         assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edits.edits().peek().clientVersion(), is(1L));
+        assertThat(edits.edits().peek().serverVersion(), is(0L));
 
         // patch the client engine so that version are updated and edits cleared
         clientSyncEngine.patch(edits);
@@ -220,7 +222,6 @@ public class DiffSyncHandlerTest {
         final Edit editOne = serverUpdates.edits().peek();
         assertThat(editOne.clientVersion(), is(0L));
         assertThat(editOne.serverVersion(), is(0L));
-
         assertThat(editOne.diffs().size(), is(5));
         assertThat(editOne.diffs().get(0).operation(), is(Operation.UNCHANGED));
         assertThat(editOne.diffs().get(0).text(), equalTo("I'm a "));
@@ -242,7 +243,12 @@ public class DiffSyncHandlerTest {
         final Edits serverUpdatesTwo = fromJson(serverUpdateTwo.text(), DefaultEdits.class);
         assertThat(serverUpdatesTwo.documentId(), equalTo(docId));
         assertThat(serverUpdatesTwo.clientId(), equalTo(client2Id));
-        final Edit editTwo = serverUpdatesTwo.edits().peek();
+        assertThat(serverUpdatesTwo.edits().size(), is(2));
+        // just remove the first edit. We have already verified it but since we have not
+        // sent an acknowledgement to the server, the server thinks that we never got it.
+        serverUpdatesTwo.edits().remove();
+
+        final Edit editTwo = serverUpdatesTwo.edits().remove();
         assertThat(editTwo.clientVersion(), is(0L));
         assertThat(editTwo.serverVersion(), is(1L));
 
