@@ -5,17 +5,21 @@ Sync.Client = function ( config ) {
         return new Sync.Client( config );
     }
 
-    var sendQueue = [], ws;
-    var that = this;
-    var syncEngine = config.syncEngine || new Sync.Engine();
-
     config = config || {};
+
+    var ws,
+        sendQueue = [],
+        that = this,
+        syncEngine = config.syncEngine || new Sync.Engine();
 
     if ( config.serverUrl === undefined ) {
         throw new Error("'config.serverUrl' must be specified" );
     }
 
-    this.connect = function() {
+    /**
+        Using an IIFE to connect immediately
+    */
+    this.connect = (function() {
         ws = new WebSocket( config.serverUrl );
         ws.onopen = function ( e ) {
             if ( config.onopen ) {
@@ -51,8 +55,7 @@ Sync.Client = function ( config ) {
                 console.log ( 'Close [code=' + e.code + ', reason=' + e.reason + ', wasClean=' + e.wasClean + ']' );
             }
         };
-    }
-    this.connect();
+    })();
 
     this.disconnect = function() {
         console.log('Closing Connection');
@@ -105,10 +108,6 @@ Sync.Client = function ( config ) {
                 }
             }
         }
-    };
-
-    this.disconnect = function () {
-        ws.close();
     };
 
     this.removeDoc = function( doc ) {
