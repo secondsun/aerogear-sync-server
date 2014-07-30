@@ -1,14 +1,10 @@
 package org.jboss.aerogear.diffsync;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.jboss.aerogear.diffsync.DefaultEdit.Builder;
 import org.jboss.aerogear.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.diffsync.client.DefaultClientSynchronizer;
 import org.junit.Test;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
