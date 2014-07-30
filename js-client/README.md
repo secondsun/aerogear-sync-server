@@ -20,7 +20,7 @@ After running the ``npm``` and ```bower``` commands above, run the following fro
 
     node server.js
 
-This will start a server listening to port ```8080```. Next open a browser with the url http://localhost:8080/app/index.html
+This will start a server listening to port ```8080```. Next open a browser with the url [http://localhost:8080](http://localhost:8080)
 
 ## Testing
 
