@@ -35,11 +35,11 @@ import org.jboss.aerogear.diffsync.server.ServerSynchronizer;
 /**
  * A Netty based WebSocket server that is able to handle differential synchronization edits.
  */
-public class DiffSyncServer {
+public final class DiffSyncServer {
 
-    private final static String DEFAULT_CONFIG = "/sync.config";
+    private static final String DEFAULT_CONFIG = "/sync.config";
 
-    public static void main(final String args[]) throws Exception {
+    public static void main(final String... args) throws Exception {
         final String configFile = args.length == 0 ? DEFAULT_CONFIG : args[0];
         final StandaloneConfig config = ConfigReader.parse(configFile);
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -65,7 +65,7 @@ public class DiffSyncServer {
                     });
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
-            System.out.println("SyncServer bound to " + config.host() + ":" + config.port());
+            System.out.println("SyncServer bound to " + config.host() + ':' + config.port());
 
             ch.closeFuture().sync();
         } finally {

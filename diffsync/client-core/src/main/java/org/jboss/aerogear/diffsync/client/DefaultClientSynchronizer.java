@@ -56,18 +56,17 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String> {
     public ShadowDocument<String> patchShadow(final Edit edit, final ShadowDocument<String> shadowDocument) {
         final LinkedList<Patch> patches = patchesFrom(edit);
         final ClientDocument<String> doc = shadowDocument.document();
-        final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
-        final boolean[] patchResults = (boolean[]) results[1];
-        final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), doc.clientId(), (String) results[0]);
         //TODO: results also contains a boolean array. Not sure what we should do with it.
+        final Object[] results = diffMatchPatch.patchApply(patches, doc.content());
+        final ClientDocument<String> patchedDocument = new DefaultClientDocument<String>(doc.id(), doc.clientId(), (String) results[0]);
         return new DefaultShadowDocument<String>(shadowDocument.serverVersion(), edit.clientVersion(), patchedDocument);
     }
 
     @Override
     public ClientDocument<String> patchDocument(final Edit edit, final ClientDocument<String> document) {
         final LinkedList<Patch> patches = patchesFrom(edit);
-        final Object[] results = diffMatchPatch.patchApply(patches, document.content());
         //TODO: results also contains a boolean array. Not sure what we should do with it.
+        final Object[] results = diffMatchPatch.patchApply(patches, document.content());
         return new DefaultClientDocument<String>(document.id(), document.clientId(), (String) results[0]);
     }
 
@@ -75,7 +74,7 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String> {
         return diffMatchPatch.patchMake(asDiffUtilDiffs(edit.diffs()));
     }
 
-    private static LinkedList<DiffMatchPatch.Diff> asDiffUtilDiffs(final LinkedList<org.jboss.aerogear.diffsync.Diff> diffs) {
+    private static LinkedList<DiffMatchPatch.Diff> asDiffUtilDiffs(final LinkedList<Diff> diffs) {
         final LinkedList<DiffMatchPatch.Diff> dsf = new LinkedList<DiffMatchPatch.Diff>();
         for (Diff d : diffs) {
             dsf.add(new DiffMatchPatch.Diff(diffutilOp(d.operation()), d.text()));

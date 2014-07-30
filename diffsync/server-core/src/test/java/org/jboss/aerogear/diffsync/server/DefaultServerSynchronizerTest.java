@@ -19,7 +19,6 @@ package org.jboss.aerogear.diffsync.server;
 import org.jboss.aerogear.diffsync.DefaultClientDocument;
 import org.jboss.aerogear.diffsync.DefaultDocument;
 import org.jboss.aerogear.diffsync.DefaultEdit;
-import org.jboss.aerogear.diffsync.DefaultEdits;
 import org.jboss.aerogear.diffsync.DefaultShadowDocument;
 import org.jboss.aerogear.diffsync.Diff.Operation;
 import org.jboss.aerogear.diffsync.Document;

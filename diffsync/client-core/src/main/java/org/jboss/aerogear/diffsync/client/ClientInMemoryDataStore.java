@@ -170,10 +170,7 @@ public class ClientInMemoryDataStore implements ClientDataStore<String> {
             if (clientId != null ? !clientId.equals(id.clientId) : id.clientId != null) {
                 return false;
             }
-            if (documentId != null ? !documentId.equals(id.documentId) : id.documentId != null) {
-                return false;
-            }
-            return true;
+            return documentId != null ? documentId.equals(id.documentId) : id.documentId == null;
         }
 
         @Override

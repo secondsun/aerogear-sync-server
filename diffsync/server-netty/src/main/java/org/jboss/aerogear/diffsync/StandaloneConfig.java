@@ -28,7 +28,7 @@ public class StandaloneConfig {
     }
 
     public static class Builder {
-        private String host;
+        private final String host;
         private int port;
 
         public Builder(final String host) {
