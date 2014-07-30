@@ -116,7 +116,7 @@
         var client = Sync.Client( {serverUrl: 'ws://localhost:7777/sync', onmessage: onmessage } );
         var documentId = uuid();
         var doc = { id: documentId, clientId: 'js-client-test', content: 'Do or do not, there is no try.' };
-        client.addDoc( doc );
+        client.addDocument( doc );
         ok( client , 'Should be no problem not using new when creating' );
     });
 
