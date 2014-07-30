@@ -37,7 +37,6 @@ var app = {
         app.content.empty();
         app.list.empty();
         app.content.append( _.template( detailTemplate, doc ) );
-        //app.list.append( _.template( listTemplate, doc.content ) );
     },
     edit: function () {
         var $input = $( this ).closest( "li" ).addClass( "editing" ).find( ".edit" );
@@ -72,26 +71,8 @@ var app = {
             // }
         }
 
-        var edits = app.syncEngine.diff(app.currentData);
+        var edits = app.syncClient.diff(app.currentData);
         app.syncClient.sendEdits(edits);
-        //app.syncClient.addDoc(app.currentData);
-
-        // app.ag.syncer.save( app.currentData, {
-        //     success: function( document ) {
-        //         console.log( "success", document );
-        //         app.updateUI( document );
-        //         $('.results').hide();
-        //     },
-        //     conflict: function( error, newModel, change ) {
-        //         console.log( "Conflict Saving", error, newModel, change );
-        //         app.newModel = newModel;
-        //         app.change = change;
-        //         app.addError.apply( this, arguments );
-        //     },
-        //     error: function( error ) {
-        //         console.log( "Error Saving", error );
-        //     }
-        // });
         app.updateUI( app.currentData );
     },
     onmessage: function ( e ) {
@@ -100,16 +81,15 @@ var app = {
         console.log('data:', data);
 
         if( data ) {
-            app.syncEngine.patch(data);
+            app.syncClient.patch( data );
         }
 
-        doc = app.syncEngine.getDocument("12345");
+        doc = app.syncClient.getDocument("12345");
         app.updateUI(doc);
     },
     onopen: function ( e ) {
         if ( app.initializing === true ) {
-            app.syncEngine.addDocument(seedData);
-            app.syncClient.addDoc(seedData);
+            app.syncClient.addDocument(seedData);
             app.initializing = false;
         } else {
             app.syncClient.update( "12345" );
@@ -131,14 +111,11 @@ var app = {
 
         console.log( 'initing' );
 
-        this.syncEngine = new Sync.Engine();
-
         this.initializing = true;
         this.syncClient = new Sync.Client({
             serverUrl: 'ws://localhost:7777/sync',
             onmessage: this.onmessage,
             onopen: this.onopen,
-            syncEngine: this.syncEngine
         });
 
         this.ENTER_KEY = 13;

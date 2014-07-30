@@ -57,9 +57,23 @@ Sync.Client = function ( config ) {
     this.disconnect = function() {
         console.log('Closing Connection');
         ws.close();
-    }
+    };
 
-    this.addDoc = function( doc ) {
+    this.patch = function( data ) {
+        syncEngine.patch( data );
+    };
+
+    this.getDocument = function( id ) {
+        return syncEngine.getDocument( id );
+    };
+
+    this.diff = function( data ) {
+        return syncEngine.diff( data );
+    };
+
+    this.addDocument = function( doc ) {
+        syncEngine.addDocument( doc );
+
         if ( ws.readyState === 0 ) {
             sendQueue.push( { type: 'add', msg: doc } );
         } else if ( ws.readyState === 1 ) {
