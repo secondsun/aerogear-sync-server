@@ -178,7 +178,7 @@ Sync.Engine = function () {
             }
         }
 
-        console.log('patched:', patched);
+        console.log('patched:', shadow);
         return shadow;
     };
 
