@@ -54,16 +54,18 @@ public class ClientSyncEngine<T> {
     }
 
     /**
-     * Performs the client side of a differential sync.
-     * <p>
-     * When a client makes an update to it's document, it is first diffed against the shadow
-     * document. The result of this is an {@link Edits} instance representing the changes.
+     * Returns an {@link Edits} which contains a diff against the engines stored
+     * shadow document and the passed-in document.
+     *
      * There might be pending edits that represent edits that have not made it to the server
      * for some reason (for example packet drop). If a pending edit exits the contents (the diffs)
      * of the pending edit will be included in the returned Edits from this method.
      *
+     * The returned {@link Edits} instance is indended to be sent to the server engine
+     * for processing.
+     *
      * @param document the updated document.
-     * @return {@link Edit} containing the edits for the changes in the document.
+     * @return {@link Edits} containing the edits for the changes in the document.
      */
     public Edits diff(final ClientDocument<T> document) {
         final ShadowDocument<T> shadow = getShadowDocument(document.id(), document.clientId());
@@ -74,12 +76,12 @@ public class ClientSyncEngine<T> {
         return getPendingEdits(document.id(), document.clientId());
     }
 
-    private ShadowDocument<T> diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {
-        return clientSynchronizer.patchShadow(edit, shadow);
-    }
-
     /**
-     * Patches the client side shadow with updates from the server.
+     * Patches the client side shadow with updates ({@link Edits}) from the server.
+     *
+     * When updates happen on the server, the server will create an {@link Edits} instance
+     * by calling the server engines diff method. This {@link Edits} instance will then be
+     * sent to the client for processing which is done by this method.
      *
      * @param edits the updates from the server.
      */
@@ -88,6 +90,11 @@ public class ClientSyncEngine<T> {
         patchDocument(patchedShadow);
         saveBackupShadow(patchedShadow);
     }
+
+    private ShadowDocument<T> diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {
+        return clientSynchronizer.patchShadow(edit, shadow);
+    }
+
 
     private ShadowDocument<T> patchShadow(final Edits edits) {
         ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
