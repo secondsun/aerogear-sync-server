@@ -16,10 +16,7 @@ Sync.Client = function ( config ) {
         throw new Error("'config.serverUrl' must be specified" );
     }
 
-    /**
-        Using an IIFE to connect immediately
-    */
-    this.connect = (function() {
+    this.connect = function() {
         ws = new WebSocket( config.serverUrl );
         ws.onopen = function ( e ) {
             if ( config.onopen ) {
@@ -55,7 +52,9 @@ Sync.Client = function ( config ) {
                 console.log ( 'Close [code=' + e.code + ', reason=' + e.reason + ', wasClean=' + e.wasClean + ']' );
             }
         };
-    })();
+    };
+    // connect needs to be callable for implementing reconnect.
+    this.connect();
 
     this.disconnect = function() {
         console.log('Closing Connection');
