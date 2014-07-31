@@ -34,7 +34,7 @@ Contains tests that use both the [server-core](./server-core) and [client-core](
 
 #### Starting the server
     cd server-netty
-    mvn exec:exec -Pserver
+    mvn exec:exec
 
 
 #### Building/Testing

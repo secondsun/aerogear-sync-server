@@ -55,6 +55,28 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <executable>${java.home}/bin/java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>org.jboss.aerogear.diffsync.DiffSyncServer</argument>
+                    </arguments>
+                    <classpathScope>compile</classpathScope>
+                    <systemProperties>
+                        <property>
+                            <key>io.netty.leakDetectionLevel</key>
+                            <value>disabled</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
@@ -70,33 +92,6 @@
                             <excludes>
                                 <exclude>**/*$*</exclude>
                             </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>server</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.2.1</version>
-                        <configuration>
-                            <executable>${java.home}/bin/java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>org.jboss.aerogear.diffsync.DiffSyncServer</argument>
-                            </arguments>
-                            <classpathScope>compile</classpathScope>
-                            <systemProperties>
-                                <property>
-                                    <key>io.netty.leakDetectionLevel</key>
-                                    <value>disabled</value>
-                                </property>
-                            </systemProperties>
                         </configuration>
                     </plugin>
                 </plugins>
