@@ -10,7 +10,7 @@ from the server they are processed by the engines [patch](./src/main/java/org/jb
 method.
 
 When the server engine is created it is passed an implementation of [ServerSynchronizer](../api/src/main/java/org/jboss/aerogear/diffsync/server/ServerSynchronizer.java)
- , and [ServerDataStore](../api/src/main/java/org/jboss/aerogear/diffsync/server/serverDataStore.java) which allows for
+ , and [ServerDataStore](../api/src/main/java/org/jboss/aerogear/diffsync/server/ServerDataStore.java) which allows for
  changing the underlying synchronization algorithm and the storage implementation respectively.
 
 #### DefaultServerSynchronizer
