@@ -66,12 +66,12 @@ Sync.Engine = function () {
 
         shadow.clientVersion++;
         shadow.content = doc.content;
-        this._saveShadow( shadow );
+        this._saveShadow( JSON.parse( JSON.stringify( shadow ) ) );
 
         // add any pending edits from the store
         pendingEdits = this._getEdits( doc.id );
         if ( pendingEdits && pendingEdits.length > 0 ) {
-            patchMsg.edits = patchMsg.edits.concat( pendingEdits );
+            patchMsg.edits = pendingEdits.concat( patchMsg.edits );
         }
 
         return patchMsg;

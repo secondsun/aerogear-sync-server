@@ -11,14 +11,11 @@
 <body>
     <section id="main">
         <div class="topcoat-navigation-bar">
-            <div class="topcoat-navigation-bar__item quarter reset">
-                <button class="topcoat-button--quiet reset">Reset</button>
+            <div class="topcoat-navigation-bar__item quarter disconnect">
+                <button class="topcoat-button--quiet" id="connection">Disconnect</button>
             </div>
             <div class="topcoat-navigation-bar__item center half">
                 <h1 class="topcoat-navigation-bar__title">Luke Skywalker</h1>
-            </div>
-            <div class="topcoat-navigation-bar__item quarter disconnect">
-                <button class="topcoat-button--quiet" id="connection">Disconnect</button>
             </div>
         </div>
         <div class="content">
@@ -37,16 +34,16 @@
     <script type="text/template" id="detail">
         <div class="full left">
          <ul class="topcoat-list__container">
-            <li class='topcoat-list__item'><%=content%></li>
-
-            <li class='topcoat-list__item'>
-                revision:
-            </li>
+             <li class='topcoat-list__item' id="name">
+                <div class="view">
+                    <label>Name: <%=content.name%></label>
+                </div>
+             </li>
             <li class='topcoat-list__item'>
                 <div class="view">
-                    <label>Profession:<%=content%></label>
+                    <label>Profession: <%=content.profession%></label>
                 </div>
-                <input class="edit" value="<%=content%>" id="profession">
+                    <input class="edit" value="<%=content.profession%>" id="profession">
             </li>
             </ul>
         </div>

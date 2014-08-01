@@ -1,30 +1,28 @@
 var seedData = {
     id: '12345',
     clientId: uuid(),
-    content: "I'm a Jedi"
-    // content: {
-    //     id: "123456-654321",
-    //     name: "Luke Skywalker",
-    //     profession: "Jedi",
-    //     hobbies: [
-    //         {
-    //             id: uuid(),
-    //             description: "Fighting the Dark Side"
-    //         },
-    //         {
-    //             id: uuid(),
-    //             description: "going into Tosche Station to pick up some power converters"
-    //         },
-    //         {
-    //             id: uuid(),
-    //             description: "Kissing his sister"
-    //         },
-    //         {
-    //             id: uuid(),
-    //             description: "Bulls eyeing Womprats on his T-16"
-    //         }
-    //     ]
-    // }
+    content: {
+        name: "Luke Skywalker",
+        profession: "Jedi",
+        hobbies: [
+            {
+                id: uuid(),
+                description: "Fighting the Dark Side"
+            },
+            {
+                id: uuid(),
+                description: "going into Tosche Station to pick up some power converters"
+            },
+            {
+                id: uuid(),
+                description: "Kissing his sister"
+            },
+            {
+                id: uuid(),
+                description: "Bulls eyeing Womprats on his T-16"
+            }
+        ]
+    }
 };
 
 var app = {
@@ -37,6 +35,7 @@ var app = {
         app.content.empty();
         app.list.empty();
         app.content.append( _.template( detailTemplate, doc ) );
+        app.list.append( _.template( listTemplate, doc.content ) );
     },
     edit: function () {
         var $input = $( this ).closest( "li" ).addClass( "editing" ).find( ".edit" );
@@ -62,14 +61,9 @@ var app = {
                 return item;
             });
         } else {
-            app.currentData.content = val;
-            // for( var key in app.currentData.content ) {
-            //     if( key === id ) {
-            //         app.currentData.content[ key ] = val;
-            //         break;
-            //     }
-            // }
+            app.currentData.content.profession = val;
         }
+        console.log('app.currentData:', app.currentData);
 
         var edits = app.syncClient.diff(app.currentData);
         app.syncClient.sendEdits(edits);
