@@ -119,7 +119,7 @@ public class DiffMatchPatch {
          * Specifies the number of seconds to map a diff before giving up (0 for infinity).
          *
          * @param timeout the time out in seconds.
-         * @return @{code Builder} to support method chaining.
+         * @return {@code Builder} to support method chaining.
          */
         public Builder patchTimeout(final float timeout) {
             patchTimeout = timeout;
@@ -130,7 +130,7 @@ public class DiffMatchPatch {
          * Specifies the cost of an empty edit operation in terms of edit characters.
          *
          * @param editCost the cost in terms of edit characters.
-         * @return @{code Builder} to support method chaining.
+         * @return {@code Builder} to support method chaining.
          */
         public Builder diffEditCost(final int editCost) {
             diffEditCost = (short) editCost;
@@ -141,7 +141,7 @@ public class DiffMatchPatch {
          * Specifies the matchThreshold at what point is no match declared (0.0 = perfection, 1.0 = very loose).
          *
          * @param threshold the matchThreshold to be used.
-         * @return @{code Builder} to support method chaining.
+         * @return {@code Builder} to support method chaining.
          */
         public Builder matchThreshold(final float threshold) {
             matchThreshold = threshold;
@@ -154,7 +154,7 @@ public class DiffMatchPatch {
          * (0.0 is a perfect match).
          *
          * @param distance how war aways to search for a match.
-         * @return @{code Builder} to support method chaining.
+         * @return {@code Builder} to support method chaining.
          */
         public Builder matchDistance(final int distance) {
             matchDistance = distance;
@@ -165,7 +165,7 @@ public class DiffMatchPatch {
          * Specifies the patchThreshold at what point is no match declared (0.0 = perfection, 1.0 = very loose).
          *
          * @param threshold the patch matchThreshold to be used.
-         * @return @{code Builder} to support method chaining.
+         * @return {@code Builder} to support method chaining.
          */
         public Builder patchDeleteThreshold(final float threshold) {
             patchDeleteThreshold = threshold;
@@ -176,7 +176,7 @@ public class DiffMatchPatch {
          * Specifies the patch patchMargin/chunk size for context length.
          *
          * @param margin the the patch patchMargin
-         * @return @{code Builder} to support method chaining.
+         * @return {@code Builder} to support method chaining.
          */
         public Builder patchMargin(final int margin) {
             patchMargin = (short) margin;
@@ -187,7 +187,7 @@ public class DiffMatchPatch {
          * Spedifies number of bits in an int.
          *
          * @param maxbits the number of bits in an int.
-         * @return @{code Builder} to support method chaining.
+         * @return {@code Builder} to support method chaining.
          */
         public Builder matchMaxbits(final short maxbits) {
             matchMaxbits = maxbits;
@@ -1007,7 +1007,7 @@ public class DiffMatchPatch {
     /**
      * Look for single edits surrounded on both sides by equalities
      * which can be shifted sideways to align the edit to a word boundary.
-     * e.g: The c<ins>at c</ins>ame. -> The <ins>cat </ins>came.
+     * e.g: {@code The c<ins>at c</ins>ame. -> The <ins>cat </ins>came}.
      *
      * @param diffs LinkedList of Diff objects.
      */
@@ -1405,7 +1405,7 @@ public class DiffMatchPatch {
     /**
      * loc is a location in text1, compute and return the equivalent location in
      * text2.
-     * e.g. "The cat" vs "The big cat", 1->1, 5->8
+     * e.g. {@code "The cat" vs "The big cat", 1->1, 5->8}
      *
      * @param diffs LinkedList of Diff objects.
      * @param loc   Location within text1.
@@ -1536,7 +1536,7 @@ public class DiffMatchPatch {
     /**
      * Crush the diff into an encoded string which describes the operations
      * required to transform text1 into text2.
-     * E.g. =3\t-2\t+ing  -> Keep 3 chars, delete 2 chars, insert 'ing'.
+     * E.g. {@code =3\t-2\t+ing  -> Keep 3 chars, delete 2 chars, insert 'ing'.}
      * Operations are tab-separated.  Inserted text is escaped using %xx notation.
      *
      * @param diffs Array of Diff objects.
@@ -1923,7 +1923,7 @@ public class DiffMatchPatch {
      * @param text2 Ignored.
      * @param diffs Array of Diff objects for text1 to text2.
      * @return LinkedList of Patch objects.
-     * @deprecated Prefer patchMake(String text1, LinkedList<Diff> diffs).
+     * @deprecated Prefer {@link #patchMake(java.lang.String, java.util.LinkedList) }.
      */
     public LinkedList<Patch> patchMake(String text1, String text2, LinkedList<Diff> diffs) {
         return patchMake(text1, diffs);
