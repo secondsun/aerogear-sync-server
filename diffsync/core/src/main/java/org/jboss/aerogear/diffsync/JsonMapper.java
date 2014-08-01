@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jboss.aerogear.diffsync.DefaultEdit.Builder;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -76,12 +75,18 @@ public final class JsonMapper {
      * @return {@code String} the json representation for the object.
      */
     public static String toJson(final Object obj) {
-        final StringWriter stringWriter = new StringWriter();
         try {
-            om.writeValue(stringWriter, obj);
-            return stringWriter.toString();
+            return om.writeValueAsString(obj);
         } catch (final Exception e) {
             throw new RuntimeException("error trying to parse json [" + obj + ']', e);
+        }
+    }
+
+    public static String toString(final JsonNode jsonNode) {
+        try {
+            return om.writeValueAsString(jsonNode);
+        } catch (final Exception e) {
+            throw new RuntimeException("error trying to serialize jsonNode [" + jsonNode + ']', e);
         }
     }
 

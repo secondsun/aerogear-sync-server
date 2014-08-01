@@ -73,6 +73,20 @@ public class DiffSyncHandlerTest {
     }
 
     @Test
+    public void addDocumentArrayContent() throws Exception {
+        final EmbeddedChannel channel = embeddedChannel();
+        final String docId = UUID.randomUUID().toString();
+        final String clientId = "client1";
+        final String content = "{\"content\": [\"one\", \"two\"]}";
+        final Edits edits = sendAddDoc(docId, clientId, content, channel);
+        assertThat(edits.documentId(), equalTo(docId));
+        assertThat(edits.clientId(), equalTo(clientId));
+        assertThat(edits.edits().size(), is(1));
+        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edits.edits().peek().diffs().get(0).text(), equalTo(content));
+    }
+
+    @Test
     public void addDocumentAlreadyExisting() {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();

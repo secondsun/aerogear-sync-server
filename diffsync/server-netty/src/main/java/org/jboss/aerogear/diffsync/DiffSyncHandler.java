@@ -59,6 +59,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
         if (frame instanceof TextWebSocketFrame) {
             final JsonNode json = JsonMapper.asJsonNode(((TextWebSocketFrame) frame).text());
+            logger.info("Doc:" + json);
             switch (MessageType.from(json.get("msgType").asText())) {
             case ADD:
                 final Document<String> doc = documentFromJson(json);
@@ -97,7 +98,14 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 
     private static Document<String> documentFromJson(final JsonNode json) {
         final JsonNode contentNode = json.get("content");
-        final String content = contentNode != null && !contentNode.isNull() ? contentNode.asText() : null;
+        String content = null;
+        if (contentNode != null && !contentNode.isNull()) {
+            if (contentNode.isArray() || contentNode.isObject()) {
+                content = JsonMapper.toString(contentNode);
+            } else {
+                content = contentNode.asText();
+            }
+        }
         return new DefaultDocument<String>(json.get("id").asText(), content);
     }
 
