@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.npn;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -26,6 +26,8 @@ import org.eclipse.jetty.npn.NextProtoNego;
 import org.jboss.aerogear.sync.datastore.SyncDataStore;
 
 import javax.net.ssl.SSLEngine;
+import org.jboss.aerogear.sync.DefaultRestProcessor;
+import org.jboss.aerogear.sync.SslServerContext;
 
 public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
 

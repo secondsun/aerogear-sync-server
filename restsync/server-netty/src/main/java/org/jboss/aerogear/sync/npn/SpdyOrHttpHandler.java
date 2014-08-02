@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.npn;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,6 +33,8 @@ import org.eclipse.jetty.npn.NextProtoNego;
 
 import javax.net.ssl.SSLEngine;
 import java.util.logging.Logger;
+import org.jboss.aerogear.sync.RestChannelHandler;
+import org.jboss.aerogear.sync.RestProcessor;
 
 /**
  * Negotiates with the browser if SPDY or HTTP is going to be used. Once decided, the Netty pipeline is setup with
