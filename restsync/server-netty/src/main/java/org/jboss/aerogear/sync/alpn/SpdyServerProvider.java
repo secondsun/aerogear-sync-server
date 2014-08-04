@@ -18,7 +18,6 @@ package org.jboss.aerogear.sync.alpn;
 import io.netty.handler.codec.spdy.SpdyOrHttpChooser;
 import org.eclipse.jetty.alpn.ALPN.ServerProvider;
 
-import java.util.Arrays;
 import java.util.List;
 import javax.net.ssl.SSLEngine;
 import org.eclipse.jetty.alpn.ALPN;
