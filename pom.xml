@@ -160,6 +160,7 @@
                     <author>false</author>
                     <keywords>true</keywords>
                     <quiet>true</quiet>
+                    <bootclasspath>${java.home}/lib/rt.jar</bootclasspath>                    
                 </configuration>
             </plugin>
             <plugin>
