@@ -13,35 +13,35 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.alpn;
 
 import io.netty.handler.codec.spdy.SpdyOrHttpChooser;
-import org.eclipse.jetty.npn.NextProtoNego.ServerProvider;
+import org.eclipse.jetty.alpn.ALPN.ServerProvider;
 
-import java.util.Arrays;
 import java.util.List;
+import javax.net.ssl.SSLEngine;
+import org.eclipse.jetty.alpn.ALPN;
 
 /**
  * This class was lifted from Netty's spdy example.
  */
 public class SpdyServerProvider implements ServerProvider {
 
+    private static final String SPDY_3 = "spdy/3";
+    private static final String SPDY_3_1 = "spdy/3.1";
+    private static final String HTTP_1_1 = "http/1.1";
+
     private String selectedProtocol;
+    private final SSLEngine engine;
+
+    SpdyServerProvider(SSLEngine engine) {
+        this.engine = engine;
+    }
 
     @Override
     public void unsupported() {
-        // if unsupported, default to http/1.1
-        selectedProtocol = "http/1.1";
-    }
-
-    @Override
-    public List<String> protocols() {
-        return Arrays.asList("spdy/3.1", "spdy/3", "http/1.1");
-    }
-
-    @Override
-    public void protocolSelected(String protocol) {
-        selectedProtocol = protocol;
+        ALPN.remove(engine);
+        selectedProtocol = HTTP_1_1;
     }
 
     public SpdyOrHttpChooser.SelectedProtocol getSelectedProtocol() {
@@ -49,5 +49,11 @@ public class SpdyServerProvider implements ServerProvider {
             return SpdyOrHttpChooser.SelectedProtocol.UNKNOWN;
         }
         return SpdyOrHttpChooser.SelectedProtocol.protocol(selectedProtocol);
+    }
+
+    @Override
+    public String select(List<String> protocols) {
+        selectedProtocol = protocols.contains(SPDY_3_1) ? SPDY_3_1 : protocols.contains(SPDY_3) ? SPDY_3 : HTTP_1_1;
+        return selectedProtocol;
     }
 }

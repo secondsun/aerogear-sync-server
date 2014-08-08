@@ -30,6 +30,7 @@ public final class RestServer {
     public static void main(final String args[]) throws InterruptedException {
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
+        final String javaVersion = System.getProperty("java.version");
         try {
             final ServerBootstrap b = new ServerBootstrap();
             b.option(ChannelOption.SO_BACKLOG, 1024);
@@ -40,7 +41,12 @@ public final class RestServer {
                     .allowedRequestMethods(HttpMethod.GET, HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE)
                     .allowedRequestHeaders("Content-Type")
                     .build();
-            b.childHandler(new HttpServerInitializer(corsConfig, new CouchDBSyncDataStore("http://127.0.0.1:5984", "sync-test")));
+            if (javaVersion.startsWith("1.8")) {
+                b.childHandler(new org.jboss.aerogear.sync.alpn.HttpServerInitializer(corsConfig, new CouchDBSyncDataStore("http://127.0.0.1:5984", "sync-test")));
+            } else {
+                b.childHandler(new org.jboss.aerogear.sync.npn.HttpServerInitializer(corsConfig, new CouchDBSyncDataStore("http://127.0.0.1:5984", "sync-test")));
+            }
+            
 
             System.out.println("Binding to localhost [8080]");
             b.bind("localhost", 8080).sync().channel().closeFuture().sync();

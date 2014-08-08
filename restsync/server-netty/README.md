@@ -1,6 +1,6 @@
 #### Starting the server
 
-    mvn exec:exec -Pserver
+    mvn exec:exec 
 
 The RestServer used SPDY which requires SSL/TLS, and we are currently using a self-signed certificate which has to
 be accepted/imported into the browser you are using. This can be done by simply pointing you browser to:
