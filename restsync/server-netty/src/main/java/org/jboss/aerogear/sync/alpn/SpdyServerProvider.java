@@ -27,6 +27,10 @@ import org.eclipse.jetty.alpn.ALPN;
  */
 public class SpdyServerProvider implements ServerProvider {
 
+    private static final String SPDY_3 = "spdy/3";
+    private static final String SPDY_3_1 = "spdy/3.1";
+    private static final String HTTP_1_1 = "http/1.1";
+
     private String selectedProtocol;
     private final SSLEngine engine;
 
@@ -37,7 +41,7 @@ public class SpdyServerProvider implements ServerProvider {
     @Override
     public void unsupported() {
         ALPN.remove(engine);
-        selectedProtocol = "http/1.1";
+        selectedProtocol = HTTP_1_1;
     }
 
     public SpdyOrHttpChooser.SelectedProtocol getSelectedProtocol() {
@@ -49,23 +53,7 @@ public class SpdyServerProvider implements ServerProvider {
 
     @Override
     public String select(List<String> protocols) {
-        
-        
-        for (String protocol : protocols) {
-            if (protocol.contains("spdy")) {
-                selectedProtocol = protocol;
-                return selectedProtocol;
-            }
-        }
-        
-        for (String protocol : protocols) {
-            if (protocol.contains("http")) {
-                selectedProtocol = protocol;
-                return selectedProtocol;
-            }
-        }
-        
-        selectedProtocol = protocols.get(0);
+        selectedProtocol = protocols.contains(SPDY_3_1) ? SPDY_3_1 : protocols.contains(SPDY_3) ? SPDY_3 : HTTP_1_1;
         return selectedProtocol;
     }
 }
