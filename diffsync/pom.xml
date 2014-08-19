@@ -41,6 +41,7 @@
         <module>core</module>
         <module>server-core</module>
         <module>client-core</module>
+        <module>client-netty</module>
         <module>server-netty</module>
         <module>itests</module>
     </modules>

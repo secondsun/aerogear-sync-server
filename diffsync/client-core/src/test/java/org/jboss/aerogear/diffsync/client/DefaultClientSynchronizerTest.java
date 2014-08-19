@@ -38,11 +38,11 @@ public class DefaultClientSynchronizerTest {
     public void diff() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final String originalVersion = "Do or do not, there is no try.";
-        final String updatedVersion = "Do or do not, there is no try!";
-        final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, originalVersion);
+        final String original = "Do or do not, there is no try.";
+        final String update = "Do or do not, there is no try!";
+        final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, original);
 
-        final Edit edit = clientSynchronizer.diff(newDoc(documentId, updatedVersion), clientShadow);
+        final Edit edit = clientSynchronizer.clientDiff(newDoc(documentId, update), clientShadow);
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientId(), is(clientId));
@@ -51,9 +51,9 @@ public class DefaultClientSynchronizerTest {
         assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
-        assertThat(diffs.get(1).text(), equalTo("."));
+        assertThat(diffs.get(1).text(), equalTo("!"));
         assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
-        assertThat(diffs.get(2).text(), equalTo("!"));
+        assertThat(diffs.get(2).text(), equalTo("."));
     }
 
     @Test

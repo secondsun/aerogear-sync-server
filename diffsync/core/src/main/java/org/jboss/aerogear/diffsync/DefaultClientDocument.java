@@ -13,4 +13,9 @@ public class DefaultClientDocument<T> extends DefaultDocument<T> implements Clie
     public String clientId() {
         return clientId;
     }
+    
+    @Override
+    public String toString() {
+        return "DefaultClientDocument[id=" + id() + ", clientId=" + clientId + ", content=" + content() + ']';
+    }
 }

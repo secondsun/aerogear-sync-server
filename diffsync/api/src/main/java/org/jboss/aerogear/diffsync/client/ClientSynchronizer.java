@@ -47,6 +47,15 @@ public interface ClientSynchronizer<T> {
     ClientDocument<T> patchDocument(Edit edit, ClientDocument<T> document);
 
     /**
+     * Is called to produce an {@link Edit} of changes coming from a server.
+     *
+     * @param document the server side document .
+     * @param shadowDocument the document shadow containing the servers changes.
+     * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
+     */
+    Edit serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+    
+    /**
      * The first step in a sync is to produce a an edit for the changes.
      * The produced edit can then be sent to the opposing side perform an update/sync.
      *
@@ -54,6 +63,7 @@ public interface ClientSynchronizer<T> {
      * @param shadowDocument the document shadow.
      * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edit diff(Document<T> document, ShadowDocument<T> shadowDocument);
+    Edit clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+    
 
 }

@@ -27,13 +27,14 @@ import org.jboss.aerogear.diffsync.Edits;
 import org.jboss.aerogear.diffsync.ShadowDocument;
 
 import java.util.Iterator;
+import java.util.Observable;
 
 /**
  * The client side of the differential synchronization implementation.
  *
  * @param <T> The type of document that this implementation can handle.
  */
-public class ClientSyncEngine<T> {
+public class ClientSyncEngine<T> extends Observable { 
 
     private final ClientSynchronizer<T> clientSynchronizer;
     private final ClientDataStore<T> dataStore;
@@ -54,7 +55,7 @@ public class ClientSyncEngine<T> {
     }
 
     /**
-     * Returns an {@link Edits} which contains a diff against the engines stored
+     * Returns an {@link Edits} which contains a diff against the engine's stored
      * shadow document and the passed-in document.
      *
      * There might be pending edits that represent edits that have not made it to the server
@@ -69,7 +70,7 @@ public class ClientSyncEngine<T> {
      */
     public Edits diff(final ClientDocument<T> document) {
         final ShadowDocument<T> shadow = getShadowDocument(document.id(), document.clientId());
-        final Edit edit = diff(document, shadow);
+        final Edit edit = serverDiff(document, shadow);
         saveEdits(edit);
         final ShadowDocument<T> patchedShadow = diffPatchShadow(shadow, edit);
         saveShadow(incrementClientVersion(patchedShadow));
@@ -162,19 +163,21 @@ public class ClientSyncEngine<T> {
     }
 
     private boolean clientPacketDropped(final Edit edit, final ShadowDocument<T> shadow) {
-        return edit.clientVersion() < shadow.clientVersion();
+        return edit.clientVersion() < shadow.clientVersion() && !isSeedVersion(edit);
     }
-
+    
     private boolean hasServerVersion(final Edit edit, final ShadowDocument<T> shadow) {
         return edit.serverVersion() < shadow.serverVersion();
     }
 
     private Document<T> patchDocument(final ShadowDocument<T> shadowDocument) {
         final ClientDocument<T> document = dataStore.getClientDocument(shadowDocument.document().id(), shadowDocument.document().clientId());
-        final Edit edit = diff(document, shadowDocument);
+        final Edit edit = clientDiff(document, shadowDocument);
         final ClientDocument<T> patched = clientSynchronizer.patchDocument(edit, document);
         saveDocument(patched);
         saveBackupShadow(shadowDocument);
+        setChanged();
+        notifyObservers(patched);
         return patched;
     }
 
@@ -190,8 +193,12 @@ public class ClientSyncEngine<T> {
         return new DefaultEdits(documentId, clientId, dataStore.getEdits(documentId, clientId));
     }
 
-    private Edit diff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {
-        return clientSynchronizer.diff(doc, shadow);
+    private Edit clientDiff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {
+        return clientSynchronizer.clientDiff(doc, shadow);
+    }
+    
+    private Edit serverDiff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {
+        return clientSynchronizer.serverDiff(doc, shadow);
     }
 
     private void saveEdits(final Edit edit) {

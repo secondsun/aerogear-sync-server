@@ -40,7 +40,20 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String> {
     }
 
     @Override
-    public Edit diff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public Edit clientDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+        final String shadowText = shadowDocument.document().content();
+        final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
+        return DefaultEdit.withDocumentId(document.id())
+                .clientId(shadowDocument.document().clientId())
+                .clientVersion(shadowDocument.clientVersion())
+                .serverVersion(shadowDocument.serverVersion())
+                .checksum(checksum(shadowText))
+                .diffs(asAeroGearDiffs(diffs))
+                .build();
+    }
+    
+    @Override
+    public Edit serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
         return DefaultEdit.withDocumentId(document.id())

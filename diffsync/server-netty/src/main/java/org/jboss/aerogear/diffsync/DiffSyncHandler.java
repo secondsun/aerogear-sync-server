@@ -188,7 +188,6 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("Caught exception", cause);
-        ctx.channel().writeAndFlush(textFrame("{\"result\": \"" + cause.getMessage() + "\"}"));
     }
 
     private static void unknownMessageType(final ChannelHandlerContext ctx, final JsonNode json) {

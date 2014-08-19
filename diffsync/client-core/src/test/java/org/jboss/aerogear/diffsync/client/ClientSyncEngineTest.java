@@ -56,16 +56,16 @@ public class ClientSyncEngineTest {
         assertThat(backupShadowDocument.version(), is(0L));
         assertThat(backupShadowDocument.shadow(), equalTo(shadowDocument));
     }
-
+    
     @Test
     public void diff() {
         final String documentId = "1234";
         final String clientId = "client2";
-        final String originalVersion = "{\"id\": 9999}";
-        final String updatedVersion = "{\"id\": 6666}";
-        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+        final String updatedVersion = "{\"id\": 9999}";
+        final String shadowVersion = "{\"id\": 6666}";
+        engine.addDocument(clientDoc(documentId, clientId, updatedVersion));
 
-        final Edits edits = engine.diff(clientDoc(documentId, clientId, updatedVersion));
+        final Edits edits = engine.diff(clientDoc(documentId, clientId, shadowVersion));
         assertThat(edits.documentId(), equalTo(documentId));
         assertThat(edits.clientId(), equalTo(clientId));
         assertThat(edits.edits().size(), is(1));
@@ -103,6 +103,9 @@ public class ClientSyncEngineTest {
         assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
         assertThat(shadowDocument.serverVersion(), is(1L));
         assertThat(shadowDocument.clientVersion(), is(0L));
+
+        final ClientDocument<String> document = dataStore.getClientDocument(documentId, clientId);
+        assertThat(document.content(), equalTo("Do or do not, there is no try!"));
     }
 
     @Test
@@ -129,6 +132,34 @@ public class ClientSyncEngineTest {
         final ShadowDocument<String> shadowDocument2 = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument2.document().content(), equalTo("Do or do not, there is no try!"));
         assertThat(shadowDocument2.serverVersion(), is(1L));
+        assertThat(shadowDocument2.clientVersion(), is(0L));
+    }
+    
+    @Test
+    public void patchVersionAlreadyOnServer() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String originalVersion = "Do or do not, there is no try.";
+        engine.addDocument(clientDoc(documentId, clientId, originalVersion));
+
+        final Edit edit = DefaultEdit.withDocumentId(documentId)
+                .clientId(clientId)
+                .clientVersion(-1)
+                .serverVersion(1)
+                .unchanged("Do or do not, there is no try")
+                .delete(".")
+                .add("!")
+                .build();
+        engine.patch(edits(documentId, clientId, edit, edit));
+
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
+        assertThat(shadowDocument.serverVersion(), is(0L));
+        assertThat(shadowDocument.clientVersion(), is(0L));
+
+        final ShadowDocument<String> shadowDocument2 = dataStore.getShadowDocument(documentId, clientId);
+        assertThat(shadowDocument2.document().content(), equalTo("Do or do not, there is no try!"));
+        assertThat(shadowDocument2.serverVersion(), is(0L));
         assertThat(shadowDocument2.clientVersion(), is(0L));
     }
 
