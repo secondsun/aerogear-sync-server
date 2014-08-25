@@ -331,6 +331,21 @@
                 <bootclasspath>-Xbootclasspath/p:${project.build.directory}/alpn/alpn-boot-${alpn.version}.jar</bootclasspath>
             </properties>
         </profile>
+        <profile>
+            <id>8u29</id>
+            <activation>
+                <property>
+                    <name>java.version</name>
+                    <value>1.8.0_20</value>
+                </property>
+            </activation>
+            <properties>
+                <npn.version>1.1.7.v20140316</npn.version>
+                <alpn.version>8.0.0.v20140317</alpn.version>
+                <bootclasspath>-Xbootclasspath/p:${project.build.directory}/alpn/alpn-boot-${alpn.version}.jar</bootclasspath>
+            </properties>
+        </profile>
+
     </profiles>
 
     <dependencies>
