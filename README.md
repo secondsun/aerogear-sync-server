@@ -8,6 +8,6 @@ synchronized with the source of the data.
 The master branch of this project is currently empty but will be populated we it has been decided on what approach 
 we will take. 
 
-There is a branch named [differential-synchronization](https://github.com/aerogear/aerogear-sync-server/differential-synchronization)
+There is a branch named [differential-synchronization](https://github.com/aerogear/aerogear-sync-server/tree/differential-synchronization)
 that is a proof-of-concept for an option moving forward.
 
