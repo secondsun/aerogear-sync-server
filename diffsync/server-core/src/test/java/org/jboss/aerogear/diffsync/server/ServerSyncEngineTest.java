@@ -41,7 +41,67 @@ public class ServerSyncEngineTest {
     }
 
     @Test
-    public void addDocument() throws Exception {
+    public void addDocument() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final PatchMessage patchMessage = engine.addDocument(doc(documentId, "Mr. Rosen"), clientId);
+        assertThat(patchMessage.edits().isEmpty(), is(false));
+        assertThat(patchMessage.edits().peek().diffs().peek().operation(), is(Operation.UNCHANGED));
+        assertThat(patchMessage.edits().peek().diffs().peek().text(), is("Mr. Rosen"));
+    }
+
+    @Test
+    public void addDocumentNullContentAndNoPreExistingData() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final PatchMessage patchMessage = engine.addDocument(doc(documentId, null), clientId);
+        assertThat(patchMessage.edits().isEmpty(), is(true));
+    }
+
+    @Test
+    public void addDocumentNullContentWithPreExistingData() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        engine.addDocument(doc(documentId, "Mr. Rosen"), clientId);
+        final PatchMessage patchMessage = engine.addDocument(doc(documentId, null), clientId);
+        assertThat(patchMessage.edits().isEmpty(), is(false));
+        assertThat(patchMessage.edits().peek().diffs().peek().operation(), is(Operation.UNCHANGED));
+        assertThat(patchMessage.edits().peek().diffs().peek().text(), is("Mr. Rosen"));
+    }
+
+    @Test
+    public void addDocumentWithPreExistingData() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        engine.addDocument(doc(documentId, "Mr. Rosen"), clientId);
+        final PatchMessage patchMsg = engine.addDocument(doc(documentId, "Some new content"), clientId);
+        final Queue<Edit> edits = patchMsg.edits();
+        assertThat(edits.size(), is(1));
+        final LinkedList<Diff> diffs = edits.peek().diffs();
+        assertThat(diffs.get(0).operation(), is(Operation.DELETE));
+        assertThat(diffs.get(0).text(), is("Some"));
+        assertThat(diffs.get(1).operation(), is(Operation.ADD));
+        assertThat(diffs.get(1).text(), is("Mr."));
+        assertThat(diffs.get(2).operation(), is(Operation.UNCHANGED));
+        assertThat(diffs.get(2).text(), is(" "));
+        assertThat(diffs.get(3).operation(), is(Operation.DELETE));
+        assertThat(diffs.get(3).text(), is("new c"));
+        assertThat(diffs.get(4).operation(), is(Operation.ADD));
+        assertThat(diffs.get(4).text(), is("R"));
+        assertThat(diffs.get(5).operation(), is(Operation.UNCHANGED));
+        assertThat(diffs.get(5).text(), is("o"));
+        assertThat(diffs.get(6).operation(), is(Operation.DELETE));
+        assertThat(diffs.get(6).text(), is("nt"));
+        assertThat(diffs.get(7).operation(), is(Operation.ADD));
+        assertThat(diffs.get(7).text(), is("s"));
+        assertThat(diffs.get(8).operation(), is(Operation.UNCHANGED));
+        assertThat(diffs.get(8).text(), is("en"));
+        assertThat(diffs.get(9).operation(), is(Operation.DELETE));
+        assertThat(diffs.get(9).text(), is("t"));
+    }
+
+    @Test
+    public void addDocumentVerifyShadows() throws Exception {
         final String documentId = "1234";
         final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";

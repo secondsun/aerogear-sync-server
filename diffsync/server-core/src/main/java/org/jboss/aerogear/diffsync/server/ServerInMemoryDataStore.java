@@ -58,7 +58,12 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     }
 
     @Override
-    public void saveDocument(final Document<String> document) {
+    public boolean saveDocument(final Document<String> document) {
+        return documents.putIfAbsent(document.id(), document) == null;
+    }
+
+    @Override
+    public void updateDocument(final Document<String> document) {
         documents.put(document.id(), document);
     }
 

@@ -30,7 +30,14 @@ import org.jboss.aerogear.diffsync.server.ServerSyncEngine;
 import org.jboss.aerogear.diffsync.server.ServerSynchronizer;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -136,6 +143,108 @@ public class DiffSyncHandlerTest {
         assertThat(edit.serverVersion(), is(1L));
         assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
         assertThat(edit.diffs().get(0).text(), equalTo(baseContent));
+    }
+
+    @Test
+    public void addDocumentWithContentConcurrent() throws Exception {
+        final ExecutorService executorService = Executors.newCachedThreadPool();
+        final int iterations = 100;
+        final CountDownLatch await = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(iterations);
+        final String content = "You shall not pass!";
+        final List<Future<PatchMessage>> futures = new ArrayList<Future<PatchMessage>>();
+        final String client2Id = "client2";
+        for (int i = 0 ; i < iterations; i++) {
+            final String docId = UUID.randomUUID().toString();
+            final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
+            final EmbeddedChannel channel1 = embeddedChannel(dataStore);
+            final EmbeddedChannel channel2 = embeddedChannel(dataStore);
+            executorService.submit(new AddDocumentTask(channel1, docId, "client1", content, await, latch));
+            final Future<PatchMessage> future = executorService.submit(new AddDocumentTask(channel2, docId, client2Id, content, await, latch));
+            futures.add(future);
+        }
+        await.countDown();
+        latch.await();
+        for (Future<PatchMessage> future: futures) {
+            final PatchMessage patchMessage = future.get();
+            assertThat(patchMessage.clientId(), equalTo(client2Id));
+            assertThat(patchMessage.edits().size(), is(1));
+            final Edit edit = patchMessage.edits().peek();
+            assertThat(edit.serverVersion(), is(1L));
+            assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
+            assertThat(edit.diffs().get(0).text(), equalTo(content));
+        }
+        executorService.shutdown();
+    }
+
+    @Test
+    public void addDocumentWithoutContentConcurrent() throws Exception {
+        final ExecutorService executorService = Executors.newCachedThreadPool();
+        final int iterations = 100;
+        final CountDownLatch await = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(iterations);
+        final String content = "You shall not pass!";
+        final List<Future<PatchMessage>> futures = new ArrayList<Future<PatchMessage>>();
+        final String client2Id = "client2";
+        for (int i = 0 ; i < iterations; i++) {
+            final String docId = UUID.randomUUID().toString();
+            final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
+            final EmbeddedChannel channel1 = embeddedChannel(dataStore);
+            final EmbeddedChannel channel2 = embeddedChannel(dataStore);
+            executorService.submit(new AddDocumentTask(channel1, docId, "client1", content, await, latch));
+            final Future<PatchMessage> future = executorService.submit(new AddDocumentTask(channel2, docId, client2Id, null, await, latch));
+            futures.add(future);
+        }
+        await.countDown();
+        latch.await();
+        for (Future<PatchMessage> future: futures) {
+            final PatchMessage patchMessage = future.get();
+            assertThat(patchMessage.clientId(), equalTo(client2Id));
+            // patchMessage can be empty if there is not yet and underlying document in the data store.
+            // in our case this means that the first thread has not yet been executed.
+            if (!patchMessage.edits().isEmpty()) {
+                assertThat(patchMessage.edits().size(), is(1));
+                final Edit edit = patchMessage.edits().peek();
+                assertThat(edit.serverVersion(), is(1L));
+                assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
+                assertThat(edit.diffs().get(0).text(), equalTo(content));
+            }
+        }
+        executorService.shutdown();
+    }
+
+    private static class AddDocumentTask implements Callable<PatchMessage> {
+
+        private final EmbeddedChannel channel;
+        protected final String docId;
+        protected final String clientId;
+        protected final String content;
+        private final CountDownLatch await;
+        private final CountDownLatch latch;
+
+        AddDocumentTask(final EmbeddedChannel channel,
+                        final String docId,
+                        final String clientId,
+                        final String content,
+                        final CountDownLatch await,
+                        final CountDownLatch latch) {
+            this.channel = channel;
+            this.docId = docId;
+            this.clientId = clientId;
+            this.content = content;
+            this.latch = latch;
+            this.await = await;
+        }
+
+        @Override
+        public PatchMessage call() throws InterruptedException {
+            try {
+                await.await();
+                return sendAddDoc(docId, clientId, content, channel);
+            } finally {
+                latch.countDown();
+            }
+        }
     }
 
     @Test

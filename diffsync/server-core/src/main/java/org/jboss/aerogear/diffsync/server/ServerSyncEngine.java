@@ -36,6 +36,7 @@ public class ServerSyncEngine<T> {
     private static final Logger logger = LoggerFactory.getLogger(ServerSyncEngine.class);
     private static final int SEEDED_CLIENT_VERSION = -1;
     private static final int SEEDED_SERVER_VERSION = 1;
+    private static final LinkedList<Edit> EMPTY_EDITS = new LinkedList<Edit>();
 
     public ServerSyncEngine(final ServerSynchronizer<T> synchronizer, final ServerDataStore<T> dataStore) {
         this.synchronizer = synchronizer;
@@ -51,25 +52,28 @@ public class ServerSyncEngine<T> {
      * @param document the document to add.
      */
     public PatchMessage addDocument(final Document<T> document, final String clientId) {
-        final boolean hasDocument = contains(document.id());
-        if (!hasDocument) {
-            dataStore.saveDocument(document);
+        if (document.content() == null) {
+            final Document<T> existingDoc = getDocument(document.id());
+            if (existingDoc == null) {
+                return new DefaultPatchMessage(document.id(), clientId, EMPTY_EDITS);
+            } else {
+                final ShadowDocument<T> shadow = addShadowForClient(document.id(), clientId);
+                logger.debug("Document with id [" + document.id() + "] already exists.");
+                final Edit edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
+                updateDocument(patchDocument(shadow));
+                return new DefaultPatchMessage(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
+            }
         }
-
+        final boolean newDoc = saveDocument(document);
         final ShadowDocument<T> shadow = addShadowForClient(document.id(), clientId);
-        final Edit edit;
-        if (hasDocument) {
-            logger.info("Document with id [" + document.id() + "] already exists.");
-            // create a edit for the updates required to bring the client to the latest version.
-            edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
-            // patch the shadow to match the latest version.
-            patchDocument(shadow);
+        if (newDoc) {
+            final Edit edit = serverDiff(shadow.document(), incrementServerVersion(shadow));
+            return new DefaultPatchMessage(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
         } else {
-            // need to increment the server version as we return a edits/patch message
-            edit = serverDiff(shadow.document(), incrementServerVersion(shadow));
+            logger.debug("Document with id [" + document.id() + "] already exists.");
+            final Edit edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
+            return new DefaultPatchMessage(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
         }
-        logger.info("addDocument edit=" + edit);
-        return new DefaultPatchMessage(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
     }
 
     private ShadowDocument<T> seededShadowFrom(final ShadowDocument<T> shadow, final Document<T> doc) {
@@ -100,17 +104,13 @@ public class ServerSyncEngine<T> {
      */
     public void patch(final PatchMessage patchMessage) {
         final ShadowDocument<T> patchedShadow = patchShadow(patchMessage);
-        patchDocument(patchedShadow);
+        updateDocument(patchDocument(patchedShadow));
         saveBackupShadow(patchedShadow);
     }
 
     public PatchMessage diffs(final String documentId, final String clientId) {
         diff(documentId, clientId);
         return new DefaultPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
-    }
-
-    private boolean contains(final String id) {
-        return dataStore.getDocument(id) != null;
     }
 
     private void diffPatchShadow(final ShadowDocument<T> shadow, final Edit edit) {
@@ -263,8 +263,12 @@ public class ServerSyncEngine<T> {
         dataStore.saveBackupShadowDocument(new DefaultBackupShadowDocument<T>(newShadow.serverVersion(), newShadow));
     }
 
-    private void saveDocument(final Document<T> document) {
-        dataStore.saveDocument(document);
+    private boolean saveDocument(final Document<T> document) {
+        return dataStore.saveDocument(document);
+    }
+
+    private void updateDocument(final Document<T> document) {
+        dataStore.updateDocument(document);
     }
 
 }
