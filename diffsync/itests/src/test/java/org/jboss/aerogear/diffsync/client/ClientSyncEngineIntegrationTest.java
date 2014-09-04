@@ -23,7 +23,7 @@ import org.jboss.aerogear.diffsync.DefaultDocument;
 import org.jboss.aerogear.diffsync.Diff;
 import org.jboss.aerogear.diffsync.Document;
 import org.jboss.aerogear.diffsync.Edit;
-import org.jboss.aerogear.diffsync.Edits;
+import org.jboss.aerogear.diffsync.PatchMessage;
 import org.jboss.aerogear.diffsync.ShadowDocument;
 import org.jboss.aerogear.diffsync.server.DefaultServerSynchronizer;
 import org.jboss.aerogear.diffsync.server.ServerInMemoryDataStore;
@@ -83,11 +83,11 @@ public class ClientSyncEngineIntegrationTest {
 
         clientSyncEngine.addDocument(newClientDoc(docId, originalVersion, clientOne));
 
-        final Edits edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(clientOne));
-        assertThat(edits.edits().size(), is(1));
-        final Edit edit = edits.edits().iterator().next();
+        final PatchMessage patchMessage = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(clientOne));
+        assertThat(patchMessage.edits().size(), is(1));
+        final Edit edit = patchMessage.edits().iterator().next();
         // client version is only incremented after the diff is taken. See shadowDocument asserts below.
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
@@ -122,11 +122,11 @@ public class ClientSyncEngineIntegrationTest {
         serverSyncEngine.addDocument(newDoc(docId, originalVersion), clientOne);
         serverSyncEngine.addDocument(newDoc(docId, originalVersion), clientTwo);
 
-        final Edits edits = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(clientOne));
-        assertThat(edits.edits().size(), is(1));
-        final Edit edit = edits.edits().peek();
+        final PatchMessage patchMessage = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(clientOne));
+        assertThat(patchMessage.edits().size(), is(1));
+        final Edit edit = patchMessage.edits().peek();
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         final List<Diff> diffs = edit.diffs();
@@ -138,13 +138,13 @@ public class ClientSyncEngineIntegrationTest {
         assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
         assertThat(diffs.get(2).text(), equalTo("!"));
 
-        serverSyncEngine.patch(edits);
+        serverSyncEngine.patch(patchMessage);
 
-        final Edits serverEdits = serverSyncEngine.diffs(docId, clientTwo);
-        assertThat(serverEdits.clientId(), equalTo(clientTwo));
-        assertThat(serverEdits.documentId(), equalTo(docId));
-        assertThat(serverEdits.edits().size(), is(1));
-        final Edit serverEdit = serverEdits.edits().peek();
+        final PatchMessage serverPatchMessage = serverSyncEngine.diffs(docId, clientTwo);
+        assertThat(serverPatchMessage.clientId(), equalTo(clientTwo));
+        assertThat(serverPatchMessage.documentId(), equalTo(docId));
+        assertThat(serverPatchMessage.edits().size(), is(1));
+        final Edit serverEdit = serverPatchMessage.edits().peek();
         assertThat(serverEdit.clientVersion(), is(0L));
         assertThat(serverEdit.serverVersion(), is(0L));
         assertThat(serverEdit.diffs().size(), is(3));
@@ -157,7 +157,7 @@ public class ClientSyncEngineIntegrationTest {
         assertThat(serverDiffs.get(2).operation(), is(Diff.Operation.ADD));
         assertThat(serverDiffs.get(2).text(), equalTo("!"));
 
-        clientSyncEngine.patch(serverEdits);
+        clientSyncEngine.patch(serverPatchMessage);
         final Queue<Edit> clientOneEdits = dataStore.getEdits(docId, clientTwo);
         assertThat(clientOneEdits.isEmpty(), is(true));
         final Queue<Edit> clientTwoEdits = dataStore.getEdits(docId, clientTwo);

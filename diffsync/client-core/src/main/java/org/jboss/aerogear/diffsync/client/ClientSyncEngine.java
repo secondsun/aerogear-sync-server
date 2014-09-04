@@ -19,11 +19,11 @@ package org.jboss.aerogear.diffsync.client;
 import org.jboss.aerogear.diffsync.BackupShadowDocument;
 import org.jboss.aerogear.diffsync.ClientDocument;
 import org.jboss.aerogear.diffsync.DefaultBackupShadowDocument;
-import org.jboss.aerogear.diffsync.DefaultEdits;
+import org.jboss.aerogear.diffsync.DefaultPatchMessage;
 import org.jboss.aerogear.diffsync.DefaultShadowDocument;
 import org.jboss.aerogear.diffsync.Document;
 import org.jboss.aerogear.diffsync.Edit;
-import org.jboss.aerogear.diffsync.Edits;
+import org.jboss.aerogear.diffsync.PatchMessage;
 import org.jboss.aerogear.diffsync.ShadowDocument;
 
 import java.util.Iterator;
@@ -55,20 +55,20 @@ public class ClientSyncEngine<T> extends Observable {
     }
 
     /**
-     * Returns an {@link Edits} which contains a diff against the engine's stored
+     * Returns an {@link PatchMessage} which contains a diff against the engine's stored
      * shadow document and the passed-in document.
      *
      * There might be pending edits that represent edits that have not made it to the server
      * for some reason (for example packet drop). If a pending edit exits the contents (the diffs)
      * of the pending edit will be included in the returned Edits from this method.
      *
-     * The returned {@link Edits} instance is indended to be sent to the server engine
+     * The returned {@link PatchMessage} instance is indended to be sent to the server engine
      * for processing.
      *
      * @param document the updated document.
-     * @return {@link Edits} containing the edits for the changes in the document.
+     * @return {@link PatchMessage} containing the edits for the changes in the document.
      */
-    public Edits diff(final ClientDocument<T> document) {
+    public PatchMessage diff(final ClientDocument<T> document) {
         final ShadowDocument<T> shadow = getShadowDocument(document.id(), document.clientId());
         final Edit edit = serverDiff(document, shadow);
         saveEdits(edit);
@@ -78,16 +78,16 @@ public class ClientSyncEngine<T> extends Observable {
     }
 
     /**
-     * Patches the client side shadow with updates ({@link Edits}) from the server.
+     * Patches the client side shadow with updates ({@link PatchMessage}) from the server.
      *
-     * When updates happen on the server, the server will create an {@link Edits} instance
-     * by calling the server engines diff method. This {@link Edits} instance will then be
+     * When updates happen on the server, the server will create an {@link PatchMessage} instance
+     * by calling the server engines diff method. This {@link PatchMessage} instance will then be
      * sent to the client for processing which is done by this method.
      *
-     * @param edits the updates from the server.
+     * @param patchMessage the updates from the server.
      */
-    public void patch(final Edits edits) {
-        final ShadowDocument<T> patchedShadow = patchShadow(edits);
+    public void patch(final PatchMessage patchMessage) {
+        final ShadowDocument<T> patchedShadow = patchShadow(patchMessage);
         patchDocument(patchedShadow);
         saveBackupShadow(patchedShadow);
     }
@@ -97,9 +97,9 @@ public class ClientSyncEngine<T> extends Observable {
     }
 
 
-    private ShadowDocument<T> patchShadow(final Edits edits) {
-        ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
-        final Iterator<Edit> iterator = edits.edits().iterator();
+    private ShadowDocument<T> patchShadow(final PatchMessage patchMessage) {
+        ShadowDocument<T> shadow = getShadowDocument(patchMessage.documentId(), patchMessage.clientId());
+        final Iterator<Edit> iterator = patchMessage.edits().iterator();
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
             if (clientPacketDropped(edit, shadow)) {
@@ -189,8 +189,8 @@ public class ClientSyncEngine<T> extends Observable {
         return dataStore.getBackupShadowDocument(documentId, clientId);
     }
 
-    private Edits getPendingEdits(final String documentId, final String clientId) {
-        return new DefaultEdits(documentId, clientId, dataStore.getEdits(documentId, clientId));
+    private PatchMessage getPendingEdits(final String documentId, final String clientId) {
+        return new DefaultPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
     }
 
     private Edit clientDiff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {

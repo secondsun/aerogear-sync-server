@@ -116,9 +116,9 @@ public final class DiffSyncClient<T> extends Observable {
     }
     
     public void diffAndSend(final ClientDocument<T> document) {
-        final Edits edits = syncEngine.diff(document);
+        final PatchMessage patchMessage = syncEngine.diff(document);
         if (channel.isOpen()) {
-            channel.writeAndFlush(new TextWebSocketFrame(JsonMapper.toJson(edits)));
+            channel.writeAndFlush(new TextWebSocketFrame(JsonMapper.toJson(patchMessage)));
         } else {
             //TODO: store edits in a queue. 
         }

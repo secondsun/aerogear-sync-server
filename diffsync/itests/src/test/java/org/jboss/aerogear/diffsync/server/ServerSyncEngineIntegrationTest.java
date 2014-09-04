@@ -22,7 +22,7 @@ import org.jboss.aerogear.diffsync.DefaultDocument;
 import org.jboss.aerogear.diffsync.Diff;
 import org.jboss.aerogear.diffsync.Document;
 import org.jboss.aerogear.diffsync.Edit;
-import org.jboss.aerogear.diffsync.Edits;
+import org.jboss.aerogear.diffsync.PatchMessage;
 import org.jboss.aerogear.diffsync.ShadowDocument;
 import org.jboss.aerogear.diffsync.Diff.Operation;
 import org.jboss.aerogear.diffsync.client.ClientDataStore;
@@ -137,24 +137,24 @@ public class ServerSyncEngineIntegrationTest {
 
         // create an update originating from client1.
         serverSyncEngine.patch(clientOneSyncEngine.diff(newClientDoc(documentId, versionTwo, clientOne)));
-        final Edits clientOneServerEdits = serverSyncEngine.diffs(documentId, clientOne);
-        assertThat(clientOneServerEdits.clientId(), equalTo(clientOne));
-        assertThat(clientOneServerEdits.documentId(), equalTo(documentId));
-        assertThat(clientOneServerEdits.edits().size(), is(1));
-        final Edit clientOneServerEdit = clientOneServerEdits.edits().peek();
+        final PatchMessage clientOneServerPatchMessage = serverSyncEngine.diffs(documentId, clientOne);
+        assertThat(clientOneServerPatchMessage.clientId(), equalTo(clientOne));
+        assertThat(clientOneServerPatchMessage.documentId(), equalTo(documentId));
+        assertThat(clientOneServerPatchMessage.edits().size(), is(1));
+        final Edit clientOneServerEdit = clientOneServerPatchMessage.edits().peek();
         assertThat(clientOneServerEdit.clientVersion(), is(1L));
         assertThat(clientOneServerEdit.serverVersion(), is(0L));
         assertThat(clientOneServerEdit.diffs().size(), is(1));
         assertThat(clientOneServerEdit.diffs().get(0).operation(), is(Operation.UNCHANGED));
         assertThat(clientOneServerEdit.diffs().get(0).text(), equalTo(versionTwo));
         // no patch required for clientOneSyncEngine as this was performed after the diff was taken.
-        clientOneSyncEngine.patch(clientOneServerEdits);
+        clientOneSyncEngine.patch(clientOneServerPatchMessage);
 
-        final Edits clientTwoServerEdits = serverSyncEngine.diffs(documentId, clientTwo);
-        assertThat(clientTwoServerEdits.clientId(), equalTo(clientTwo));
-        assertThat(clientTwoServerEdits.documentId(), equalTo(documentId));
-        assertThat(clientTwoServerEdits.edits().size(), is(1));
-        final Edit clientTwoServerEdit = clientTwoServerEdits.edits().peek();
+        final PatchMessage clientTwoServerPatchMessage = serverSyncEngine.diffs(documentId, clientTwo);
+        assertThat(clientTwoServerPatchMessage.clientId(), equalTo(clientTwo));
+        assertThat(clientTwoServerPatchMessage.documentId(), equalTo(documentId));
+        assertThat(clientTwoServerPatchMessage.edits().size(), is(1));
+        final Edit clientTwoServerEdit = clientTwoServerPatchMessage.edits().peek();
         assertThat(clientTwoServerEdit.clientVersion(), is(0L));
         assertThat(clientTwoServerEdit.serverVersion(), is(0L));
         final LinkedList<Diff> clientTwoServerDiffs = clientTwoServerEdit.diffs();
@@ -165,7 +165,7 @@ public class ServerSyncEngineIntegrationTest {
         assertThat(clientTwoServerDiffs.get(1).text(), equalTo("."));
         assertThat(clientTwoServerDiffs.get(2).operation(), is(Operation.ADD));
         assertThat(clientTwoServerDiffs.get(2).text(), equalTo("!"));
-        clientTwoSyncEngine.patch(clientTwoServerEdits);
+        clientTwoSyncEngine.patch(clientTwoServerPatchMessage);
 
         serverSyncEngine.patch(clientOneSyncEngine.diff(newClientDoc(documentId, versionThree, clientOne)));
         final Edit thirdEdit = serverSyncEngine.diff(documentId, clientTwo);
@@ -183,7 +183,7 @@ public class ServerSyncEngineIntegrationTest {
         return new DefaultClientDocument<String>(documentId, clientId, content);
     }
 
-    private static Edits clientSideEdits(final String documentId,
+    private static PatchMessage clientSideEdits(final String documentId,
                                          final String originalContent,
                                          final String clientId,
                                          final String updatedContent) {

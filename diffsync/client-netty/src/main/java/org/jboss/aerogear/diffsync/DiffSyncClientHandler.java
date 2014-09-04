@@ -51,9 +51,9 @@ public class DiffSyncClientHandler extends SimpleChannelInboundHandler<WebSocket
             logger.info("json: " + json);
             switch (MessageType.from(json.get("msgType").asText())) {
             case PATCH:
-                final Edits serverEdits = JsonMapper.fromJson(json.toString(), DefaultEdits.class);
-                logger.info("Edits: " + serverEdits);
-                patch(serverEdits);
+                final PatchMessage serverPatchMessage = JsonMapper.fromJson(json.toString(), DefaultPatchMessage.class);
+                logger.info("Edits: " + serverPatchMessage);
+                patch(serverPatchMessage);
                 break;
             case UNKNOWN:
                 unknownMessageType(ctx, json);
@@ -64,7 +64,7 @@ public class DiffSyncClientHandler extends SimpleChannelInboundHandler<WebSocket
         }
     }
 
-    private void patch(final Edits clientEdit) {
+    private void patch(final PatchMessage clientEdit) {
         syncEngine.patch(clientEdit);
     }
 

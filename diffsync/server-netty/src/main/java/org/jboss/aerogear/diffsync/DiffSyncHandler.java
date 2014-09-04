@@ -65,16 +65,16 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
                 final Document<String> doc = documentFromJson(json);
                 final String clientId = json.get("clientId").asText();
                 addClientListener(doc.id(), clientId, ctx);
-                final Edits edits = addDocument(doc, clientId);
+                final PatchMessage patchMessage = addDocument(doc, clientId);
                 ctx.attr(DOC_ADD).set(true);
-                ctx.channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
+                ctx.channel().writeAndFlush(textFrame(JsonMapper.toJson(patchMessage)));
                 break;
             case PATCH:
-                final Edits clientEdits = JsonMapper.fromJson(json.toString(), DefaultEdits.class);
-                checkForReconnect(clientEdits.documentId(), clientEdits.clientId(), ctx);
-                logger.debug("Client Edits=" + clientEdits);
-                patch(clientEdits);
-                notifyClientListeners(clientEdits);
+                final PatchMessage clientPatchMessage = JsonMapper.fromJson(json.toString(), DefaultPatchMessage.class);
+                checkForReconnect(clientPatchMessage.documentId(), clientPatchMessage.clientId(), ctx);
+                logger.debug("Client Edits=" + clientPatchMessage);
+                patch(clientPatchMessage);
+                notifyClientListeners(clientPatchMessage);
                 break;
             case DETACH:
                 // detach the client from a specific document.
@@ -88,11 +88,11 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private Edits addDocument(final Document<String> document, final String clientId) {
+    private PatchMessage addDocument(final Document<String> document, final String clientId) {
         return syncEngine.addDocument(document, clientId);
     }
 
-    private void patch(final Edits clientEdit) {
+    private void patch(final PatchMessage clientEdit) {
         syncEngine.patch(clientEdit);
     }
 
@@ -109,7 +109,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         return new DefaultDocument<String>(json.get("id").asText(), content);
     }
 
-    private Edits diffs(final String documentId, final String clientId) {
+    private PatchMessage diffs(final String documentId, final String clientId) {
         return syncEngine.diffs(documentId, clientId);
     }
 
@@ -167,8 +167,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         });
     }
 
-    private void notifyClientListeners(final Edits clientEdits) {
-        final Edit peek = clientEdits.edits().peek();
+    private void notifyClientListeners(final PatchMessage clientPatchMessage) {
+        final Edit peek = clientPatchMessage.edits().peek();
         if (peek == null) {
             // edits could be null as a client is allowed to send an patch message
             // that only contains an acknowledgement that it has received a specific
@@ -179,9 +179,9 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         final String documentId = peek.documentId();
         for (Client client : clients.get(documentId)) {
             //TODO: this should be done async and not block the io thread!
-            final Edits edits = diffs(documentId, client.id());
-            logger.debug("Sending to [" + client.id + "] : " + edits);
-            client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(edits)));
+            final PatchMessage patchMessage = diffs(documentId, client.id());
+            logger.debug("Sending to [" + client.id + "] : " + patchMessage);
+            client.ctx().channel().writeAndFlush(textFrame(JsonMapper.toJson(patchMessage)));
         }
     }
 

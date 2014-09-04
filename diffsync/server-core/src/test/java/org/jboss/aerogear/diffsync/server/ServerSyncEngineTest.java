@@ -229,8 +229,8 @@ public class ServerSyncEngineTest {
         assertThat(edits.isEmpty(), is(true));
     }
 
-    private static Edits edits(final String docId, final String clientId, Edit... edit) {
-        return new DefaultEdits(docId, clientId, new LinkedList<Edit>(asList(edit)));
+    private static PatchMessage edits(final String docId, final String clientId, Edit... edit) {
+        return new DefaultPatchMessage(docId, clientId, new LinkedList<Edit>(asList(edit)));
     }
 
     private static ShadowDocument<String> shadowDoc(final String docId,

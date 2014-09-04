@@ -5,7 +5,7 @@ import java.util.Queue;
 /**
  * Represents a stack of edits.
  */
-public interface Edits {
+public interface PatchMessage {
 
     /**
      * Identifies the client that this edit instance belongs to.

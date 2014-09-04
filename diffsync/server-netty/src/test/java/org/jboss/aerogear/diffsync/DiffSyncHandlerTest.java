@@ -52,11 +52,11 @@ public class DiffSyncHandlerTest {
         final EmbeddedChannel channel = embeddedChannel();
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
-        final Edits edits = sendAddDoc(docId, clientId, "Once upon a time", channel);
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(clientId));
-        assertThat(edits.edits().size(), is(1));
-        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        final PatchMessage patchMessage = sendAddDoc(docId, clientId, "Once upon a time", channel);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(clientId));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
     }
 
     @Test
@@ -65,11 +65,11 @@ public class DiffSyncHandlerTest {
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
         final String content = "{\"content\": {\"name\": \"Dr.Rosen\"}}";
-        final Edits edits = sendAddDoc(docId, clientId, content, channel);
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(clientId));
-        assertThat(edits.edits().size(), is(1));
-        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        final PatchMessage patchMessage = sendAddDoc(docId, clientId, content, channel);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(clientId));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
     }
 
     @Test
@@ -78,12 +78,12 @@ public class DiffSyncHandlerTest {
         final String docId = UUID.randomUUID().toString();
         final String clientId = "client1";
         final String content = "{\"content\": [\"one\", \"two\"]}";
-        final Edits edits = sendAddDoc(docId, clientId, content, channel);
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(clientId));
-        assertThat(edits.edits().size(), is(1));
-        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(edits.edits().peek().diffs().get(0).text(), equalTo(content));
+        final PatchMessage patchMessage = sendAddDoc(docId, clientId, content, channel);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(clientId));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(patchMessage.edits().peek().diffs().get(0).text(), equalTo(content));
     }
 
     @Test
@@ -94,20 +94,20 @@ public class DiffSyncHandlerTest {
         final String clientTwoId = "client2";
         final String content = "{\"content\": {\"name\": \"Dr.Rosen\"}}";
 
-        final Edits editsOne = sendAddDoc(docId, clientOneId, content, channel);
-        assertThat(editsOne.documentId(), equalTo(docId));
-        assertThat(editsOne.clientId(), equalTo(clientOneId));
-        assertThat(editsOne.edits().size(), is(1));
-        final Edit editOne = editsOne.edits().peek();
+        final PatchMessage patchMessageOne = sendAddDoc(docId, clientOneId, content, channel);
+        assertThat(patchMessageOne.documentId(), equalTo(docId));
+        assertThat(patchMessageOne.clientId(), equalTo(clientOneId));
+        assertThat(patchMessageOne.edits().size(), is(1));
+        final Edit editOne = patchMessageOne.edits().peek();
         assertThat(editOne.clientVersion(), is(0L));
         assertThat(editOne.serverVersion(), is(1L));
         assertThat(editOne.diffs().get(0).operation(), is(Operation.UNCHANGED));
 
-        final Edits editsTwo = sendAddDoc(docId, clientTwoId, content, channel);
-        assertThat(editsTwo.documentId(), equalTo(docId));
-        assertThat(editsTwo.clientId(), equalTo(clientTwoId));
-        assertThat(editsTwo.edits().size(), is(1));
-        final Edit editTwo = editsTwo.edits().peek();
+        final PatchMessage patchMessageTwo = sendAddDoc(docId, clientTwoId, content, channel);
+        assertThat(patchMessageTwo.documentId(), equalTo(docId));
+        assertThat(patchMessageTwo.clientId(), equalTo(clientTwoId));
+        assertThat(patchMessageTwo.edits().size(), is(1));
+        final Edit editTwo = patchMessageTwo.edits().peek();
         assertThat(editTwo.clientVersion(), is(-1L));
         assertThat(editTwo.serverVersion(), is(1L));
         assertThat(editTwo.diffs().get(0).operation(), is(Operation.UNCHANGED));
@@ -127,11 +127,11 @@ public class DiffSyncHandlerTest {
         sendAddDoc(docId, client1Id, baseContent, channel1);
 
         // client2 sends a add document request without any content.
-        final Edits edits = sendAddDoc(docId, client2Id, channel2);
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(client2Id));
-        assertThat(edits.edits().size(), is(1));
-        final Edit edit = edits.edits().peek();
+        final PatchMessage patchMessage = sendAddDoc(docId, client2Id, channel2);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(client2Id));
+        assertThat(patchMessage.edits().size(), is(1));
+        final Edit edit = patchMessage.edits().peek();
         assertThat(edit.clientVersion(), is(-1L));
         assertThat(edit.serverVersion(), is(1L));
         assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
@@ -153,19 +153,19 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client1Id, originalContent, channel1);
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
-        final Edits clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
-        final Edits edits = sendEdit(clientEdit, channel1);
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(client1Id));
-        assertThat(edits.edits().size(), is(1));
-        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        final PatchMessage clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
+        final PatchMessage patchMessage = sendEdit(clientEdit, channel1);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(client1Id));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         // client1 should not get an update as it was the one making the change.
         assertThat(channel1.readOutbound(), is(nullValue()));
 
         // get the update from channel2.
         final TextWebSocketFrame serverUpdate = channel2.readOutbound();
-        final Edits serverUpdates = fromJson(serverUpdate.text(), DefaultEdits.class);
+        final PatchMessage serverUpdates = fromJson(serverUpdate.text(), DefaultPatchMessage.class);
         assertThat(serverUpdates.documentId(), equalTo(docId));
         assertThat(serverUpdates.clientId(), equalTo(client2Id));
         final Edit edit = serverUpdates.edits().peek();
@@ -194,7 +194,7 @@ public class DiffSyncHandlerTest {
         final String updateTwo = "Oh Yeah";
 
         // Add original document using client1/channel1
-        final Edits addPatchClient1 = sendAddDoc(docId, client1Id, original, channel1);
+        final PatchMessage addPatchClient1 = sendAddDoc(docId, client1Id, original, channel1);
         assertThat(addPatchClient1.documentId(), equalTo(docId));
         assertThat(addPatchClient1.clientId(), equalTo(client1Id));
         assertThat(addPatchClient1.edits().size(), is(1));
@@ -204,7 +204,7 @@ public class DiffSyncHandlerTest {
         assertThat(patchOne.diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         // Add document using client2/channel2
-        final Edits addPatchClient2 = sendAddDoc(docId, client2Id, original, channel2);
+        final PatchMessage addPatchClient2 = sendAddDoc(docId, client2Id, original, channel2);
         assertThat(addPatchClient2.documentId(), equalTo(docId));
         assertThat(addPatchClient2.clientId(), equalTo(client2Id));
         assertThat(addPatchClient2.edits().size(), is(1));
@@ -215,22 +215,22 @@ public class DiffSyncHandlerTest {
 
         // Add the document to the client sync engine. Only used to help produce diffs.
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(docId, client1Id, original));
-        final Edits clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
+        final PatchMessage clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
 
-        final Edits edits = sendEdit(clientEdit, channel1);
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(client1Id));
-        assertThat(edits.edits().size(), is(1));
-        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(edits.edits().peek().clientVersion(), is(1L));
-        assertThat(edits.edits().peek().serverVersion(), is(0L));
+        final PatchMessage patchMessage = sendEdit(clientEdit, channel1);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(client1Id));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(patchMessage.edits().peek().clientVersion(), is(1L));
+        assertThat(patchMessage.edits().peek().serverVersion(), is(0L));
 
         // patch the client engine so that version are updated and edits cleared
-        clientSyncEngine.patch(edits);
+        clientSyncEngine.patch(patchMessage);
 
         // get the update from channel2.
         final TextWebSocketFrame serverUpdateOne = channel2.readOutbound();
-        final Edits serverUpdates = fromJson(serverUpdateOne.text(), DefaultEdits.class);
+        final PatchMessage serverUpdates = fromJson(serverUpdateOne.text(), DefaultPatchMessage.class);
         assertThat(serverUpdates.documentId(), equalTo(docId));
         assertThat(serverUpdates.clientId(), equalTo(client2Id));
         final Edit editOne = serverUpdates.edits().peek();
@@ -248,13 +248,13 @@ public class DiffSyncHandlerTest {
         assertThat(editOne.diffs().get(4).operation(), is(Operation.ADD));
         assertThat(editOne.diffs().get(4).text(), equalTo("th"));
 
-        final Edits clientEditTwo = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateTwo));
-        final Edits editsTwo = sendEdit(clientEditTwo, channel1);
-        assertThat(editsTwo.edits().size(), is(1));
-        assertThat(editsTwo.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        final PatchMessage clientEditTwo = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateTwo));
+        final PatchMessage patchMessageTwo = sendEdit(clientEditTwo, channel1);
+        assertThat(patchMessageTwo.edits().size(), is(1));
+        assertThat(patchMessageTwo.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         final TextWebSocketFrame serverUpdateTwo = channel2.readOutbound();
-        final Edits serverUpdatesTwo = fromJson(serverUpdateTwo.text(), DefaultEdits.class);
+        final PatchMessage serverUpdatesTwo = fromJson(serverUpdateTwo.text(), DefaultPatchMessage.class);
         assertThat(serverUpdatesTwo.documentId(), equalTo(docId));
         assertThat(serverUpdatesTwo.clientId(), equalTo(client2Id));
         assertThat(serverUpdatesTwo.edits().size(), is(2));
@@ -296,7 +296,7 @@ public class DiffSyncHandlerTest {
         final String updateOne = "I'm the man";
 
         // Add original document using client1/channal1
-        final Edits addPatchClient1 = sendAddDoc(docId, client1Id, original, channel1);
+        final PatchMessage addPatchClient1 = sendAddDoc(docId, client1Id, original, channel1);
         assertThat(addPatchClient1.documentId(), equalTo(docId));
         assertThat(addPatchClient1.clientId(), equalTo(client1Id));
         assertThat(addPatchClient1.edits().size(), is(1));
@@ -306,7 +306,7 @@ public class DiffSyncHandlerTest {
         assertThat(patchOne.diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         // Add document using client2/channel2
-        final Edits addPatchClient2 = sendAddDoc(docId, client2Id, original, channel2);
+        final PatchMessage addPatchClient2 = sendAddDoc(docId, client2Id, original, channel2);
         assertThat(addPatchClient2.documentId(), equalTo(docId));
         assertThat(addPatchClient2.clientId(), equalTo(client2Id));
         assertThat(addPatchClient2.edits().size(), is(1));
@@ -317,20 +317,20 @@ public class DiffSyncHandlerTest {
 
         // Add the document to the client sync engine. Only used to help produce diffs.
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(docId, client1Id, original));
-        final Edits clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
+        final PatchMessage clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
 
-        final Edits edits = sendEdit(clientEdit, channel1);
-        assertThat(edits.documentId(), equalTo(docId));
-        assertThat(edits.clientId(), equalTo(client1Id));
-        assertThat(edits.edits().size(), is(1));
-        assertThat(edits.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        final PatchMessage patchMessage = sendEdit(clientEdit, channel1);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(client1Id));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         // patch the client engine so that version are updated and edits cleared
-        clientSyncEngine.patch(edits);
+        clientSyncEngine.patch(patchMessage);
 
         // get the update from channel2.
         final TextWebSocketFrame serverUpdateOne = channel2.readOutbound();
-        final Edits serverUpdates = fromJson(serverUpdateOne.text(), DefaultEdits.class);
+        final PatchMessage serverUpdates = fromJson(serverUpdateOne.text(), DefaultPatchMessage.class);
         assertThat(serverUpdates.documentId(), equalTo(docId));
         assertThat(serverUpdates.clientId(), equalTo(client2Id));
         final Edit editOne = serverUpdates.edits().peek();
@@ -350,8 +350,8 @@ public class DiffSyncHandlerTest {
         assertThat(editOne.diffs().get(4).text(), equalTo(" man"));
     }
 
-    private static Edits sendEdit(final Edits edits, final EmbeddedChannel ch) {
-        return fromJson(writeFrame(JsonMapper.toJson(edits), ch), DefaultEdits.class);
+    private static PatchMessage sendEdit(final PatchMessage patchMessage, final EmbeddedChannel ch) {
+        return fromJson(writeFrame(JsonMapper.toJson(patchMessage), ch), DefaultPatchMessage.class);
     }
 
     private static JsonNode sendAddDocMsg(final String docId,
@@ -366,7 +366,7 @@ public class DiffSyncHandlerTest {
         return writeTextFrame(docMsg.toString(), ch);
     }
 
-    private static Edits sendAddDoc(final String docId,
+    private static PatchMessage sendAddDoc(final String docId,
                                            final String clientId,
                                            final String content,
                                            final EmbeddedChannel ch) {
@@ -375,15 +375,15 @@ public class DiffSyncHandlerTest {
         docMsg.put("id", docId);
         docMsg.put("clientId", clientId);
         docMsg.put("content", content);
-        return fromJson(writeFrame(docMsg.toString(), ch), DefaultEdits.class);
+        return fromJson(writeFrame(docMsg.toString(), ch), DefaultPatchMessage.class);
     }
 
-    private static Edits sendAddDoc(final String docId, final String clientId, final EmbeddedChannel ch) {
+    private static PatchMessage sendAddDoc(final String docId, final String clientId, final EmbeddedChannel ch) {
         final ObjectNode docMsg = message("add");
         docMsg.put("msgType", "add");
         docMsg.put("id", docId);
         docMsg.put("clientId", clientId);
-        return fromJson(writeFrame(docMsg.toString(), ch), DefaultEdits.class);
+        return fromJson(writeFrame(docMsg.toString(), ch), DefaultPatchMessage.class);
     }
 
     private static ObjectNode message(final String type) {
@@ -418,7 +418,7 @@ public class DiffSyncHandlerTest {
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }
 
-    private static Edits generateClientSideEdits(final String documentId,
+    private static PatchMessage generateClientSideEdits(final String documentId,
                                                  final String originalContent,
                                                  final String clientId,
                                                  final String updatedContent) {

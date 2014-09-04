@@ -50,7 +50,7 @@ public class ServerSyncEngine<T> {
      *
      * @param document the document to add.
      */
-    public Edits addDocument(final Document<T> document, final String clientId) {
+    public PatchMessage addDocument(final Document<T> document, final String clientId) {
         final boolean hasDocument = contains(document.id());
         if (!hasDocument) {
             dataStore.saveDocument(document);
@@ -69,7 +69,7 @@ public class ServerSyncEngine<T> {
             edit = serverDiff(shadow.document(), incrementServerVersion(shadow));
         }
         logger.info("addDocument edit=" + edit);
-        return new DefaultEdits(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
+        return new DefaultPatchMessage(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
     }
 
     private ShadowDocument<T> seededShadowFrom(final ShadowDocument<T> shadow, final Document<T> doc) {
@@ -96,17 +96,17 @@ public class ServerSyncEngine<T> {
     /**
      * Performs the server side patching for a specific client.
      *
-     * @param edits the changes made by a client.
+     * @param patchMessage the changes made by a client.
      */
-    public void patch(final Edits edits) {
-        final ShadowDocument<T> patchedShadow = patchShadow(edits);
+    public void patch(final PatchMessage patchMessage) {
+        final ShadowDocument<T> patchedShadow = patchShadow(patchMessage);
         patchDocument(patchedShadow);
         saveBackupShadow(patchedShadow);
     }
 
-    public Edits diffs(final String documentId, final String clientId) {
+    public PatchMessage diffs(final String documentId, final String clientId) {
         diff(documentId, clientId);
-        return new DefaultEdits(documentId, clientId, dataStore.getEdits(documentId, clientId));
+        return new DefaultPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
     }
 
     private boolean contains(final String id) {
@@ -142,9 +142,9 @@ public class ServerSyncEngine<T> {
         return newEdit;
     }
 
-    private ShadowDocument<T> patchShadow(final Edits edits) {
-        ShadowDocument<T> shadow = getShadowDocument(edits.documentId(), edits.clientId());
-        final Iterator<Edit> iterator = edits.edits().iterator();
+    private ShadowDocument<T> patchShadow(final PatchMessage patchMessage) {
+        ShadowDocument<T> shadow = getShadowDocument(patchMessage.documentId(), patchMessage.clientId());
+        final Iterator<Edit> iterator = patchMessage.edits().iterator();
         while (iterator.hasNext()) {
             final Edit edit = iterator.next();
             if (droppedServerPacket(edit, shadow)) {

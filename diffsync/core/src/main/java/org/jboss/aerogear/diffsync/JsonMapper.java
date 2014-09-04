@@ -44,8 +44,8 @@ public final class JsonMapper {
         final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(Edit.class, new EditDeserializer());
         module.addSerializer(Edit.class, new EditSerializer());
-        module.addDeserializer(DefaultEdits.class, new EditsDeserializer());
-        module.addSerializer(Edits.class, new EditsSerializer());
+        module.addDeserializer(DefaultPatchMessage.class, new EditsDeserializer());
+        module.addSerializer(PatchMessage.class, new EditsSerializer());
         om.registerModule(module);
         return om;
     }
@@ -112,10 +112,10 @@ public final class JsonMapper {
         return om.createArrayNode();
     }
 
-    private static class EditsDeserializer extends JsonDeserializer<DefaultEdits> {
+    private static class EditsDeserializer extends JsonDeserializer<DefaultPatchMessage> {
 
         @Override
-        public DefaultEdits deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+        public DefaultPatchMessage deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
             final String documentId = node.get("id").asText();
@@ -143,22 +143,22 @@ public final class JsonMapper {
                     edits.add(eb.build());
                 }
             }
-            return new DefaultEdits(documentId, clientId, edits);
+            return new DefaultPatchMessage(documentId, clientId, edits);
         }
     }
 
-    private static class EditsSerializer extends JsonSerializer<Edits> {
+    private static class EditsSerializer extends JsonSerializer<PatchMessage> {
 
         @Override
-        public void serialize(final Edits edits,
+        public void serialize(final PatchMessage patchMessage,
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
             jgen.writeStringField("msgType", "patch");
-            jgen.writeStringField("id", edits.documentId());
-            jgen.writeStringField("clientId", edits.clientId());
+            jgen.writeStringField("id", patchMessage.documentId());
+            jgen.writeStringField("clientId", patchMessage.clientId());
             jgen.writeArrayFieldStart("edits");
-            for (Edit edit : edits.edits()) {
+            for (Edit edit : patchMessage.edits()) {
                 if (edit == null) {
                     continue;
                 }

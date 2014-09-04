@@ -65,11 +65,11 @@ public class ClientSyncEngineTest {
         final String shadowVersion = "{\"id\": 6666}";
         engine.addDocument(clientDoc(documentId, clientId, updatedVersion));
 
-        final Edits edits = engine.diff(clientDoc(documentId, clientId, shadowVersion));
-        assertThat(edits.documentId(), equalTo(documentId));
-        assertThat(edits.clientId(), equalTo(clientId));
-        assertThat(edits.edits().size(), is(1));
-        final Edit edit = edits.edits().peek();
+        final PatchMessage patchMessage = engine.diff(clientDoc(documentId, clientId, shadowVersion));
+        assertThat(patchMessage.documentId(), equalTo(documentId));
+        assertThat(patchMessage.clientId(), equalTo(clientId));
+        assertThat(patchMessage.edits().size(), is(1));
+        final Edit edit = patchMessage.edits().peek();
         assertThat(edit.diffs().size(), is(4));
         final LinkedList<Diff> diffs = edit.diffs();
         assertThat(diffs.size(), is(4));
@@ -254,8 +254,8 @@ public class ClientSyncEngineTest {
         return new DefaultClientDocument<String>(docId, clientId, content);
     }
 
-    private static Edits edits(final String docId, final String clientId, Edit... edit) {
-        return new DefaultEdits(docId, clientId, new LinkedList<Edit>(Arrays.asList(edit)));
+    private static PatchMessage edits(final String docId, final String clientId, Edit... edit) {
+        return new DefaultPatchMessage(docId, clientId, new LinkedList<Edit>(Arrays.asList(edit)));
     }
 
     private static ShadowDocument<String> shadowDoc(final String docId,
