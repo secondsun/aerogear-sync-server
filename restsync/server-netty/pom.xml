@@ -24,7 +24,7 @@
     </parent>
     <artifactId>restsync-server-netty</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization Server</name>
+    <name>AeroGear Data REST Synchronization Server</name>
 
     <url>http://aerogear.org</url>
     <licenses>

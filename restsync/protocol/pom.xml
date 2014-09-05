@@ -25,7 +25,7 @@
     </parent>
     <artifactId>restsync-protocol</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization Protocol</name>
+    <name>AeroGear Data REST Synchronization Protocol</name>
 
     <url>http://aerogear.org</url>
     <licenses>
