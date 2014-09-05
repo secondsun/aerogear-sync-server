@@ -290,6 +290,62 @@
             </properties>
         </profile>
         <profile>
+            <id>7u55</id>
+            <activation>
+                <property>
+                      <name>java.version</name>
+                      <value>1.7.0_55</value>
+                </property>
+            </activation>
+            <properties>
+                <npn.version>1.1.6.v20130911</npn.version>
+                <alpn.version>7.0.0.v20140317</alpn.version>
+                <bootclasspath>-Xbootclasspath/p:${project.build.directory}/npn/npn-boot-${npn.version}.jar</bootclasspath>
+            </properties>
+        </profile>
+        <profile>
+            <id>7u60</id>
+            <activation>
+                <property>
+                    <name>java.version</name>
+                    <value>1.7.0_60</value>
+                </property>
+            </activation>
+            <properties>
+                <npn.version>1.1.6.v20130911</npn.version>
+                <alpn.version>7.0.0.v20140317</alpn.version>
+                <bootclasspath>-Xbootclasspath/p:${project.build.directory}/npn/npn-boot-${npn.version}.jar</bootclasspath>
+            </properties>
+        </profile>
+        <profile>
+            <id>7u65</id>
+            <activation>
+                <property>
+                    <name>java.version</name>
+                    <value>1.7.0_65</value>
+                </property>
+            </activation>
+            <properties>
+                <npn.version>1.1.6.v20130911</npn.version>
+                <alpn.version>7.0.0.v20140317</alpn.version>
+                <bootclasspath>-Xbootclasspath/p:${project.build.directory}/npn/npn-boot-${npn.version}.jar</bootclasspath>
+            </properties>
+        </profile>
+        <profile>
+            <id>7u67</id>
+            <activation>
+                <property>
+                    <name>java.version</name>
+                    <value>1.7.0_67</value>
+                </property>
+            </activation>
+            <properties>
+                <npn.version>1.1.6.v20130911</npn.version>
+                <alpn.version>7.0.0.v20140317</alpn.version>
+                <bootclasspath>-Xbootclasspath/p:${project.build.directory}/npn/npn-boot-${npn.version}.jar</bootclasspath>
+            </properties>
+        </profile>
+        <profile>
             <id>8</id>
             <activation>
                 <property>
