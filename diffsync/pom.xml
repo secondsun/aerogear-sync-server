@@ -43,6 +43,7 @@
         <module>client-core</module>
         <module>client-netty</module>
         <module>server-netty</module>
+        <module>server-xmpp</module>
         <module>itests</module>
     </modules>
 
