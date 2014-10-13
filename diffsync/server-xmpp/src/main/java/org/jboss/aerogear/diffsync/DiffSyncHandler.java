@@ -173,7 +173,7 @@ public class DiffSyncHandler implements PacketListener {
 
             if (messageType == null) {
                 // Normal upstream data message
-                messageReceived(jsonObject);
+                messageReceived(jsonObject.get("message"));
 
                 // Send ACK to CCS
                 String messageId = (String) jsonObject.get("message_id").asText();
@@ -204,7 +204,7 @@ public class DiffSyncHandler implements PacketListener {
     protected void messageReceived(JsonNode json) throws Exception {
 
         if (true) {
-
+            
             logger.info("Doc:" + json);
             switch (MessageType.from(json.get("msgType").asText())) {
                 case ADD:
