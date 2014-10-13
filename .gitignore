@@ -9,3 +9,4 @@ bower_components
 *.swo
 *.DS_Store
 /target/
+/diffsync/client-xmpp/target/
