@@ -20,6 +20,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.net.ssl.SSLSocketFactory;
+import org.jboss.aerogear.diffsync.server.DefaultServerSynchronizer;
+import org.jboss.aerogear.diffsync.server.ServerInMemoryDataStore;
+import org.jboss.aerogear.diffsync.server.ServerSyncEngine;
+import org.jboss.aerogear.diffsync.server.ServerSynchronizer;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.PacketInterceptor;
@@ -49,13 +53,7 @@ public final class DiffSyncServer {
 
     private static final String DEFAULT_CONFIG = "/sync.config";
 
-    /**
-     * Connects to GCM Cloud Connection Server using the supplied credentials.
-     *
-     * @param senderId Your GCM project number
-     * @param apiKey API Key of your project
-     */
-    public void connect(long senderId, String apiKey)
+    public void connect(long senderId, String apiKey, ServerSyncEngine<String> syncEngine)
             throws XMPPException, IOException, SmackException {
         ConnectionConfiguration config
                 = new ConnectionConfiguration(GCM_SERVER, GCM_PORT);
@@ -71,7 +69,7 @@ public final class DiffSyncServer {
         connection.addConnectionListener(new LoggingConnectionListener());
 
         // Handle incoming packets
-        connection.addPacketListener(new DiffSyncHandler(null, connection), new PacketTypeFilter(Message.class));
+        connection.addPacketListener(new DiffSyncHandler(syncEngine, connection), new PacketTypeFilter(Message.class));
 
         // Log all outgoing packets
         connection.addPacketInterceptor(new PacketInterceptor() {
@@ -88,9 +86,15 @@ public final class DiffSyncServer {
         final long senderId = 213383135458L; // your GCM sender id
         final String password = "AIzaSyB9MZDkP8kNcehJRmyNnRE-E8CWDRXBBSg";
 
+        final String configFile = args.length == 0 ? DEFAULT_CONFIG : args[0];
+        final StandaloneConfig config = ConfigReader.parse(configFile);
+        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
+        final ServerSyncEngine<String> syncEngine = new ServerSyncEngine<String>(synchronizer, dataStore);
+        
         DiffSyncServer ccsClient = new DiffSyncServer();
 
-        ccsClient.connect(senderId, password);
+        ccsClient.connect(senderId, password, syncEngine);
 
         while (true);
     }

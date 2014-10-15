@@ -37,9 +37,13 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.DefaultPacketExtension;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
+import org.xmlpull.v1.XmlPullParser;
 
 public class DiffSyncHandler implements PacketListener {
 
@@ -63,6 +67,18 @@ public class DiffSyncHandler implements PacketListener {
             = new ConcurrentHashMap<String, Set<Client>>();
     private final ServerSyncEngine<String> syncEngine;
 
+    static {
+        ProviderManager.addExtensionProvider(GCM_ELEMENT_NAME, GCM_NAMESPACE,
+            new PacketExtensionProvider() {
+                @Override
+                public PacketExtension parseExtension(XmlPullParser parser) throws
+                        Exception {
+                    String json = parser.nextText();
+                    return new GcmPacketExtension(json);
+                }
+            });
+    }
+    
     public DiffSyncHandler(final ServerSyncEngine<String> syncEngine, XMPPConnection connection) {
         this.connection = connection;
         this.syncEngine = syncEngine;
@@ -173,7 +189,7 @@ public class DiffSyncHandler implements PacketListener {
 
             if (messageType == null) {
                 // Normal upstream data message
-                messageReceived(jsonObject.get("message"));
+                messageReceived(jsonObject);
 
                 // Send ACK to CCS
                 String messageId = (String) jsonObject.get("message_id").asText();
@@ -203,12 +219,14 @@ public class DiffSyncHandler implements PacketListener {
 
     protected void messageReceived(JsonNode json) throws Exception {
 
+        JsonNode syncMessage = JsonMapper.asJsonNode(json.get("data").get("message").asText());
+        
         if (true) {
             
             logger.info("Doc:" + json);
-            switch (MessageType.from(json.get("msgType").asText())) {
+            switch (MessageType.from(syncMessage.get("msgType").asText())) {
                 case ADD:
-                    final Document<String> doc = documentFromJson(json);
+                    final Document<String> doc = documentFromJson(syncMessage);
                     final String clientId = json.get("from").toString();
                     addClientListener(doc.id(), clientId);
                     final PatchMessage patchMessage = addDocument(doc, clientId);
@@ -216,7 +234,7 @@ public class DiffSyncHandler implements PacketListener {
                     send((JsonMapper.toJson(patchMessage)));
                     break;
                 case PATCH:
-                    final PatchMessage clientPatchMessage = JsonMapper.fromJson(json.toString(), DefaultPatchMessage.class);
+                    final PatchMessage clientPatchMessage = JsonMapper.fromJson(syncMessage.toString(), DefaultPatchMessage.class);
                     checkForReconnect(clientPatchMessage.documentId(), clientPatchMessage.clientId());
                     logger.log(Level.FINER, "Client Edits=" + clientPatchMessage);
                     patch(clientPatchMessage);
@@ -270,7 +288,7 @@ public class DiffSyncHandler implements PacketListener {
         logger.info("Reconnected client [" + clientId + "]. Adding as listener.");
         // the context was used to reconnect so we need to add client as a listener
         addClientListener(documentId, clientId);
-        throw new IllegalStateException("Not implemented");
+
     }
 
     private static void addClientListener(final String documentId, final String clientId) {

@@ -96,7 +96,7 @@ public final class DiffSyncClient<T> extends Observable {
         if (builder.observer != null) {
             syncEngine.addObserver(builder.observer);
         }
-        gcm = GoogleCloudMessaging.getInstance((Context) null);
+        gcm = GoogleCloudMessaging.getInstance(context);
     }
 
     public DiffSyncClient connect(final Callback<DiffSyncClientHandler> callback) throws InterruptedException {
@@ -163,7 +163,7 @@ public final class DiffSyncClient<T> extends Observable {
                 throw new RuntimeException(ex);
             }
         } else {
-            //TODO: store the messages in a queue. 
+            throw new RuntimeException("Not connected/nodeviceId");
         }
     }
 

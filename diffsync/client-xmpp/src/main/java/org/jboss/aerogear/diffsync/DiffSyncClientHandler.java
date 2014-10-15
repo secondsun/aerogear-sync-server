@@ -28,12 +28,14 @@ public class DiffSyncClientHandler extends BroadcastReceiver {
 
     private final String TAG = DiffSyncClientHandler.class.getSimpleName();
 
-    private final ClientSyncEngine<?> syncEngine;
+    private static ClientSyncEngine<?> syncEngine;
 
     public DiffSyncClientHandler(final ClientSyncEngine<?> syncEngine) {
-        this.syncEngine = syncEngine;
+        DiffSyncClientHandler.syncEngine = syncEngine;
     }
 
+    public DiffSyncClientHandler() {
+    }
 
     private void patch(final PatchMessage clientEdit) {
         syncEngine.patch(clientEdit);
