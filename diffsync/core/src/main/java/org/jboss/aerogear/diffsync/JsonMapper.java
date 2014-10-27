@@ -44,8 +44,8 @@ public final class JsonMapper {
         final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(Edit.class, new EditDeserializer());
         module.addSerializer(Edit.class, new EditSerializer());
-        module.addDeserializer(DefaultPatchMessage.class, new EditsDeserializer());
-        module.addSerializer(PatchMessage.class, new EditsSerializer());
+        module.addDeserializer(DefaultPatchMessage.class, new PatchMessageDeserializer());
+        module.addSerializer(PatchMessage.class, new PatchMessageSerializer());
         om.registerModule(module);
         return om;
     }
@@ -112,7 +112,7 @@ public final class JsonMapper {
         return om.createArrayNode();
     }
 
-    private static class EditsDeserializer extends JsonDeserializer<DefaultPatchMessage> {
+    private static class PatchMessageDeserializer extends JsonDeserializer<DefaultPatchMessage> {
 
         @Override
         public DefaultPatchMessage deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
@@ -147,7 +147,7 @@ public final class JsonMapper {
         }
     }
 
-    private static class EditsSerializer extends JsonSerializer<PatchMessage> {
+    private static class PatchMessageSerializer extends JsonSerializer<PatchMessage> {
 
         @Override
         public void serialize(final PatchMessage patchMessage,
