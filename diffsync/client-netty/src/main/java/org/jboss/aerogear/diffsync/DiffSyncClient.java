@@ -105,7 +105,6 @@ public final class DiffSyncClient<T> extends Observable {
         syncEngine.addDocument(document);
         if (channel.isOpen()) {
             final ObjectNode docMsg = message("add");
-            docMsg.put("msgType", "add");
             docMsg.put("id", document.id());
             docMsg.put("clientId", document.clientId());
             docMsg.put("content", document.content().toString());
