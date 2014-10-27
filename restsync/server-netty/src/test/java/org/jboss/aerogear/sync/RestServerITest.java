@@ -87,7 +87,7 @@ public class RestServerITest {
         try {
             client.send(putRequest(documentId, content));
             assertThat(client.getResponse().status(), is(OK));
-            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            assertThat(client.getResponse().headers().getAndConvert(CONTENT_TYPE), equalTo("application/json"));
             final Document document = fromJson(client.getBody(), Document.class);
             assertThat(document.id(), equalTo(documentId));
             assertThat(document.revision(), is(notNullValue()));
@@ -104,7 +104,7 @@ public class RestServerITest {
         final NettyClient client = new NettyClient("localhost", port);
         try {
             client.send(putRequest(documentId, content)).send(getRequest(documentId));
-            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            assertThat(client.getResponse().headers().getAndConvert(CONTENT_TYPE), equalTo("application/json"));
             final Document document = fromJson(client.getBody(), Document.class);
             assertThat(document.id(), equalTo(documentId));
             assertThat(document.revision(), is(notNullValue()));
@@ -122,7 +122,7 @@ public class RestServerITest {
         final NettyClient client = new NettyClient("localhost", port);
         try {
             client.send(putRequest(contextPath, documentId, content)).send(getRequest(contextPath, documentId, ""));
-            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            assertThat(client.getResponse().headers().getAndConvert(CONTENT_TYPE), equalTo("application/json"));
             final Document document = fromJson(client.getBody(), Document.class);
             assertThat(document.id(), equalTo(documentId));
             assertThat(document.revision(), is(notNullValue()));
@@ -162,7 +162,7 @@ public class RestServerITest {
             final Document doc = fromJson(client.getBody(), Document.class);
             client.send(deleteRequest(documentId, "/", jsonRev(doc.revision())));
             assertThat(client.getResponse().status(), equalTo(OK));
-            assertThat(client.getResponse().headers().get(CONTENT_TYPE), equalTo("application/json"));
+            assertThat(client.getResponse().headers().getAndConvert(CONTENT_TYPE), equalTo("application/json"));
             assertThat(asJsonNode(client.getBody()).get("rev").asText(), not(equalTo(doc.revision())));
         } finally {
             client.shutdown();
@@ -280,7 +280,7 @@ public class RestServerITest {
 
     private static void addHeaders(final HttpRequest request, final int contentSize) {
         request.headers().set(HOST, "localhost");
-        request.headers().set(CONTENT_LENGTH, contentSize);
+        request.headers().setInt(CONTENT_LENGTH, contentSize);
         request.headers().set(CONTENT_TYPE, "application/json");
     }
 
