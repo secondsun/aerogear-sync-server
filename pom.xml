@@ -48,7 +48,6 @@
 
     <modules>
         <module>common</module>
-        <module>restsync</module>
         <module>diffsync</module>
     </modules>
 
