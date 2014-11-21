@@ -22,8 +22,10 @@ import org.jboss.aerogear.diffsync.server.ServerSyncEngine;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +50,19 @@ import org.xmlpull.v1.XmlPullParser;
 public class DiffSyncHandler implements PacketListener {
 
     private static final Logger logger = Logger.getLogger(DiffSyncHandler.class.getCanonicalName());
+
+    private static Map<String, String> payloadToMap(String payload) {
+        Map<String, String> data = new HashMap<String, String>();
+        
+        JsonNode payloadJson = JsonMapper.asJsonNode(payload);
+        Iterator<Map.Entry<String, JsonNode>> fields = payloadJson.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            data.put(field.getKey(), field.getValue().asText());
+        }
+        
+        return data;
+    }
 
     private XMPPConnection connection;
 
@@ -95,7 +110,7 @@ public class DiffSyncHandler implements PacketListener {
      */
     protected void handleAckReceipt(JsonNode jsonObject) {
         String messageId = (String) jsonObject.get("message_id").asText();
-        String from = (String) jsonObject.get("from").asText();
+        String from = (String) jsonObject.get("from").asText().replace("\"", "");
         logger.log(Level.INFO, "handleAckReceipt() from: " + from + ",messageId: " + messageId);
     }
 
@@ -110,7 +125,7 @@ public class DiffSyncHandler implements PacketListener {
      */
     protected void handleNackReceipt(JsonNode jsonObject) {
         String messageId = (String) jsonObject.get("message_id").asText();
-        String from = (String) jsonObject.get("from").asText();
+        String from = (String) jsonObject.get("from").asText().replace("\"", "");
         logger.log(Level.INFO, "handleNackReceipt() from: " + from + ",messageId: " + messageId);
     }
 
@@ -137,7 +152,7 @@ public class DiffSyncHandler implements PacketListener {
      * @return JSON encoded GCM message.
      */
     public static String createJsonMessage(String to, String messageId,
-            Map<String, String> payload, String collapseKey, Long timeToLive,
+            String payload, String collapseKey, Long timeToLive,
             Boolean delayWhileIdle) {
         Map<String, Object> message = new HashMap<String, Object>();
         message.put("to", to);
@@ -151,7 +166,7 @@ public class DiffSyncHandler implements PacketListener {
             message.put("delay_while_idle", true);
         }
         message.put("message_id", messageId);
-        message.put("data", payload);
+        message.put("data", payloadToMap(payload));
         return JSONValue.toJSONString(message);
     }
 
@@ -185,7 +200,7 @@ public class DiffSyncHandler implements PacketListener {
             JsonNode jsonObject = JsonMapper.asJsonNode(body);
 
             // present for "ack"/"nack", null otherwise
-            Object messageType = jsonObject.get("message_type");
+            JsonNode messageType = jsonObject.get("message_type");
 
             if (messageType == null) {
                 // Normal upstream data message
@@ -193,22 +208,22 @@ public class DiffSyncHandler implements PacketListener {
 
                 // Send ACK to CCS
                 String messageId = (String) jsonObject.get("message_id").asText();
-                String from = (String) jsonObject.get("from").asText();
-                String ack = createJsonAck(from, messageId);
+                String clientId = (String) jsonObject.get("from").asText().replace("\"", "");
+                String ack = createJsonAck(clientId, messageId);
                 send(ack);
-            } else if ("ack".equals(messageType.toString())) {
+            } else if ("ack".equals(messageType.asText())) {
                 // Process Ack
                 handleAckReceipt(jsonObject);
-            } else if ("nack".equals(messageType.toString())) {
+            } else if ("nack".equals(messageType.asText())) {
                 // Process Nack
                 handleNackReceipt(jsonObject);
-            } else if ("control".equals(messageType.toString())) {
+            } else if ("control".equals(messageType.asText())) {
                 // Process control message
                 handleControlMessage(jsonObject);
             } else {
                 logger.log(Level.WARNING,
-                        "Unrecognized message type (%s)",
-                        messageType.toString());
+                        "Unrecognized message type: "+
+                        messageType.asText());
             }
         } catch (ParseException e) {
             logger.log(Level.SEVERE, "Error parsing JSON " + body, e);
@@ -227,11 +242,11 @@ public class DiffSyncHandler implements PacketListener {
             switch (MessageType.from(syncMessage.get("msgType").asText())) {
                 case ADD:
                     final Document<String> doc = documentFromJson(syncMessage);
-                    final String clientId = json.get("from").toString();
+                    final String clientId = json.get("from").asText();
                     addClientListener(doc.id(), clientId);
                     final PatchMessage patchMessage = addDocument(doc, clientId);
 
-                    send((JsonMapper.toJson(patchMessage)));
+                    send(createJsonMessage(clientId, "m-" + UUID.randomUUID().toString(), JsonMapper.toJson(patchMessage), null, null, null));
                     break;
                 case PATCH:
                     final PatchMessage clientPatchMessage = JsonMapper.fromJson(syncMessage.toString(), DefaultPatchMessage.class);
@@ -262,7 +277,9 @@ public class DiffSyncHandler implements PacketListener {
      * Sends a packet with contents provided.
      */
     protected void send(String jsonRequest) throws SmackException.NotConnectedException {
+        
         Packet request = new GcmPacketExtension(jsonRequest).toPacket();
+        
         connection.sendPacket(request);
     }
 
@@ -330,7 +347,7 @@ public class DiffSyncHandler implements PacketListener {
             final PatchMessage patchMessage = diffs(documentId, client.id());
             logger.log(Level.FINE, "Sending to [" + client.registrationId + "] : " + patchMessage);
             try {
-                send(JsonMapper.toJson(patchMessage));
+                send(createJsonMessage(client.id(), "m-" + UUID.randomUUID().toString(), JsonMapper.toJson(patchMessage), null, null, null));
             } catch (SmackException.NotConnectedException ex) {
                 Logger.getLogger(DiffSyncHandler.class.getName()).log(Level.SEVERE, null, ex);
                 throw new RuntimeException(ex);
