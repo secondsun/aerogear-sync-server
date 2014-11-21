@@ -58,7 +58,11 @@ public class DiffSyncHandler implements PacketListener {
         Iterator<Map.Entry<String, JsonNode>> fields = payloadJson.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> field = fields.next();
-            data.put(field.getKey(), field.getValue().asText());
+            if (field.getValue().isValueNode()) {
+                data.put(field.getKey(), field.getValue().asText());
+            } else {
+                data.put(field.getKey(), JsonMapper.toString(field.getValue()));
+            }
         }
         
         return data;
