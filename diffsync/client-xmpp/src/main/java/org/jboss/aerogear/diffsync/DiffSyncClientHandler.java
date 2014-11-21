@@ -21,8 +21,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import org.jboss.aerogear.diffsync.client.ClientSyncEngine;
+import org.jboss.aerogear.diffsync.server.MessageType;
 
 public class DiffSyncClientHandler extends BroadcastReceiver {
 
@@ -47,7 +51,7 @@ public class DiffSyncClientHandler extends BroadcastReceiver {
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
         // The getMessageType() intent parameter must be the intent you received
         // in your BroadcastReceiver.
-        String messageType = gcm.getMessageType(intent);
+        String gcmMessageType = gcm.getMessageType(intent);
 
         if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
             /*
@@ -56,14 +60,46 @@ public class DiffSyncClientHandler extends BroadcastReceiver {
              * any message types you're not interested in, or that you don't
              * recognize.
              */
-            if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
+            if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(gcmMessageType)) {
                 Log.i(TAG, "Send error: " + extras.toString());
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
+            } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(gcmMessageType)) {
                 Log.i(TAG, "Deleted messages on server: "
                         + extras.toString());
                 // If it's a regular GCM message, do some work.
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(gcmMessageType)) {
 
+                
+                Bundle message = extras;
+                
+                String syncMessageType = message.getString("msgType", "");
+                
+                switch (MessageType.from(syncMessageType)) {
+                case ADD:
+                    //Would a server send an add?
+                    break;
+                case PATCH:
+                {
+                    JsonNode editsAsJson = JsonMapper.asJsonNode(message.getString("edits"));
+                    Queue<Edit> edits = new ArrayDeque<Edit>(editsAsJson.size());
+                    for(int i = 0; i < editsAsJson.size(); i++) {
+                        JsonNode edit = editsAsJson.get(i);
+                        edits.add(JsonMapper.fromJson(edit.toString(), Edit.class));
+                    }
+                    
+                    final PatchMessage serverPatchMessage = new DefaultPatchMessage(message.getString("id"), message.getString("clientId"), edits);
+                
+                    Log.i(TAG, "Edits: " + serverPatchMessage);
+                    patch(serverPatchMessage);
+                }
+                    break;
+                case DETACH:
+                    // detach the client from a specific document.
+                    break;
+                case UNKNOWN:
+                    //unknownMessageType(ctx, json);
+                    break;
+            }
+                
                 /*
                 Log.i(TAG, "TextWebSocketFrame: " + ((TextWebSocketFrame) frame).text());
             final JsonNode json = JsonMapper.asJsonNode(((TextWebSocketFrame) frame).text());
