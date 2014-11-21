@@ -351,9 +351,9 @@ public class DiffSyncHandler implements PacketListener {
             logger.log(Level.FINE, "Sending to [" + client.registrationId + "] : " + patchMessage);
             try {
                 send(createJsonMessage(client.googleRegistrationId(), "m-" + UUID.randomUUID().toString(), JsonMapper.toJson(patchMessage), null, null, null));
-            } catch (SmackException.NotConnectedException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(DiffSyncHandler.class.getName()).log(Level.SEVERE, null, ex);
-                throw new RuntimeException(ex);
+                //throw new RuntimeException(ex);
             }
         }
     }
@@ -386,33 +386,39 @@ public class DiffSyncHandler implements PacketListener {
             return diffsyncClientId;
         }
 
-        
-
         @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            final Client client = (Client) o;
-
-            return !registrationId.equals(client.registrationId);
-            
+        public int hashCode() {
+            int hash = 3;
+            hash = 89 * hash + (this.registrationId != null ? this.registrationId.hashCode() : 0);
+            hash = 89 * hash + (this.diffsyncClientId != null ? this.diffsyncClientId.hashCode() : 0);
+            return hash;
         }
 
         @Override
-        public int hashCode() {
-            int result = registrationId.hashCode();
-            return result;
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Client other = (Client) obj;
+            if ((this.registrationId == null) ? (other.registrationId != null) : !this.registrationId.equals(other.registrationId)) {
+                return false;
+            }
+            if ((this.diffsyncClientId == null) ? (other.diffsyncClientId != null) : !this.diffsyncClientId.equals(other.diffsyncClientId)) {
+                return false;
+            }
+            return true;
         }
 
         @Override
         public String toString() {
-            return "Client[id=" + registrationId + ']';
+            return "Client{" + "registrationId=" + registrationId + ", diffsyncClientId=" + diffsyncClientId + '}';
         }
+        
+        
+        
     }
 
     /**
