@@ -110,7 +110,7 @@ public class DiffSyncHandler implements PacketListener {
      */
     protected void handleAckReceipt(JsonNode jsonObject) {
         String messageId = (String) jsonObject.get("message_id").asText();
-        String from = (String) jsonObject.get("from").asText().replace("\"", "");
+        String from = (String) jsonObject.get("from").asText();
         logger.log(Level.INFO, "handleAckReceipt() from: " + from + ",messageId: " + messageId);
     }
 
@@ -239,18 +239,21 @@ public class DiffSyncHandler implements PacketListener {
         if (true) {
             
             logger.info("Doc:" + json);
+            final String googleRegistrationId = (String) json.get("from").asText();
+            final String diffsyncClientId = clientIdFromJson(syncMessage);
             switch (MessageType.from(syncMessage.get("msgType").asText())) {
                 case ADD:
                     final Document<String> doc = documentFromJson(syncMessage);
-                    final String clientId = json.get("from").asText();
-                    addClientListener(doc.id(), clientId);
-                    final PatchMessage patchMessage = addDocument(doc, clientId);
+                    
+                    
+                    addClientListener(doc.id(), googleRegistrationId, diffsyncClientId);
+                    final PatchMessage patchMessage = addDocument(doc, diffsyncClientId);
 
-                    send(createJsonMessage(clientId, "m-" + UUID.randomUUID().toString(), JsonMapper.toJson(patchMessage), null, null, null));
+                    send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID().toString(), JsonMapper.toJson(patchMessage), null, null, null));
                     break;
                 case PATCH:
                     final PatchMessage clientPatchMessage = JsonMapper.fromJson(syncMessage.toString(), DefaultPatchMessage.class);
-                    checkForReconnect(clientPatchMessage.documentId(), clientPatchMessage.clientId());
+                    checkForReconnect(clientPatchMessage.documentId(), googleRegistrationId, diffsyncClientId);
                     logger.log(Level.FINER, "Client Edits=" + clientPatchMessage);
                     patch(clientPatchMessage);
                     notifyClientListeners(clientPatchMessage);
@@ -300,16 +303,16 @@ public class DiffSyncHandler implements PacketListener {
         return syncEngine.diffs(documentId, clientId);
     }
 
-    private static void checkForReconnect(final String documentId, final String clientId) {
+    private static void checkForReconnect(final String documentId, final String registrationId, final String diffSyncClientId) {
 
-        logger.info("Reconnected client [" + clientId + "]. Adding as listener.");
+        logger.info("Reconnected client [" + registrationId + "]. Adding as listener.");
         // the context was used to reconnect so we need to add client as a listener
-        addClientListener(documentId, clientId);
+        addClientListener(documentId, registrationId, diffSyncClientId);
 
     }
 
-    private static void addClientListener(final String documentId, final String clientId) {
-        final Client client = new Client(clientId);
+    private static void addClientListener(final String documentId, final String registrationId, final String diffSyncClientId) {
+        final Client client = new Client(registrationId, diffSyncClientId);
         final Set<Client> newClient = Collections.newSetFromMap(new ConcurrentHashMap<Client, Boolean>());
         newClient.add(client);
         while (true) {
@@ -344,10 +347,10 @@ public class DiffSyncHandler implements PacketListener {
         final String documentId = peek.documentId();
         for (Client client : clients.get(documentId)) {
            //TODO: this should be done async and not block the io thread!
-            final PatchMessage patchMessage = diffs(documentId, client.id());
+            final PatchMessage patchMessage = diffs(documentId, client.getDiffsyncClientId());
             logger.log(Level.FINE, "Sending to [" + client.registrationId + "] : " + patchMessage);
             try {
-                send(createJsonMessage(client.id(), "m-" + UUID.randomUUID().toString(), JsonMapper.toJson(patchMessage), null, null, null));
+                send(createJsonMessage(client.googleRegistrationId(), "m-" + UUID.randomUUID().toString(), JsonMapper.toJson(patchMessage), null, null, null));
             } catch (SmackException.NotConnectedException ex) {
                 Logger.getLogger(DiffSyncHandler.class.getName()).log(Level.SEVERE, null, ex);
                 throw new RuntimeException(ex);
@@ -355,18 +358,35 @@ public class DiffSyncHandler implements PacketListener {
         }
     }
 
+    private String clientIdFromJson(JsonNode syncMessage) {
+        final JsonNode clientId = syncMessage.get("clientId");
+        String content = null;
+        if (clientId != null && !clientId.isNull()) {
+                content = clientId.asText();
+            
+        }
+        return content;
+    }
+
     private static class Client {
 
         private final String registrationId;
+        private final String diffsyncClientId;
 
-        Client(final String clientId) {
-            registrationId = clientId;
+        Client(final String googleRegistrationId, final String diffsyncClientId) {
+            registrationId = googleRegistrationId;
+            this.diffsyncClientId = diffsyncClientId;
         }
 
-        public String id() {
+        public String googleRegistrationId() {
             return registrationId;
         }
 
+        public String getDiffsyncClientId() {
+            return diffsyncClientId;
+        }
+
+        
 
         @Override
         public boolean equals(Object o) {
