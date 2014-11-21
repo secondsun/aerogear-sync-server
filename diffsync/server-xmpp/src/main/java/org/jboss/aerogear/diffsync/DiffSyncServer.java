@@ -60,11 +60,13 @@ public final class DiffSyncServer {
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);
         config.setReconnectionAllowed(true);
         config.setRosterLoadedAtLogin(false);
+        config.setDebuggerEnabled(true);
+        
         config.setSendPresence(false);
         config.setSocketFactory(SSLSocketFactory.getDefault());
 
         connection = new XMPPTCPConnection(config);
-        connection.connect();
+        
 
         connection.addConnectionListener(new LoggingConnectionListener());
 
@@ -79,6 +81,7 @@ public final class DiffSyncServer {
             }
         }, new PacketTypeFilter(Message.class));
 
+        connection.connect();
         connection.login(senderId + "@gcm.googleapis.com", apiKey);
     }
 
