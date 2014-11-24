@@ -163,6 +163,8 @@ public final class JsonMapper {
                     continue;
                 }
                 jgen.writeStartObject();
+                jgen.writeStringField("clientId", edit.clientId());
+                jgen.writeStringField("id", edit.documentId());
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
