@@ -19,7 +19,8 @@ package org.jboss.aerogear.sync;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -69,7 +70,7 @@ public class RestChannelHandler extends ChannelHandlerAdapter {
 
             boolean keepAlive = isKeepAlive(request);
             if (keepAlive) {
-                response.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+                response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
                 ctx.writeAndFlush(response);
             } else {
                 ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
