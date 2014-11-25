@@ -45,6 +45,9 @@ public final class DiffSyncServer {
 
     private XMPPConnection connection;
 
+    private static final long SENDER_ID = 0l;
+    private static final String API_KEY = "";
+    
     private static final String GCM_SERVER = "gcm.googleapis.com";
     private static final int GCM_PORT = 5235;
 
@@ -86,8 +89,9 @@ public final class DiffSyncServer {
     }
 
     public static void main(String[] args) throws Exception {
-        final long senderId = 213383135458L; // your GCM sender id
-        final String password = "AIzaSyB9MZDkP8kNcehJRmyNnRE-E8CWDRXBBSg";
+        
+        final long senderId = SENDER_ID; // your GCM sender id
+        final String password = API_KEY;
 
         final String configFile = args.length == 0 ? DEFAULT_CONFIG : args[0];
         final StandaloneConfig config = ConfigReader.parse(configFile);
