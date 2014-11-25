@@ -100,22 +100,6 @@ public class DiffSyncClientHandler extends BroadcastReceiver {
                     break;
             }
                 
-                /*
-                Log.i(TAG, "TextWebSocketFrame: " + ((TextWebSocketFrame) frame).text());
-            final JsonNode json = JsonMapper.asJsonNode(((TextWebSocketFrame) frame).text());
-            Log.i(TAG, "json: " + json);
-            switch (MessageType.from(json.get("msgType").asText())) {
-                case PATCH:
-                    final PatchMessage serverPatchMessage = JsonMapper.fromJson(json.toString(), DefaultPatchMessage.class);
-                    Log.i(TAG, "Edits: " + serverPatchMessage);
-                    patch(serverPatchMessage);
-                    break;
-                case UNKNOWN:
-                    unknownMessageType(ctx, json);
-                    break;
-            }
-                */
-                
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
