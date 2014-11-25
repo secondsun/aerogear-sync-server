@@ -105,40 +105,7 @@ public final class DiffSyncServer {
 
         while (true);
     }
-//    
-//    public static void main(final String... args) throws Exception {
-//        final String configFile = args.length == 0 ? DEFAULT_CONFIG : args[0];
-//        final StandaloneConfig config = ConfigReader.parse(configFile);
-//        
-//        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
-//        final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
-//        final ServerSyncEngine<String> syncEngine = new ServerSyncEngine<String>(synchronizer, dataStore);
-//        final DiffSyncHandler diffSyncHandler = new DiffSyncHandler(syncEngine);
-//        try {
-//            final ServerBootstrap sb = new ServerBootstrap();
-//            sb.group(bossGroup, workerGroup)
-//                    .channel(NioServerSocketChannel.class)
-//                    .childHandler(new ChannelInitializer<SocketChannel>() {
-//                        @Override
-//                        public void initChannel(final SocketChannel ch) throws Exception {
-//                            ch.pipeline().addLast(
-//                                    new HttpRequestDecoder(),
-//                                    new HttpObjectAggregator(65536),
-//                                    new HttpResponseEncoder(),
-//                                    new WebSocketServerProtocolHandler("/sync"),
-//                                    diffSyncHandler);
-//                        }
-//                    });
-//
-//            final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
-//            System.out.println("SyncServer bound to " + config.host() + ':' + config.port());
-//
-//            ch.closeFuture().sync();
-//        } finally {
-//            bossGroup.shutdownGracefully();
-//            workerGroup.shutdownGracefully();
-//        }
-//      }
+
 
     private static final class LoggingConnectionListener
             implements ConnectionListener {
