@@ -1,10 +1,14 @@
-## Netty Differential Synchronization Server Implementation
+## XMPP Differential Synchronization Server Implementation
 This module contains a server implementations that uses the [server-core](../server-core)
 
 ### DiffSyncServer
 The [DiffSyncServer](./src/main/java/org/jboss/aerogear/diffsync/DiffSyncServer.java) is a standalone server implementation
 that can be started using Maven or directly in an IDE.
 
+### Setup
+
+ * Retrieve a SenderID and API key from [Google](https://developer.android.com/google/gcm/gs.html) and set the fields SENDER_ID and API_KEY in DiffSyncServer.java
+ 
 #### Starting using Maven
 
     mvn exec:exec
