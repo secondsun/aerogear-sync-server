@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The server side of the differential synchronization implementation.
@@ -31,12 +33,14 @@ import java.util.LinkedList;
  */
 public class ServerSyncEngine<T> {
 
-    private final ServerSynchronizer<T> synchronizer;
-    private final ServerDataStore<T> dataStore;
     private static final Logger logger = LoggerFactory.getLogger(ServerSyncEngine.class);
     private static final int SEEDED_CLIENT_VERSION = -1;
     private static final int SEEDED_SERVER_VERSION = 1;
     private static final LinkedList<Edit> EMPTY_EDITS = new LinkedList<Edit>();
+    private static final ConcurrentHashMap<String, Set<Subscriber<?>>> subscribers =
+            new ConcurrentHashMap<String, Set<Subscriber<?>>>();
+    private final ServerSynchronizer<T> synchronizer;
+    private final ServerDataStore<T> dataStore;
 
     public ServerSyncEngine(final ServerSynchronizer<T> synchronizer, final ServerDataStore<T> dataStore) {
         this.synchronizer = synchronizer;
@@ -44,14 +48,21 @@ public class ServerSyncEngine<T> {
     }
 
     /**
-     * Adds a new document which is "synchonrizable".
+     * Adds a subscriber for the specified document.
      *
      * A server does not create a new document itself, this would be created by a client
      * and a first revision is added to this synchronization engine by this method call.
      *
-     * @param document the document to add.
+     * @param subscriber the subscriber to add
+     * @param document the document that the subscriber subscribes to. Will be added to the underlying
+     *                 datastore if it does not already exist in the datastore.
      */
-    public PatchMessage addDocument(final Document<T> document, final String clientId) {
+    public PatchMessage addSubscriber(final Subscriber<?> subscriber, final Document<T> document) {
+        addSubscriber(subscriber, document.id());
+        return addDocument(document, subscriber.clientId());
+    }
+
+    private PatchMessage addDocument(final Document<T> document, final String clientId) {
         if (document.content() == null) {
             final Document<T> existingDoc = getDocument(document.id());
             if (existingDoc == null) {
@@ -74,6 +85,55 @@ public class ServerSyncEngine<T> {
             final Edit edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
             return new DefaultPatchMessage(document.id(), clientId, new LinkedList<Edit>(Collections.singleton(edit)));
         }
+    }
+
+    /**
+     * Adds a subscriber to an already existing document.
+     *
+     * @param subscriber the {@link Subscriber} to add
+     * @param documentId the id of the document that the subscriber wants to subscribe.
+     */
+    public void addSubscriber(final Subscriber<?> subscriber, final String documentId) {
+        final Set<Subscriber<?>> newSub = Collections.newSetFromMap(new ConcurrentHashMap<Subscriber<?>, Boolean>());
+        newSub.add(subscriber);
+        while(true) {
+            final Set<Subscriber<?>> currentClients = subscribers.get(documentId);
+            if (currentClients == null) {
+                final Set<Subscriber<?>> previous = subscribers.putIfAbsent(documentId, newSub);
+                if (previous != null) {
+                    newSub.addAll(previous);
+                    if (subscribers.replace(documentId, previous, newSub)) {
+                        break;
+                    }
+                }
+            } else {
+                newSub.addAll(currentClients);
+                if (subscribers.replace(documentId, currentClients, newSub)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public void removeSubscriber(final Subscriber<?> subscriber, final String documentId) {
+        while (true) {
+            final Set<Subscriber<?>> currentClients = subscribers.get(documentId);
+            if (currentClients == null || currentClients.isEmpty()) {
+                break;
+            }
+            final Set<Subscriber<?>> newClients = Collections.newSetFromMap(new ConcurrentHashMap<Subscriber<?>, Boolean>());
+            newClients.addAll(currentClients);
+            final boolean removed = newClients.remove(subscriber);
+            if (removed) {
+                if (subscribers.replace(documentId, currentClients, newClients)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public Set<Subscriber<?>> subscribers(final String documentId) {
+        return subscribers.get(documentId);
     }
 
     private ShadowDocument<T> seededShadowFrom(final ShadowDocument<T> shadow, final Document<T> doc) {
@@ -101,11 +161,40 @@ public class ServerSyncEngine<T> {
      * Performs the server side patching for a specific client.
      *
      * @param patchMessage the changes made by a client.
+     * @return {@link PatchMessage} to allow method chaining
      */
-    public void patch(final PatchMessage patchMessage) {
+    public PatchMessage patch(final PatchMessage patchMessage) {
         final ShadowDocument<T> patchedShadow = patchShadow(patchMessage);
         updateDocument(patchDocument(patchedShadow));
         saveBackupShadow(patchedShadow);
+        return patchMessage;
+    }
+
+    /**
+     * Performs the server side patching for a specific client and updates
+     * all subscribers to the patched document.
+     *
+     * @param patchMessage the changes made by a client.
+     */
+    public void patchAndNotifySubscribers(final PatchMessage patchMessage) {
+        notifySubscribers(patch(patchMessage));
+    }
+
+    private void notifySubscribers(final PatchMessage clientPatchMessage) {
+        final Edit peek = clientPatchMessage.edits().peek();
+        if (peek == null) {
+            // edits could be null as a client is allowed to send an patch message
+            // that only contains an acknowledgement that it has received a specific
+            // version from the server.
+            return;
+        }
+        final String documentId = peek.documentId();
+        final Set<Subscriber<?>> subscribers = subscribers(documentId);
+        for (Subscriber<?> subscriber: subscribers) {
+            final PatchMessage patchMessage = diffs(documentId, subscriber.clientId());
+            logger.debug("Sending to [" + subscriber.clientId() + "] : " + patchMessage);
+            subscriber.patched(patchMessage);
+        }
     }
 
     public PatchMessage diffs(final String documentId, final String clientId) {

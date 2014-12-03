@@ -30,8 +30,6 @@ import org.jboss.aerogear.diffsync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.diffsync.client.ClientSyncEngine;
 import org.jboss.aerogear.diffsync.client.DefaultClientSynchronizer;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.util.Observable;
 import java.util.Observer;
@@ -57,13 +55,8 @@ public final class DiffSyncClient<T> extends Observable {
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final String PROPERTY_ON_SERVER_EXPIRATION_TIME = "onServerExpirationTimeMs";
 
-    private final String host;
-    private final int port;
-    private final String path;
     private final Context context;
-    private final URI uri;
     private final ClientSyncEngine<T> syncEngine;
-    private final String subprotocols;
     private GoogleCloudMessaging gcm;
     private final String senderId;
     private String deviceToken = "";
@@ -85,12 +78,7 @@ public final class DiffSyncClient<T> extends Observable {
     };
 
     private DiffSyncClient(final Builder builder) {
-        host = builder.host;
-        port = builder.port;
-        path = builder.path;
         context = builder.context.getApplicationContext();
-        uri = builder.uri;
-        subprotocols = builder.subprotocols;
         syncEngine = builder.engine;
         senderId = builder.senderId;
         if (builder.observer != null) {
@@ -192,50 +180,19 @@ public final class DiffSyncClient<T> extends Observable {
         return jsonNode;
     }
 
-    public static <T> Builder<T> forHost(final String host) {
-        return new Builder<T>(host);
+    public static <T> Builder<T> forSenderID(final String senderId) {
+        return new Builder<T>(senderId);
     }
 
     public static class Builder<T> {
 
-        private final String host;
-        private int port;
-        private String path;
-        private boolean wss;
-        private URI uri;
-        private String subprotocols;
         private ClientSyncEngine<T> engine;
         private Observer observer;
         private Context context;
         private String senderId;
 
-        public Builder(final String host) {
-            this.host = host;
-        }
-
-        public Builder<T> port(final int port) {
-            this.port = port;
-            return this;
-        }
-
-        public Builder<T> senderId(final String senderId) {
+        public Builder(final String senderId) {
             this.senderId = senderId;
-            return this;
-        }
-
-        public Builder<T> path(final String path) {
-            this.path = path;
-            return this;
-        }
-
-        public Builder<T> wss(final boolean wss) {
-            this.wss = wss;
-            return this;
-        }
-
-        public Builder<T> subprotocols(final String subprotocols) {
-            this.subprotocols = subprotocols;
-            return this;
         }
 
         public Builder<T> syncEngine(final ClientSyncEngine<T> engine) {
@@ -257,16 +214,7 @@ public final class DiffSyncClient<T> extends Observable {
             if (engine == null) {
                 engine = new ClientSyncEngine(new DefaultClientSynchronizer(), new ClientInMemoryDataStore());
             }
-            uri = parseUri(this);
             return new DiffSyncClient<T>(this);
-        }
-
-        private URI parseUri(final Builder<T> b) {
-            try {
-                return new URI(b.wss ? "wss" : "ws" + "://" + b.host + ':' + b.port + b.path);
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException(e.getMessage(), e);
-            }
         }
 
     }

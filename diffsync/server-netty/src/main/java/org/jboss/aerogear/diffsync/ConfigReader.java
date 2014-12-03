@@ -20,6 +20,7 @@ import java.io.InputStream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.aerogear.diffsync.StandaloneConfig.Builder;
 
 /**
  * Utility to read a JSON config files.
@@ -61,7 +62,7 @@ public final class ConfigReader {
     public static StandaloneConfig parse(final InputStream in) {
         try {
             final JsonNode json = OM.readTree(in);
-            return parseSimplePushProperties(json);
+            return parseProperties(json);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -69,10 +70,35 @@ public final class ConfigReader {
         }
     }
 
-    private static StandaloneConfig parseSimplePushProperties(final JsonNode json) {
-        final JsonNode host = json.get("host");
-        final JsonNode port = json.get("port");
-        return StandaloneConfig.host(host.asText()).port(port.asInt()).build();
+    private static StandaloneConfig parseProperties(final JsonNode json) {
+        final Builder b = StandaloneConfig.host(json.get("host").asText());
+        b.port(json.get("port").asInt());
+
+        final JsonNode gcm = json.get("gcm");
+        if (gcm != null) {
+            final JsonNode enabled = gcm.get("enabled");
+            if (enabled != null && enabled.asBoolean()){
+                b.gcmEnabled();
+            }
+
+            final JsonNode gcmHost = gcm.get("host");
+            if (gcmHost != null) {
+                b.gcmHost(gcmHost.asText());
+            }
+            final JsonNode gcmPort = gcm.get("port");
+            if (gcmPort != null) {
+                b.gcmPort(gcmPort.asInt());
+            }
+            final JsonNode gcmSenderId = gcm.get("senderId");
+            if (gcmSenderId != null) {
+                b.gcmSenderId(gcmSenderId.asLong());
+            }
+            final JsonNode gcmApiKey = gcm.get("apiKey");
+            if (gcmApiKey != null) {
+                b.gcmApiKey(gcmApiKey.asText());
+            }
+        }
+        return b.build();
     }
 
 }

@@ -32,6 +32,8 @@ import org.jboss.aerogear.diffsync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.diffsync.server.ServerSyncEngine;
 import org.jboss.aerogear.diffsync.server.ServerSynchronizer;
 
+import java.util.concurrent.Executors;
+
 /**
  * A Netty based WebSocket server that is able to handle differential synchronization edits.
  */
@@ -63,6 +65,10 @@ public final class DiffSyncServer {
                                     diffSyncHandler);
                         }
                     });
+
+            if (config.isGcmEnabled()) {
+                sb.handler(new GcmHandler(config, syncEngine, Executors.newSingleThreadExecutor()));
+            }
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
             System.out.println("SyncServer bound to " + config.host() + ':' + config.port());

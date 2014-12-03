@@ -55,7 +55,7 @@ public class ServerSyncEngineIntegrationTest {
     @Test
     public void addDocument() {
         final String documentId = UUID.randomUUID().toString();
-        serverSyncEngine.addDocument(newDoc(documentId, "What!"), "client1");
+        serverSyncEngine.addSubscriber(new MockSubscriber("client1"), newDoc(documentId, "What!"));
         final Document<String> document = dataStore.getDocument(documentId);
         assertThat(document.id(), equalTo(documentId));
         assertThat(document.content(), equalTo("What!"));
@@ -64,7 +64,7 @@ public class ServerSyncEngineIntegrationTest {
     @Test
     public void containsDocument() {
         final String documentId = UUID.randomUUID().toString();
-        serverSyncEngine.addDocument(newDoc(documentId, "What!"), "client1");
+        serverSyncEngine.addSubscriber(new MockSubscriber("client1"), newDoc(documentId, "What!"));
         assertThat(dataStore.getDocument(documentId), is(notNullValue()));
     }
 
@@ -77,7 +77,7 @@ public class ServerSyncEngineIntegrationTest {
     public void addShadow() {
         final String documentId = UUID.randomUUID().toString();
         final String clientId = "shadowTest";
-        serverSyncEngine.addDocument(newDoc(documentId, "What!"), clientId);
+        serverSyncEngine.addSubscriber(new MockSubscriber(clientId), newDoc(documentId, "What!"));
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().clientId(), is("shadowTest"));
         assertThat(shadowDocument.serverVersion(), is(0L));
@@ -94,8 +94,8 @@ public class ServerSyncEngineIntegrationTest {
         final String versionOne = "Do or do not, there is no try!";
 
         final DefaultDocument<String> serverDocument = newDoc(documentId, originalVersion);
-        serverSyncEngine.addDocument(serverDocument, clientOne);
-        serverSyncEngine.addDocument(serverDocument, clientTwo);
+        serverSyncEngine.addSubscriber(new MockSubscriber(clientOne), serverDocument);
+        serverSyncEngine.addSubscriber(new MockSubscriber(clientTwo), serverDocument);
         serverSyncEngine.patch(clientSideEdits(documentId, originalVersion, clientOne, versionOne));
 
         final Edit edit = serverSyncEngine.diff(documentId, clientTwo);
@@ -132,8 +132,8 @@ public class ServerSyncEngineIntegrationTest {
 
         // add the server documents into the server engine for both clients.
         final DefaultDocument<String> serverDocument = newDoc(documentId, originalVersion);
-        serverSyncEngine.addDocument(serverDocument, clientOne);
-        serverSyncEngine.addDocument(serverDocument, clientTwo);
+        serverSyncEngine.addSubscriber(new MockSubscriber(clientOne), serverDocument);
+        serverSyncEngine.addSubscriber(new MockSubscriber(clientTwo), serverDocument);
 
         // create an update originating from client1.
         serverSyncEngine.patch(clientOneSyncEngine.diff(newClientDoc(documentId, versionTwo, clientOne)));
@@ -199,6 +199,48 @@ public class ServerSyncEngineIntegrationTest {
 
     private static DefaultDocument<String> newDoc(final String documentId, String content) {
         return new DefaultDocument<String>(documentId, content);
+    }
+
+    private static class MockSubscriber implements Subscriber<String> {
+
+        private final String clientId;
+
+        MockSubscriber(final String clientId) {
+            this.clientId = clientId;
+        }
+
+        @Override
+        public String clientId() {
+            return clientId;
+        }
+
+        @Override
+        public String channel() {
+            return null;
+        }
+
+        @Override
+        public void patched(PatchMessage patchMessage) {
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            @SuppressWarnings("unchecked")
+            final Subscriber<String> subscriber = (Subscriber<String>) o;
+            return clientId.equals(subscriber.clientId());
+        }
+
+        @Override
+        public int hashCode() {
+            int result = clientId.hashCode();
+            return result;
+        }
     }
 
 }

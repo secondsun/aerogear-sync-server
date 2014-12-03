@@ -28,23 +28,26 @@ import static java.util.Arrays.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ServerSyncEngineTest {
 
     private ServerInMemoryDataStore dataStore;
     private ServerSyncEngine<String> engine;
+    private final Subscriber<?> subscriber = mock(Subscriber.class);
 
     @Before
     public void setup() {
         dataStore = new ServerInMemoryDataStore();
         engine = new ServerSyncEngine<String>(new DefaultServerSynchronizer(), dataStore);
+        when(subscriber.clientId()).thenReturn("client1");
     }
 
     @Test
     public void addDocument() {
         final String documentId = "1234";
-        final String clientId = "client1";
-        final PatchMessage patchMessage = engine.addDocument(doc(documentId, "Mr. Rosen"), clientId);
+        final PatchMessage patchMessage = engine.addSubscriber(subscriber, doc(documentId, "Mr. Rosen"));
         assertThat(patchMessage.edits().isEmpty(), is(false));
         assertThat(patchMessage.edits().peek().diffs().peek().operation(), is(Operation.UNCHANGED));
         assertThat(patchMessage.edits().peek().diffs().peek().text(), is("Mr. Rosen"));
@@ -53,17 +56,15 @@ public class ServerSyncEngineTest {
     @Test
     public void addDocumentNullContentAndNoPreExistingData() {
         final String documentId = "1234";
-        final String clientId = "client1";
-        final PatchMessage patchMessage = engine.addDocument(doc(documentId, null), clientId);
+        final PatchMessage patchMessage = engine.addSubscriber(subscriber, doc(documentId, null));
         assertThat(patchMessage.edits().isEmpty(), is(true));
     }
 
     @Test
     public void addDocumentNullContentWithPreExistingData() {
         final String documentId = "1234";
-        final String clientId = "client1";
-        engine.addDocument(doc(documentId, "Mr. Rosen"), clientId);
-        final PatchMessage patchMessage = engine.addDocument(doc(documentId, null), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, "Mr. Rosen"));
+        final PatchMessage patchMessage = engine.addSubscriber(subscriber, doc(documentId, null));
         assertThat(patchMessage.edits().isEmpty(), is(false));
         assertThat(patchMessage.edits().peek().diffs().peek().operation(), is(Operation.UNCHANGED));
         assertThat(patchMessage.edits().peek().diffs().peek().text(), is("Mr. Rosen"));
@@ -72,9 +73,8 @@ public class ServerSyncEngineTest {
     @Test
     public void addDocumentWithPreExistingData() {
         final String documentId = "1234";
-        final String clientId = "client1";
-        engine.addDocument(doc(documentId, "Mr. Rosen"), clientId);
-        final PatchMessage patchMsg = engine.addDocument(doc(documentId, "Some new content"), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, "Mr. Rosen"));
+        final PatchMessage patchMsg = engine.addSubscriber(subscriber, doc(documentId, "Some new content"));
         final Queue<Edit> edits = patchMsg.edits();
         assertThat(edits.size(), is(1));
         final LinkedList<Diff> diffs = edits.peek().diffs();
@@ -105,7 +105,7 @@ public class ServerSyncEngineTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
-        engine.addDocument(doc(documentId, originalVersion), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().id(), equalTo(documentId));
@@ -122,13 +122,12 @@ public class ServerSyncEngineTest {
     @Test
     public void diff() {
         final String documentId = "1234";
-        final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
-        engine.addDocument(doc(documentId, originalVersion), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
-        final Edit edit = engine.diff(documentId, clientId);
+        final Edit edit = engine.diff(documentId, subscriber.clientId());
         assertThat(edit.documentId(), equalTo(documentId));
-        assertThat(edit.clientId(), equalTo(clientId));
+        assertThat(edit.clientId(), equalTo(subscriber.clientId()));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.diffs().size(), is(1));
@@ -139,28 +138,28 @@ public class ServerSyncEngineTest {
     @Test
     public void patch() {
         final String documentId = "1234";
-        final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
-        engine.addDocument(doc(documentId, originalVersion), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
         final Edit edit = DefaultEdit.withDocumentId(documentId)
-                .clientId(clientId)
+                .clientId(subscriber.clientId())
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Babar\"")
                 .add("\"Mr.Rosen\"")
                 .unchanged("}")
                 .build();
-        engine.patch(edits(documentId, clientId, edit));
+        engine.patch(edits(documentId, subscriber.clientId(), edit));
 
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().id(), equalTo(documentId));
-        assertThat(shadowDocument.document().clientId(), equalTo(clientId));
+        assertThat(shadowDocument.document().clientId(), equalTo(subscriber.clientId()));
         assertThat(shadowDocument.serverVersion(), is(0L));
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.document().content(), equalTo(updatedVersion));
 
-        final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId, clientId);
+        final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId,
+                subscriber.clientId());
         assertThat(backupShadow.shadow().document().content(), equalTo(updatedVersion));
         assertThat(backupShadow.version(), is(0L));
     }
@@ -168,28 +167,28 @@ public class ServerSyncEngineTest {
     @Test
     public void patchVersionAlreadyOnServer() {
         final String documentId = "1234";
-        final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
-        engine.addDocument(doc(documentId, originalVersion), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
         final Edit edit = DefaultEdit.withDocumentId(documentId)
-                .clientId(clientId)
+                .clientId(subscriber.clientId())
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Babar\"")
                 .add("\"Mr.Rosen\"")
                 .unchanged("}")
                 .build();
-        engine.patch(edits(documentId, clientId, edit, edit));
+        engine.patch(edits(documentId, subscriber.clientId(), edit, edit));
 
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().id(), equalTo(documentId));
-        assertThat(shadowDocument.document().clientId(), equalTo(clientId));
+        assertThat(shadowDocument.document().clientId(), equalTo(subscriber.clientId()));
         assertThat(shadowDocument.serverVersion(), is(0L));
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.document().content(), equalTo(updatedVersion));
 
-        final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId, clientId);
+        final BackupShadowDocument<String> backupShadow = dataStore.getBackupShadowDocument(documentId,
+                subscriber.clientId());
         assertThat(backupShadow.version(), is(0L));
         assertThat(backupShadow.shadow().document().content(), equalTo(updatedVersion));
     }
@@ -197,13 +196,12 @@ public class ServerSyncEngineTest {
     @Test
     public void patchMultipleVersions() {
         final String documentId = "1234";
-        final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
         final String secondVersion = "{\"name\": \"Mr.Poon\"}";
-        engine.addDocument(doc(documentId, originalVersion), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
         final Edit edit1 = DefaultEdit.withDocumentId(documentId)
-                .clientId(clientId)
+                .clientId(subscriber.clientId())
                 .clientVersion(0)
                 .serverVersion(0)
                 .unchanged("{\"name\": ")
@@ -212,7 +210,7 @@ public class ServerSyncEngineTest {
                 .unchanged("}")
                 .build();
         final Edit edit2 = DefaultEdit.withDocumentId(documentId)
-                .clientId(clientId)
+                .clientId(subscriber.clientId())
                 // after the first diff on the client, the shadow client version will have been incremented
                 // and the following diff will use that shadow, hence the incremented client version here.
                 .clientVersion(1)
@@ -222,14 +220,15 @@ public class ServerSyncEngineTest {
                 .add("\"Mr.Poon\"")
                 .unchanged("}")
                 .build();
-        engine.patch(edits(documentId, clientId, edit1, edit2));
+        engine.patch(edits(documentId, subscriber.clientId(), edit1, edit2));
 
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().content(), equalTo(secondVersion));
         assertThat(shadowDocument.clientVersion(), is(2L));
         assertThat(shadowDocument.serverVersion(), is(0L));
 
-        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId,
+                subscriber.clientId());
         assertThat(backupShadowDocument.shadow().document().content(), equalTo(secondVersion));
         assertThat(backupShadowDocument.version(), is(0L));
     }
@@ -237,14 +236,13 @@ public class ServerSyncEngineTest {
     @Test
     public void patchRevertToBackup() {
         final String documentId = "1234";
-        final String clientId = "client1";
         final String originalVersion = "{\"name\": \"Mr.Babar\"}";
         final String secondVersion = "{\"name\": \"Mr.Rosen\"}";
         final String thirdVersion = "{\"name\": \"Mr.Poon\"}";
-        engine.addDocument(doc(documentId, originalVersion), clientId);
+        engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
         final Edit firstEdit = DefaultEdit.withDocumentId(documentId)
-                .clientId(clientId)
+                .clientId(subscriber.clientId())
                 .clientVersion(0)
                 .serverVersion(0)
                 .unchanged("{\"name\": ")
@@ -253,22 +251,23 @@ public class ServerSyncEngineTest {
                 .unchanged("}")
                 .build();
 
-        engine.patch(edits(documentId, clientId, firstEdit));
+        engine.patch(edits(documentId, subscriber.clientId(), firstEdit));
 
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().content(), equalTo(secondVersion));
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.serverVersion(), is(0L));
 
-        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
+        final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId,
+                subscriber.clientId());
         assertThat(backupShadowDocument.shadow().document().content(), equalTo(secondVersion));
         assertThat(backupShadowDocument.version(), is(0L));
 
         // simulate an server side diff that would update the server side client shadow.
-        dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, thirdVersion));
+        dataStore.saveShadowDocument(shadowDoc(documentId, subscriber.clientId(), 1L, 1L, thirdVersion));
 
         final Edit secondEdit = DefaultEdit.withDocumentId(documentId)
-                .clientId(clientId)
+                .clientId(subscriber.clientId())
                 .clientVersion(1)
                 .serverVersion(0)
                 .unchanged("{\"name\": ")
@@ -277,15 +276,15 @@ public class ServerSyncEngineTest {
                 .unchanged("}")
                 .build();
 
-        engine.patch(edits(documentId, clientId, firstEdit, secondEdit));
+        engine.patch(edits(documentId, subscriber.clientId(), firstEdit, secondEdit));
 
-        final ShadowDocument<String> secondShadow = dataStore.getShadowDocument(documentId, clientId);
+        final ShadowDocument<String> secondShadow = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(secondShadow.document().content(), equalTo(thirdVersion));
         // client version would have been incremented on the client side during the post diff processing.
         assertThat(secondShadow.clientVersion(), is(2L));
         assertThat(secondShadow.serverVersion(), is(0L));
 
-        final Queue<Edit> edits = dataStore.getEdits(documentId, clientId);
+        final Queue<Edit> edits = dataStore.getEdits(documentId, subscriber.clientId());
         assertThat(edits.isEmpty(), is(true));
     }
 
