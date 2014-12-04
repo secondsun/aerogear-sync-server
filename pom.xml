@@ -35,15 +35,7 @@
     </parent>
 
     <properties>
-        <netty.version>5.0.0.Alpha2-SNAPSHOT</netty.version>
-        <ektorp.version>1.4.1</ektorp.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <junit.version>4.11</junit.version>
-        <easytesting.version>1.4</easytesting.version>
-        <mockito.version>1.9.0</mockito.version>
-        <hibernate.version>4.2.2.Final</hibernate.version>
-        <hibernate.javax.persistence.version>1.0.1.Final</hibernate.javax.persistence.version>
-        <h2database.version>1.3.174</h2database.version>
+        <version.io.netty>5.0.0.Alpha2-SNAPSHOT</version.io.netty>
     </properties>
 
     <modules>
@@ -57,11 +49,6 @@
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-protocol</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.jboss.aerogear</groupId>
-              <artifactId>restsync-protocol</artifactId>
-              <version>${project.version}</version>
             </dependency>
             <dependency>
               <groupId>org.jboss.aerogear</groupId>
@@ -99,19 +86,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-              <groupId>org.jboss.aerogear</groupId>
-              <artifactId>restsync-core</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>${netty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ektorp</groupId>
-                <artifactId>org.ektorp</artifactId>
-                <version>${ektorp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
