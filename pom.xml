@@ -91,29 +91,29 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>${netty.version}</version>
+                <version>${version.io.netty}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j.version}</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <scope>test</scope>
-                <version>${junit.version}</version>
+                <version>4.11</version>
             </dependency>
             <dependency>
             <groupId>org.easytesting</groupId>
                 <artifactId>fest-assert</artifactId>
-                <version>${easytesting.version}</version>
+                <version>1.4</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
+                <version>1.9.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

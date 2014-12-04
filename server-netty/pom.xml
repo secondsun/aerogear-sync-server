@@ -27,33 +27,7 @@
     <packaging>jar</packaging>
     <name>AeroGear Data Synchronization Netty Server</name>
 
-    <url>http://aerogear.org</url>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <build>
-        <finalName>${project.artifactId}</finalName>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.1</version>
-                    <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -77,26 +51,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>itests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.16</version>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*$*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <dependencies>
         <dependency>
@@ -127,30 +81,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>xmlpull</groupId>
-            <artifactId>xmlpull</artifactId>
-            <version>1.1.3.4d_b4_min</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.igniterealtime.smack</groupId>
-            <artifactId>smack-core</artifactId>
-            <version>4.0.4</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.igniterealtime.smack</groupId>
-            <artifactId>smack-tcp</artifactId>
-            <version>4.0.4</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 
