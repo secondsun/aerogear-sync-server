@@ -1,4 +1,4 @@
-## AeroGear Data Synchronization Project
+## AeroGear Data Synchronization Project [![Build Status](https://travis-ci.org/aerogear/aerogear-sync-server.png)](https://travis-ci.org/aerogear/aerogear-sync-server)
 This project aims to prototype a data synchronization protocol that can be used by AeroGear's client libraries.
 
 AeroGear Sync consists of the following modules:
