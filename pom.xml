@@ -40,7 +40,15 @@
 
     <modules>
         <module>common</module>
-        <module>diffsync</module>
+        <module>api</module>
+        <module>core</module>
+        <module>server-core</module>
+        <module>client-core</module>
+        <module>client-netty</module>
+        <module>client-xmpp</module>
+        <module>server-netty</module>
+        <module>server-xmpp</module>
+        <module>itests</module>
     </modules>
 
     <dependencyManagement>
@@ -52,7 +60,7 @@
             </dependency>
             <dependency>
               <groupId>org.jboss.aerogear</groupId>
-              <artifactId>diffsync-api</artifactId>
+              <artifactId>sync-api</artifactId>
               <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -66,23 +74,18 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-              <groupId>org.jboss.aerogear</groupId>
-              <artifactId>diffsync-core</artifactId>
-              <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>diffsync-server-core</artifactId>
+                <artifactId>sync-server-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>diffsync-client-core</artifactId>
+                <artifactId>sync-client-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>diffsync-server-xmpp</artifactId>
+                <artifactId>sync-server-xmpp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

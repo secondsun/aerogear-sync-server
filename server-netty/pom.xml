@@ -19,13 +19,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.aerogear</groupId>
-        <artifactId>diffsync-parent</artifactId>
+        <artifactId>sync-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>diffsync-server-netty</artifactId>
+    <artifactId>sync-server-netty</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Differential Synchronization Netty Server</name>
+    <name>AeroGear Data Synchronization Netty Server</name>
 
     <url>http://aerogear.org</url>
     <licenses>
@@ -38,7 +38,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <include.couchdb.tests>none</include.couchdb.tests>
     </properties>
 
     <build>
@@ -106,15 +105,15 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-server-core</artifactId>
+            <artifactId>sync-server-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-server-xmpp</artifactId>
+            <artifactId>sync-server-xmpp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-client-core</artifactId>
+            <artifactId>sync-client-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -19,13 +19,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.aerogear</groupId>
-        <artifactId>diffsync-parent</artifactId>
+        <artifactId>sync-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>diffsync-server-core</artifactId>
+    <artifactId>sync-itests</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Differential Synchronization Server Core</name>
+    <name>AeroGear Data Synchronization Integration/Functional Tests</name>
 
     <url>http://aerogear.org</url>
     <licenses>
@@ -38,7 +38,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <include.couchdb.tests>none</include.couchdb.tests>
     </properties>
 
     <build>
@@ -78,33 +77,17 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-core</artifactId>
+            <artifactId>sync-client-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-server-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>itests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.16</version>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*$*</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
 

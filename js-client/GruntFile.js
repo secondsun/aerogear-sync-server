@@ -13,17 +13,11 @@ module.exports = function(grunt) {
             files: ['tests/sync/diff-sync-engine.html']
         },
         shell: {
-            restserver: {
+            server: {
                 options: {
                     stdout: true
                 },
-                command: ['cd  ../restsync/server-netty', 'mvn exec:exec'].join('&&')
-            },
-            diffserver: {
-                options: {
-                    stdout: true
-                },
-                command: ['cd  ../diffsync/server-netty', 'mvn exec:exec'].join('&&')
+                command: ['cd  ../server-netty', 'mvn exec:exec'].join('&&')
             }
         }
     });

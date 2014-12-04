@@ -19,13 +19,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.aerogear</groupId>
-        <artifactId>diffsync-parent</artifactId>
+        <artifactId>sync-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>diffsync-client-xmpp</artifactId>
+    <artifactId>sync-client-xmpp</artifactId>
     <packaging>aar</packaging>
-    <name>AeroGear Data Differential Synchronization XMPP Client</name>
+    <name>AeroGear Data Synchronization XMPP Client</name>
 
     <url>http://aerogear.org</url>
     <licenses>
@@ -135,7 +135,7 @@
             
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>diffsync-client-core</artifactId>
+            <artifactId>sync-client-core</artifactId>
         </dependency>
         
         <dependency>
