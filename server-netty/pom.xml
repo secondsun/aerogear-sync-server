@@ -64,7 +64,7 @@
                     <arguments>
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>org.jboss.aerogear.diffsync.DiffSyncServer</argument>
+                        <argument>org.jboss.aerogear.sync.DiffSyncServer</argument>
                     </arguments>
                     <classpathScope>compile</classpathScope>
                     <systemProperties>

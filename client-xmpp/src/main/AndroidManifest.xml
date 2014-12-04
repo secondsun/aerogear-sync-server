@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 <manifest
-    package="org.jboss.aerogear.diffsync"
+    package="org.jboss.aerogear.sync"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:versionCode="1"
     android:versionName="1.0">
