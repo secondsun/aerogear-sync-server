@@ -31,24 +31,24 @@
     <parent>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>aerogear-parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.3</version>
     </parent>
 
     <properties>
-        <netty.version>5.0.0.Alpha2-SNAPSHOT</netty.version>
-        <ektorp.version>1.4.1</ektorp.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <junit.version>4.11</junit.version>
-        <easytesting.version>1.4</easytesting.version>
-        <mockito.version>1.9.0</mockito.version>
-        <hibernate.version>4.2.2.Final</hibernate.version>
-        <hibernate.javax.persistence.version>1.0.1.Final</hibernate.javax.persistence.version>
-        <h2database.version>1.3.174</h2database.version>
+        <version.io.netty>5.0.0.Alpha2-SNAPSHOT</version.io.netty>
     </properties>
 
     <modules>
-        <module>protocol</module>
-        <module>server</module>
+        <module>common</module>
+        <module>api</module>
+        <module>core</module>
+        <module>server-core</module>
+        <module>client-core</module>
+        <module>client-netty</module>
+        <module>client-xmpp</module>
+        <module>server-netty</module>
+        <module>server-xmpp</module>
+        <module>itests</module>
     </modules>
 
     <dependencyManagement>
@@ -59,52 +59,67 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
-                <version>${netty.version}</version>
+              <groupId>org.jboss.aerogear</groupId>
+              <artifactId>sync-api</artifactId>
+              <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.ektorp</groupId>
-                <artifactId>org.ektorp</artifactId>
-                <version>${ektorp.version}</version>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-server-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-client-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-server-xmpp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${version.io.netty}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j.version}</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <scope>test</scope>
-                <version>${junit.version}</version>
+                <version>4.11</version>
             </dependency>
             <dependency>
             <groupId>org.easytesting</groupId>
                 <artifactId>fest-assert</artifactId>
-                <version>${easytesting.version}</version>
+                <version>1.4</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
+                <version>1.9.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate.javax.persistence</groupId>
-                <artifactId>hibernate-jpa-2.0-api</artifactId>
-                <version>${hibernate.javax.persistence.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2database.version}</version>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -136,6 +151,7 @@
                     <author>false</author>
                     <keywords>true</keywords>
                     <quiet>true</quiet>
+                    <bootclasspath>${java.home}/lib/rt.jar</bootclasspath>                    
                 </configuration>
             </plugin>
             <plugin>
@@ -211,4 +227,11 @@
             </plugins>
         </pluginManagement>
     </build>
+    <repositories>
+        <repository>
+            <id>clinker-netty-snapshots-repo</id>
+            <name>netty-snapshots-repo</name>
+            <url>http://clinker.netty.io/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 </project>
