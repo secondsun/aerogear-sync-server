@@ -42,3 +42,7 @@ before_install:
   - mvn install -N --quiet
   - cd -
 
+  # Install locally google-m2repository
+  - cd $PWD/maven-android-sdk-deployer/repositories/google-m2repository
+  - mvn install -N --quiet
+
