@@ -30,6 +30,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.jboss.aerogear.sync.common.DiffMatchPatch.diff;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -136,18 +137,18 @@ public class DiffMatchPatchTest {
     @Test
     public void testDiffCharsToLines() {
         // First check that Diff equality works.
-        assertTrue("diffCharsToLines: Equality #1.", new DiffMatchPatch.Diff(EQUAL, "a").equals(new DiffMatchPatch.Diff(EQUAL, "a")));
+        assertTrue("diffCharsToLines: Equality #1.", diff(EQUAL, "a").equals(diff(EQUAL, "a")));
 
-        assertEquals("diffCharsToLines: Equality #2.", new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(EQUAL, "a"));
+        assertEquals("diffCharsToLines: Equality #2.", diff(EQUAL, "a"), diff(EQUAL, "a"));
 
         // Convert chars up to lines.
-        LinkedList<DiffMatchPatch.Diff> diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "\u0001\u0002\u0001"), new DiffMatchPatch.Diff(INSERT, "\u0002\u0001\u0002"));
+        LinkedList<DiffMatchPatch.Diff> diffs = diffList(diff(EQUAL, "\u0001\u0002\u0001"), diff(INSERT, "\u0002\u0001\u0002"));
         List<String> tmpVector = new ArrayList<String>();
         tmpVector.add("");
         tmpVector.add("alpha\n");
         tmpVector.add("beta\n");
         diffMatchPatch.diffCharsToLines(diffs, tmpVector);
-        assertEquals("diffCharsToLines: Shared lines.", diffList(new DiffMatchPatch.Diff(EQUAL, "alpha\nbeta\nalpha\n"), new DiffMatchPatch.Diff(INSERT, "beta\nalpha\nbeta\n")), diffs);
+        assertEquals("diffCharsToLines: Shared lines.", diffList(diff(EQUAL, "alpha\nbeta\nalpha\n"), diff(INSERT, "beta\nalpha\nbeta\n")), diffs);
 
         // More than 256 to reveal any 8-bit limitations.
         int n = 300;
@@ -164,9 +165,9 @@ public class DiffMatchPatchTest {
         String chars = charList.toString();
         assertEquals(n, chars.length());
         tmpVector.add(0, "");
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, chars));
+        diffs = diffList(diff(DELETE, chars));
         diffMatchPatch.diffCharsToLines(diffs, tmpVector);
-        assertEquals("diffCharsToLines: More than 256.", diffList(new DiffMatchPatch.Diff(DELETE, lines)), diffs);
+        assertEquals("diffCharsToLines: More than 256.", diffList(diff(DELETE, lines)), diffs);
     }
 
     @Test
@@ -176,49 +177,49 @@ public class DiffMatchPatchTest {
         diffMatchPatch.diffCleanupMerge(diffs);
         assertEquals("diffCleanupMerge: Null case.", diffList(), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "b"), new DiffMatchPatch.Diff(INSERT, "c"));
+        diffs = diffList(diff(EQUAL, "a"), diff(DELETE, "b"), diff(INSERT, "c"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: No change case.", diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "b"), new DiffMatchPatch.Diff(INSERT, "c")), diffs);
+        assertEquals("diffCleanupMerge: No change case.", diffList(diff(EQUAL, "a"), diff(DELETE, "b"), diff(INSERT, "c")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(EQUAL, "b"), new DiffMatchPatch.Diff(EQUAL, "c"));
+        diffs = diffList(diff(EQUAL, "a"), diff(EQUAL, "b"), diff(EQUAL, "c"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Merge equalities.", diffList(new DiffMatchPatch.Diff(EQUAL, "abc")), diffs);
+        assertEquals("diffCleanupMerge: Merge equalities.", diffList(diff(EQUAL, "abc")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(DELETE, "b"), new DiffMatchPatch.Diff(DELETE, "c"));
+        diffs = diffList(diff(DELETE, "a"), diff(DELETE, "b"), diff(DELETE, "c"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Merge deletions.", diffList(new DiffMatchPatch.Diff(DELETE, "abc")), diffs);
+        assertEquals("diffCleanupMerge: Merge deletions.", diffList(diff(DELETE, "abc")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(INSERT, "a"), new DiffMatchPatch.Diff(INSERT, "b"), new DiffMatchPatch.Diff(INSERT, "c"));
+        diffs = diffList(diff(INSERT, "a"), diff(INSERT, "b"), diff(INSERT, "c"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Merge insertions.", diffList(new DiffMatchPatch.Diff(INSERT, "abc")), diffs);
+        assertEquals("diffCleanupMerge: Merge insertions.", diffList(diff(INSERT, "abc")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(INSERT, "b"), new DiffMatchPatch.Diff(DELETE, "c"), new DiffMatchPatch.Diff(INSERT, "d"), new DiffMatchPatch.Diff(EQUAL, "e"), new DiffMatchPatch.Diff(EQUAL, "f"));
+        diffs = diffList(diff(DELETE, "a"), diff(INSERT, "b"), diff(DELETE, "c"), diff(INSERT, "d"), diff(EQUAL, "e"), diff(EQUAL, "f"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Merge interweave.", diffList(new DiffMatchPatch.Diff(DELETE, "ac"), new DiffMatchPatch.Diff(INSERT, "bd"), new DiffMatchPatch.Diff(EQUAL, "ef")), diffs);
+        assertEquals("diffCleanupMerge: Merge interweave.", diffList(diff(DELETE, "ac"), diff(INSERT, "bd"), diff(EQUAL, "ef")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(INSERT, "abc"), new DiffMatchPatch.Diff(DELETE, "dc"));
+        diffs = diffList(diff(DELETE, "a"), diff(INSERT, "abc"), diff(DELETE, "dc"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Prefix and suffix detection.", diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "d"), new DiffMatchPatch.Diff(INSERT, "b"), new DiffMatchPatch.Diff(EQUAL, "c")), diffs);
+        assertEquals("diffCleanupMerge: Prefix and suffix detection.", diffList(diff(EQUAL, "a"), diff(DELETE, "d"), diff(INSERT, "b"), diff(EQUAL, "c")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "x"), new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(INSERT, "abc"), new DiffMatchPatch.Diff(DELETE, "dc"), new DiffMatchPatch.Diff(EQUAL, "y"));
+        diffs = diffList(diff(EQUAL, "x"), diff(DELETE, "a"), diff(INSERT, "abc"), diff(DELETE, "dc"), diff(EQUAL, "y"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Prefix and suffix detection with equalities.", diffList(new DiffMatchPatch.Diff(EQUAL, "xa"), new DiffMatchPatch.Diff(DELETE, "d"), new DiffMatchPatch.Diff(INSERT, "b"), new DiffMatchPatch.Diff(EQUAL, "cy")), diffs);
+        assertEquals("diffCleanupMerge: Prefix and suffix detection with equalities.", diffList(diff(EQUAL, "xa"), diff(DELETE, "d"), diff(INSERT, "b"), diff(EQUAL, "cy")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(INSERT, "ba"), new DiffMatchPatch.Diff(EQUAL, "c"));
+        diffs = diffList(diff(EQUAL, "a"), diff(INSERT, "ba"), diff(EQUAL, "c"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Slide edit left.", diffList(new DiffMatchPatch.Diff(INSERT, "ab"), new DiffMatchPatch.Diff(EQUAL, "ac")), diffs);
+        assertEquals("diffCleanupMerge: Slide edit left.", diffList(diff(INSERT, "ab"), diff(EQUAL, "ac")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "c"), new DiffMatchPatch.Diff(INSERT, "ab"), new DiffMatchPatch.Diff(EQUAL, "a"));
+        diffs = diffList(diff(EQUAL, "c"), diff(INSERT, "ab"), diff(EQUAL, "a"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Slide edit right.", diffList(new DiffMatchPatch.Diff(EQUAL, "ca"), new DiffMatchPatch.Diff(INSERT, "ba")), diffs);
+        assertEquals("diffCleanupMerge: Slide edit right.", diffList(diff(EQUAL, "ca"), diff(INSERT, "ba")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "b"), new DiffMatchPatch.Diff(EQUAL, "c"), new DiffMatchPatch.Diff(DELETE, "ac"), new DiffMatchPatch.Diff(EQUAL, "x"));
+        diffs = diffList(diff(EQUAL, "a"), diff(DELETE, "b"), diff(EQUAL, "c"), diff(DELETE, "ac"), diff(EQUAL, "x"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Slide edit left recursive.", diffList(new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(EQUAL, "acx")), diffs);
+        assertEquals("diffCleanupMerge: Slide edit left recursive.", diffList(diff(DELETE, "abc"), diff(EQUAL, "acx")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "x"), new DiffMatchPatch.Diff(DELETE, "ca"), new DiffMatchPatch.Diff(EQUAL, "c"), new DiffMatchPatch.Diff(DELETE, "b"), new DiffMatchPatch.Diff(EQUAL, "a"));
+        diffs = diffList(diff(EQUAL, "x"), diff(DELETE, "ca"), diff(EQUAL, "c"), diff(DELETE, "b"), diff(EQUAL, "a"));
         diffMatchPatch.diffCleanupMerge(diffs);
-        assertEquals("diffCleanupMerge: Slide edit right recursive.", diffList(new DiffMatchPatch.Diff(EQUAL, "xca"), new DiffMatchPatch.Diff(DELETE, "cba")), diffs);
+        assertEquals("diffCleanupMerge: Slide edit right recursive.", diffList(diff(EQUAL, "xca"), diff(DELETE, "cba")), diffs);
     }
 
     @Test
@@ -228,33 +229,33 @@ public class DiffMatchPatchTest {
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
         assertEquals("diffCleanupSemanticLossLess: Null case.", diffList(), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "AAA\r\n\r\nBBB"), new DiffMatchPatch.Diff(INSERT, "\r\nDDD\r\n\r\nBBB"), new DiffMatchPatch.Diff(EQUAL, "\r\nEEE"));
+        diffs = diffList(diff(EQUAL, "AAA\r\n\r\nBBB"), diff(INSERT, "\r\nDDD\r\n\r\nBBB"), diff(EQUAL, "\r\nEEE"));
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
-        assertEquals("diffCleanupSemanticLossLess: Blank lines.", diffList(new DiffMatchPatch.Diff(EQUAL, "AAA\r\n\r\n"), new DiffMatchPatch.Diff(INSERT, "BBB\r\nDDD\r\n\r\n"), new DiffMatchPatch.Diff(EQUAL, "BBB\r\nEEE")), diffs);
+        assertEquals("diffCleanupSemanticLossLess: Blank lines.", diffList(diff(EQUAL, "AAA\r\n\r\n"), diff(INSERT, "BBB\r\nDDD\r\n\r\n"), diff(EQUAL, "BBB\r\nEEE")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "AAA\r\nBBB"), new DiffMatchPatch.Diff(INSERT, " DDD\r\nBBB"), new DiffMatchPatch.Diff(EQUAL, " EEE"));
+        diffs = diffList(diff(EQUAL, "AAA\r\nBBB"), diff(INSERT, " DDD\r\nBBB"), diff(EQUAL, " EEE"));
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
-        assertEquals("diffCleanupSemanticLossLess: Line boundaries.", diffList(new DiffMatchPatch.Diff(EQUAL, "AAA\r\n"), new DiffMatchPatch.Diff(INSERT, "BBB DDD\r\n"), new DiffMatchPatch.Diff(EQUAL, "BBB EEE")), diffs);
+        assertEquals("diffCleanupSemanticLossLess: Line boundaries.", diffList(diff(EQUAL, "AAA\r\n"), diff(INSERT, "BBB DDD\r\n"), diff(EQUAL, "BBB EEE")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "The c"), new DiffMatchPatch.Diff(INSERT, "ow and the c"), new DiffMatchPatch.Diff(EQUAL, "at."));
+        diffs = diffList(diff(EQUAL, "The c"), diff(INSERT, "ow and the c"), diff(EQUAL, "at."));
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
-        assertEquals("diffCleanupSemanticLossLess: Word boundaries.", diffList(new DiffMatchPatch.Diff(EQUAL, "The "), new DiffMatchPatch.Diff(INSERT, "cow and the "), new DiffMatchPatch.Diff(EQUAL, "cat.")), diffs);
+        assertEquals("diffCleanupSemanticLossLess: Word boundaries.", diffList(diff(EQUAL, "The "), diff(INSERT, "cow and the "), diff(EQUAL, "cat.")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "The-c"), new DiffMatchPatch.Diff(INSERT, "ow-and-the-c"), new DiffMatchPatch.Diff(EQUAL, "at."));
+        diffs = diffList(diff(EQUAL, "The-c"), diff(INSERT, "ow-and-the-c"), diff(EQUAL, "at."));
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
-        assertEquals("diffCleanupSemanticLossLess: Alphanumeric boundaries.", diffList(new DiffMatchPatch.Diff(EQUAL, "The-"), new DiffMatchPatch.Diff(INSERT, "cow-and-the-"), new DiffMatchPatch.Diff(EQUAL, "cat.")), diffs);
+        assertEquals("diffCleanupSemanticLossLess: Alphanumeric boundaries.", diffList(diff(EQUAL, "The-"), diff(INSERT, "cow-and-the-"), diff(EQUAL, "cat.")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(EQUAL, "ax"));
+        diffs = diffList(diff(EQUAL, "a"), diff(DELETE, "a"), diff(EQUAL, "ax"));
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
-        assertEquals("diffCleanupSemanticLossLess: Hitting the start.", diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(EQUAL, "aax")), diffs);
+        assertEquals("diffCleanupSemanticLossLess: Hitting the start.", diffList(diff(DELETE, "a"), diff(EQUAL, "aax")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "xa"), new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(EQUAL, "a"));
+        diffs = diffList(diff(EQUAL, "xa"), diff(DELETE, "a"), diff(EQUAL, "a"));
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
-        assertEquals("diffCleanupSemanticLossLess: Hitting the end.", diffList(new DiffMatchPatch.Diff(EQUAL, "xaa"), new DiffMatchPatch.Diff(DELETE, "a")), diffs);
+        assertEquals("diffCleanupSemanticLossLess: Hitting the end.", diffList(diff(EQUAL, "xaa"), diff(DELETE, "a")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "The xxx. The "), new DiffMatchPatch.Diff(INSERT, "zzz. The "), new DiffMatchPatch.Diff(EQUAL, "yyy."));
+        diffs = diffList(diff(EQUAL, "The xxx. The "), diff(INSERT, "zzz. The "), diff(EQUAL, "yyy."));
         diffMatchPatch.diffCleanupSemanticLossLess(diffs);
-        assertEquals("diffCleanupSemanticLossLess: Sentence boundaries.", diffList(new DiffMatchPatch.Diff(EQUAL, "The xxx."), new DiffMatchPatch.Diff(INSERT, " The zzz."), new DiffMatchPatch.Diff(EQUAL, " The yyy.")), diffs);
+        assertEquals("diffCleanupSemanticLossLess: Sentence boundaries.", diffList(diff(EQUAL, "The xxx."), diff(INSERT, " The zzz."), diff(EQUAL, " The yyy.")), diffs);
     }
 
     @Test
@@ -264,45 +265,45 @@ public class DiffMatchPatchTest {
         diffMatchPatch.diff_cleanupSemantic(diffs);
         assertEquals("diff_cleanupSemantic: Null case.", diffList(), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(INSERT, "cd"), new DiffMatchPatch.Diff(EQUAL, "12"), new DiffMatchPatch.Diff(DELETE, "e"));
+        diffs = diffList(diff(DELETE, "ab"), diff(INSERT, "cd"), diff(EQUAL, "12"), diff(DELETE, "e"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: No elimination #1.", diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(INSERT, "cd"), new DiffMatchPatch.Diff(EQUAL, "12"), new DiffMatchPatch.Diff(DELETE, "e")), diffs);
+        assertEquals("diff_cleanupSemantic: No elimination #1.", diffList(diff(DELETE, "ab"), diff(INSERT, "cd"), diff(EQUAL, "12"), diff(DELETE, "e")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(INSERT, "ABC"), new DiffMatchPatch.Diff(EQUAL, "1234"), new DiffMatchPatch.Diff(DELETE, "wxyz"));
+        diffs = diffList(diff(DELETE, "abc"), diff(INSERT, "ABC"), diff(EQUAL, "1234"), diff(DELETE, "wxyz"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: No elimination #2.", diffList(new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(INSERT, "ABC"), new DiffMatchPatch.Diff(EQUAL, "1234"), new DiffMatchPatch.Diff(DELETE, "wxyz")), diffs);
+        assertEquals("diff_cleanupSemantic: No elimination #2.", diffList(diff(DELETE, "abc"), diff(INSERT, "ABC"), diff(EQUAL, "1234"), diff(DELETE, "wxyz")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(EQUAL, "b"), new DiffMatchPatch.Diff(DELETE, "c"));
+        diffs = diffList(diff(DELETE, "a"), diff(EQUAL, "b"), diff(DELETE, "c"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: Simple elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(INSERT, "b")), diffs);
+        assertEquals("diff_cleanupSemantic: Simple elimination.", diffList(diff(DELETE, "abc"), diff(INSERT, "b")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(EQUAL, "cd"), new DiffMatchPatch.Diff(DELETE, "e"), new DiffMatchPatch.Diff(EQUAL, "f"), new DiffMatchPatch.Diff(INSERT, "g"));
+        diffs = diffList(diff(DELETE, "ab"), diff(EQUAL, "cd"), diff(DELETE, "e"), diff(EQUAL, "f"), diff(INSERT, "g"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: Backpass elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "abcdef"), new DiffMatchPatch.Diff(INSERT, "cdfg")), diffs);
+        assertEquals("diff_cleanupSemantic: Backpass elimination.", diffList(diff(DELETE, "abcdef"), diff(INSERT, "cdfg")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(INSERT, "1"), new DiffMatchPatch.Diff(EQUAL, "A"), new DiffMatchPatch.Diff(DELETE, "B"), new DiffMatchPatch.Diff(INSERT, "2"), new DiffMatchPatch.Diff(EQUAL, "_"), new DiffMatchPatch.Diff(INSERT, "1"), new DiffMatchPatch.Diff(EQUAL, "A"), new DiffMatchPatch.Diff(DELETE, "B"), new DiffMatchPatch.Diff(INSERT, "2"));
+        diffs = diffList(diff(INSERT, "1"), diff(EQUAL, "A"), diff(DELETE, "B"), diff(INSERT, "2"), diff(EQUAL, "_"), diff(INSERT, "1"), diff(EQUAL, "A"), diff(DELETE, "B"), diff(INSERT, "2"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: Multiple elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "AB_AB"), new DiffMatchPatch.Diff(INSERT, "1A2_1A2")), diffs);
+        assertEquals("diff_cleanupSemantic: Multiple elimination.", diffList(diff(DELETE, "AB_AB"), diff(INSERT, "1A2_1A2")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "The c"), new DiffMatchPatch.Diff(DELETE, "ow and the c"), new DiffMatchPatch.Diff(EQUAL, "at."));
+        diffs = diffList(diff(EQUAL, "The c"), diff(DELETE, "ow and the c"), diff(EQUAL, "at."));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: Word boundaries.", diffList(new DiffMatchPatch.Diff(EQUAL, "The "), new DiffMatchPatch.Diff(DELETE, "cow and the "), new DiffMatchPatch.Diff(EQUAL, "cat.")), diffs);
+        assertEquals("diff_cleanupSemantic: Word boundaries.", diffList(diff(EQUAL, "The "), diff(DELETE, "cow and the "), diff(EQUAL, "cat.")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "abcxx"), new DiffMatchPatch.Diff(INSERT, "xxdef"));
+        diffs = diffList(diff(DELETE, "abcxx"), diff(INSERT, "xxdef"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: No overlap elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "abcxx"), new DiffMatchPatch.Diff(INSERT, "xxdef")), diffs);
+        assertEquals("diff_cleanupSemantic: No overlap elimination.", diffList(diff(DELETE, "abcxx"), diff(INSERT, "xxdef")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "abcxxx"), new DiffMatchPatch.Diff(INSERT, "xxxdef"));
+        diffs = diffList(diff(DELETE, "abcxxx"), diff(INSERT, "xxxdef"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: Overlap elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(EQUAL, "xxx"), new DiffMatchPatch.Diff(INSERT, "def")), diffs);
+        assertEquals("diff_cleanupSemantic: Overlap elimination.", diffList(diff(DELETE, "abc"), diff(EQUAL, "xxx"), diff(INSERT, "def")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "xxxabc"), new DiffMatchPatch.Diff(INSERT, "defxxx"));
+        diffs = diffList(diff(DELETE, "xxxabc"), diff(INSERT, "defxxx"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: Reverse overlap elimination.", diffList(new DiffMatchPatch.Diff(INSERT, "def"), new DiffMatchPatch.Diff(EQUAL, "xxx"), new DiffMatchPatch.Diff(DELETE, "abc")), diffs);
+        assertEquals("diff_cleanupSemantic: Reverse overlap elimination.", diffList(diff(INSERT, "def"), diff(EQUAL, "xxx"), diff(DELETE, "abc")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "abcd1212"), new DiffMatchPatch.Diff(INSERT, "1212efghi"), new DiffMatchPatch.Diff(EQUAL, "----"), new DiffMatchPatch.Diff(DELETE, "A3"), new DiffMatchPatch.Diff(INSERT, "3BC"));
+        diffs = diffList(diff(DELETE, "abcd1212"), diff(INSERT, "1212efghi"), diff(EQUAL, "----"), diff(DELETE, "A3"), diff(INSERT, "3BC"));
         diffMatchPatch.diff_cleanupSemantic(diffs);
-        assertEquals("diff_cleanupSemantic: Two overlap eliminations.", diffList(new DiffMatchPatch.Diff(DELETE, "abcd"), new DiffMatchPatch.Diff(EQUAL, "1212"), new DiffMatchPatch.Diff(INSERT, "efghi"), new DiffMatchPatch.Diff(EQUAL, "----"), new DiffMatchPatch.Diff(DELETE, "A"), new DiffMatchPatch.Diff(EQUAL, "3"), new DiffMatchPatch.Diff(INSERT, "BC")), diffs);
+        assertEquals("diff_cleanupSemantic: Two overlap eliminations.", diffList(diff(DELETE, "abcd"), diff(EQUAL, "1212"), diff(INSERT, "efghi"), diff(EQUAL, "----"), diff(DELETE, "A"), diff(EQUAL, "3"), diff(INSERT, "BC")), diffs);
     }
 
     @Test
@@ -313,39 +314,39 @@ public class DiffMatchPatchTest {
         diffMatchPatch.diffCleanupEfficiency(diffs);
         assertEquals("diffCleanupEfficiency: Null case.", diffList(), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(INSERT, "12"), new DiffMatchPatch.Diff(EQUAL, "wxyz"), new DiffMatchPatch.Diff(DELETE, "cd"), new DiffMatchPatch.Diff(INSERT, "34"));
+        diffs = diffList(diff(DELETE, "ab"), diff(INSERT, "12"), diff(EQUAL, "wxyz"), diff(DELETE, "cd"), diff(INSERT, "34"));
         diffMatchPatch.diffCleanupEfficiency(diffs);
-        assertEquals("diffCleanupEfficiency: No elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(INSERT, "12"), new DiffMatchPatch.Diff(EQUAL, "wxyz"), new DiffMatchPatch.Diff(DELETE, "cd"), new DiffMatchPatch.Diff(INSERT, "34")), diffs);
+        assertEquals("diffCleanupEfficiency: No elimination.", diffList(diff(DELETE, "ab"), diff(INSERT, "12"), diff(EQUAL, "wxyz"), diff(DELETE, "cd"), diff(INSERT, "34")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(INSERT, "12"), new DiffMatchPatch.Diff(EQUAL, "xyz"), new DiffMatchPatch.Diff(DELETE, "cd"), new DiffMatchPatch.Diff(INSERT, "34"));
+        diffs = diffList(diff(DELETE, "ab"), diff(INSERT, "12"), diff(EQUAL, "xyz"), diff(DELETE, "cd"), diff(INSERT, "34"));
         diffMatchPatch.diffCleanupEfficiency(diffs);
-        assertEquals("diffCleanupEfficiency: Four-edit elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "abxyzcd"), new DiffMatchPatch.Diff(INSERT, "12xyz34")), diffs);
+        assertEquals("diffCleanupEfficiency: Four-edit elimination.", diffList(diff(DELETE, "abxyzcd"), diff(INSERT, "12xyz34")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(INSERT, "12"), new DiffMatchPatch.Diff(EQUAL, "x"), new DiffMatchPatch.Diff(DELETE, "cd"), new DiffMatchPatch.Diff(INSERT, "34"));
+        diffs = diffList(diff(INSERT, "12"), diff(EQUAL, "x"), diff(DELETE, "cd"), diff(INSERT, "34"));
         diffMatchPatch.diffCleanupEfficiency(diffs);
-        assertEquals("diffCleanupEfficiency: Three-edit elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "xcd"), new DiffMatchPatch.Diff(INSERT, "12x34")), diffs);
+        assertEquals("diffCleanupEfficiency: Three-edit elimination.", diffList(diff(DELETE, "xcd"), diff(INSERT, "12x34")), diffs);
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(INSERT, "12"), new DiffMatchPatch.Diff(EQUAL, "xy"), new DiffMatchPatch.Diff(INSERT, "34"), new DiffMatchPatch.Diff(EQUAL, "z"), new DiffMatchPatch.Diff(DELETE, "cd"), new DiffMatchPatch.Diff(INSERT, "56"));
+        diffs = diffList(diff(DELETE, "ab"), diff(INSERT, "12"), diff(EQUAL, "xy"), diff(INSERT, "34"), diff(EQUAL, "z"), diff(DELETE, "cd"), diff(INSERT, "56"));
         diffMatchPatch.diffCleanupEfficiency(diffs);
-        assertEquals("diffCleanupEfficiency: Backpass elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "abxyzcd"), new DiffMatchPatch.Diff(INSERT, "12xy34z56")), diffs);
+        assertEquals("diffCleanupEfficiency: Backpass elimination.", diffList(diff(DELETE, "abxyzcd"), diff(INSERT, "12xy34z56")), diffs);
 
         diffMatchPatch = DiffMatchPatch.builder().diffEditCost(5).build();
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "ab"), new DiffMatchPatch.Diff(INSERT, "12"), new DiffMatchPatch.Diff(EQUAL, "wxyz"), new DiffMatchPatch.Diff(DELETE, "cd"), new DiffMatchPatch.Diff(INSERT, "34"));
+        diffs = diffList(diff(DELETE, "ab"), diff(INSERT, "12"), diff(EQUAL, "wxyz"), diff(DELETE, "cd"), diff(INSERT, "34"));
         diffMatchPatch.diffCleanupEfficiency(diffs);
-        assertEquals("diffCleanupEfficiency: High cost elimination.", diffList(new DiffMatchPatch.Diff(DELETE, "abwxyzcd"), new DiffMatchPatch.Diff(INSERT, "12wxyz34")), diffs);
+        assertEquals("diffCleanupEfficiency: High cost elimination.", diffList(diff(DELETE, "abwxyzcd"), diff(INSERT, "12wxyz34")), diffs);
     }
 
     @Test
     public void testDiffPrettyHtml() {
         // Pretty print.
-        LinkedList<DiffMatchPatch.Diff> diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a\n"), new DiffMatchPatch.Diff(DELETE, "<B>b</B>"), new DiffMatchPatch.Diff(INSERT, "c&d"));
+        LinkedList<DiffMatchPatch.Diff> diffs = diffList(diff(EQUAL, "a\n"), diff(DELETE, "<B>b</B>"), diff(INSERT, "c&d"));
         assertEquals("diffPretyyHtml:", "<span>a&para;<br></span><del style=\"background:#ffe6e6;\">&lt;B&gt;b&lt;/B&gt;</del><ins style=\"background:#e6ffe6;\">c&amp;d</ins>", diffMatchPatch.diffPretyyHtml(diffs));
     }
 
     @Test
     public void testDiffText() {
         // Compute the source and destination texts.
-        LinkedList<DiffMatchPatch.Diff> diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "jump"), new DiffMatchPatch.Diff(DELETE, "s"), new DiffMatchPatch.Diff(INSERT, "ed"), new DiffMatchPatch.Diff(EQUAL, " over "), new DiffMatchPatch.Diff(DELETE, "the"), new DiffMatchPatch.Diff(INSERT, "a"), new DiffMatchPatch.Diff(EQUAL, " lazy"));
+        LinkedList<DiffMatchPatch.Diff> diffs = diffList(diff(EQUAL, "jump"), diff(DELETE, "s"), diff(INSERT, "ed"), diff(EQUAL, " over "), diff(DELETE, "the"), diff(INSERT, "a"), diff(EQUAL, " lazy"));
         assertEquals("diffText1:", "jumps over the lazy", diffMatchPatch.diffText1(diffs));
         assertEquals("diffText2:", "jumped over a lazy", diffMatchPatch.diffText2(diffs));
     }
@@ -353,7 +354,7 @@ public class DiffMatchPatchTest {
     @Test
     public void testDiffDelta() {
         // Convert a diff into delta string.
-        LinkedList<DiffMatchPatch.Diff> diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "jump"), new DiffMatchPatch.Diff(DELETE, "s"), new DiffMatchPatch.Diff(INSERT, "ed"), new DiffMatchPatch.Diff(EQUAL, " over "), new DiffMatchPatch.Diff(DELETE, "the"), new DiffMatchPatch.Diff(INSERT, "a"), new DiffMatchPatch.Diff(EQUAL, " lazy"), new DiffMatchPatch.Diff(INSERT, "old dog"));
+        LinkedList<DiffMatchPatch.Diff> diffs = diffList(diff(EQUAL, "jump"), diff(DELETE, "s"), diff(INSERT, "ed"), diff(EQUAL, " over "), diff(DELETE, "the"), diff(INSERT, "a"), diff(EQUAL, " lazy"), diff(INSERT, "old dog"));
         String text1 = diffMatchPatch.diffText1(diffs);
         assertEquals("diffText1: Base text.", "jumps over the lazy", text1);
 
@@ -388,7 +389,7 @@ public class DiffMatchPatchTest {
         }
 
         // Test deltas with special characters.
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "\u0680 \000 \t %"), new DiffMatchPatch.Diff(DELETE, "\u0681 \001 \n ^"), new DiffMatchPatch.Diff(INSERT, "\u0682 \002 \\ |"));
+        diffs = diffList(diff(EQUAL, "\u0680 \000 \t %"), diff(DELETE, "\u0681 \001 \n ^"), diff(INSERT, "\u0682 \002 \\ |"));
         text1 = diffMatchPatch.diffText1(diffs);
         assertEquals("diffText1: Unicode text.", "\u0680 \000 \t %\u0681 \001 \n ^", text1);
 
@@ -398,7 +399,7 @@ public class DiffMatchPatchTest {
         assertEquals("diffFromDelta: Unicode.", diffs, diffMatchPatch.diffFromDelta(text1, delta));
 
         // Verify pool of unchanged characters.
-        diffs = diffList(new DiffMatchPatch.Diff(INSERT, "A-Z a-z 0-9 - _ . ! ~ * ' ( ) ; / ? : @ & = + $ , # "));
+        diffs = diffList(diff(INSERT, "A-Z a-z 0-9 - _ . ! ~ * ' ( ) ; / ? : @ & = + $ , # "));
         String text2 = diffMatchPatch.diffText2(diffs);
         assertEquals("diffText2: Unchanged characters.", "A-Z a-z 0-9 - _ . ! ~ * \' ( ) ; / ? : @ & = + $ , # ", text2);
 
@@ -412,22 +413,22 @@ public class DiffMatchPatchTest {
     @Test
     public void testDiffXIndex() {
         // Translate a location in text1 to text2.
-        LinkedList<DiffMatchPatch.Diff> diffs = diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(INSERT, "1234"), new DiffMatchPatch.Diff(EQUAL, "xyz"));
+        LinkedList<DiffMatchPatch.Diff> diffs = diffList(diff(DELETE, "a"), diff(INSERT, "1234"), diff(EQUAL, "xyz"));
         assertEquals("diffXIndex: Translation on equality.", 5, diffMatchPatch.diffXIndex(diffs, 2));
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "1234"), new DiffMatchPatch.Diff(EQUAL, "xyz"));
+        diffs = diffList(diff(EQUAL, "a"), diff(DELETE, "1234"), diff(EQUAL, "xyz"));
         assertEquals("diffXIndex: Translation on deletion.", 1, diffMatchPatch.diffXIndex(diffs, 3));
     }
 
     @Test
     public void testDiffLevenshtein() {
-        LinkedList<DiffMatchPatch.Diff> diffs = diffList(new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(INSERT, "1234"), new DiffMatchPatch.Diff(EQUAL, "xyz"));
+        LinkedList<DiffMatchPatch.Diff> diffs = diffList(diff(DELETE, "abc"), diff(INSERT, "1234"), diff(EQUAL, "xyz"));
         assertEquals("Levenshtein with trailing equality.", 4, diffMatchPatch.diffLevenshtein(diffs));
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "xyz"), new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(INSERT, "1234"));
+        diffs = diffList(diff(EQUAL, "xyz"), diff(DELETE, "abc"), diff(INSERT, "1234"));
         assertEquals("Levenshtein with leading equality.", 4, diffMatchPatch.diffLevenshtein(diffs));
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "abc"), new DiffMatchPatch.Diff(EQUAL, "xyz"), new DiffMatchPatch.Diff(INSERT, "1234"));
+        diffs = diffList(diff(DELETE, "abc"), diff(EQUAL, "xyz"), diff(INSERT, "1234"));
         assertEquals("Levenshtein with middle equality.", 7, diffMatchPatch.diffLevenshtein(diffs));
     }
 
@@ -439,11 +440,11 @@ public class DiffMatchPatchTest {
         // Since the resulting diff hasn't been normalized, it would be ok if
         // the insertion and deletion pairs are swapped.
         // If the order changes, tweak this test as required.
-        LinkedList<DiffMatchPatch.Diff> diffs = diffList(new DiffMatchPatch.Diff(DELETE, "c"), new DiffMatchPatch.Diff(INSERT, "m"), new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "t"), new DiffMatchPatch.Diff(INSERT, "p"));
+        LinkedList<DiffMatchPatch.Diff> diffs = diffList(diff(DELETE, "c"), diff(INSERT, "m"), diff(EQUAL, "a"), diff(DELETE, "t"), diff(INSERT, "p"));
         assertEquals("diffBisect: Normal.", diffs, diffMatchPatch.diffBisect(a, b, Long.MAX_VALUE));
 
         // Timeout.
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "cat"), new DiffMatchPatch.Diff(INSERT, "map"));
+        diffs = diffList(diff(DELETE, "cat"), diff(INSERT, "map"));
         assertEquals("diffBisect: Timeout.", diffs, diffMatchPatch.diffBisect(a, b, 0));
     }
 
@@ -453,43 +454,43 @@ public class DiffMatchPatchTest {
         LinkedList<DiffMatchPatch.Diff> diffs = diffList();
         assertEquals("diffMain: Null case.", diffs, diffMatchPatch.diffMain("", "", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "abc"));
+        diffs = diffList(diff(EQUAL, "abc"));
         assertEquals("diffMain: Equality.", diffs, diffMatchPatch.diffMain("abc", "abc", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "ab"), new DiffMatchPatch.Diff(INSERT, "123"), new DiffMatchPatch.Diff(EQUAL, "c"));
+        diffs = diffList(diff(EQUAL, "ab"), diff(INSERT, "123"), diff(EQUAL, "c"));
         assertEquals("diffMain: Simple insertion.", diffs, diffMatchPatch.diffMain("abc", "ab123c", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "123"), new DiffMatchPatch.Diff(EQUAL, "bc"));
+        diffs = diffList(diff(EQUAL, "a"), diff(DELETE, "123"), diff(EQUAL, "bc"));
         assertEquals("diffMain: Simple deletion.", diffs, diffMatchPatch.diffMain("a123bc", "abc", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(INSERT, "123"), new DiffMatchPatch.Diff(EQUAL, "b"), new DiffMatchPatch.Diff(INSERT, "456"), new DiffMatchPatch.Diff(EQUAL, "c"));
+        diffs = diffList(diff(EQUAL, "a"), diff(INSERT, "123"), diff(EQUAL, "b"), diff(INSERT, "456"), diff(EQUAL, "c"));
         assertEquals("diffMain: Two insertions.", diffs, diffMatchPatch.diffMain("abc", "a123b456c", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "123"), new DiffMatchPatch.Diff(EQUAL, "b"), new DiffMatchPatch.Diff(DELETE, "456"), new DiffMatchPatch.Diff(EQUAL, "c"));
+        diffs = diffList(diff(EQUAL, "a"), diff(DELETE, "123"), diff(EQUAL, "b"), diff(DELETE, "456"), diff(EQUAL, "c"));
         assertEquals("diffMain: Two deletions.", diffs, diffMatchPatch.diffMain("a123b456c", "abc", false));
 
         // Perform a real diff.
         // Switch off the patchTimeout.
         diffMatchPatch = DiffMatchPatch.builder().patchTimeout(0).build();
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(INSERT, "b"));
+        diffs = diffList(diff(DELETE, "a"), diff(INSERT, "b"));
         assertEquals("diffMain: Simple case #1.", diffs, diffMatchPatch.diffMain("a", "b", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "Apple"), new DiffMatchPatch.Diff(INSERT, "Banana"), new DiffMatchPatch.Diff(EQUAL, "s are a"), new DiffMatchPatch.Diff(INSERT, "lso"), new DiffMatchPatch.Diff(EQUAL, " fruit."));
+        diffs = diffList(diff(DELETE, "Apple"), diff(INSERT, "Banana"), diff(EQUAL, "s are a"), diff(INSERT, "lso"), diff(EQUAL, " fruit."));
         assertEquals("diffMain: Simple case #2.", diffs, diffMatchPatch.diffMain("Apples are a fruit.", "Bananas are also fruit.", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "a"), new DiffMatchPatch.Diff(INSERT, "\u0680"), new DiffMatchPatch.Diff(EQUAL, "x"), new DiffMatchPatch.Diff(DELETE, "\t"), new DiffMatchPatch.Diff(INSERT, "\000"));
+        diffs = diffList(diff(DELETE, "a"), diff(INSERT, "\u0680"), diff(EQUAL, "x"), diff(DELETE, "\t"), diff(INSERT, "\000"));
         assertEquals("diffMain: Simple case #3.", diffs, diffMatchPatch.diffMain("ax\t", "\u0680x\000", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "1"), new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "y"), new DiffMatchPatch.Diff(EQUAL, "b"), new DiffMatchPatch.Diff(DELETE, "2"), new DiffMatchPatch.Diff(INSERT, "xab"));
+        diffs = diffList(diff(DELETE, "1"), diff(EQUAL, "a"), diff(DELETE, "y"), diff(EQUAL, "b"), diff(DELETE, "2"), diff(INSERT, "xab"));
         assertEquals("diffMain: Overlap #1.", diffs, diffMatchPatch.diffMain("1ayb2", "abxab", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(INSERT, "xaxcx"), new DiffMatchPatch.Diff(EQUAL, "abc"), new DiffMatchPatch.Diff(DELETE, "y"));
+        diffs = diffList(diff(INSERT, "xaxcx"), diff(EQUAL, "abc"), diff(DELETE, "y"));
         assertEquals("diffMain: Overlap #2.", diffs, diffMatchPatch.diffMain("abcy", "xaxcxabc", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "ABCD"), new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(DELETE, "="), new DiffMatchPatch.Diff(INSERT, "-"), new DiffMatchPatch.Diff(EQUAL, "bcd"), new DiffMatchPatch.Diff(DELETE, "="), new DiffMatchPatch.Diff(INSERT, "-"), new DiffMatchPatch.Diff(EQUAL, "efghijklmnopqrs"), new DiffMatchPatch.Diff(DELETE, "EFGHIJKLMNOefg"));
+        diffs = diffList(diff(DELETE, "ABCD"), diff(EQUAL, "a"), diff(DELETE, "="), diff(INSERT, "-"), diff(EQUAL, "bcd"), diff(DELETE, "="), diff(INSERT, "-"), diff(EQUAL, "efghijklmnopqrs"), diff(DELETE, "EFGHIJKLMNOefg"));
         assertEquals("diffMain: Overlap #3.", diffs, diffMatchPatch.diffMain("ABCDa=bcd=efghijklmnopqrsEFGHIJKLMNOefg", "a-bcd-efghijklmnopqrs", false));
 
-        diffs = diffList(new DiffMatchPatch.Diff(INSERT, " "), new DiffMatchPatch.Diff(EQUAL, "a"), new DiffMatchPatch.Diff(INSERT, "nd"), new DiffMatchPatch.Diff(EQUAL, " [[Pennsylvania]]"), new DiffMatchPatch.Diff(DELETE, " and [[New"));
+        diffs = diffList(diff(INSERT, " "), diff(EQUAL, "a"), diff(INSERT, "nd"), diff(EQUAL, " [[Pennsylvania]]"), diff(DELETE, " and [[New"));
         assertEquals("diffMain: Large equality.", diffs, diffMatchPatch.diffMain("a [[Pennsylvania]] and [[New", " and [[Pennsylvania]]", false));
 
         diffMatchPatch = DiffMatchPatch.builder().patchTimeout(0.1f).build();
@@ -640,7 +641,7 @@ public class DiffMatchPatchTest {
         p.start2 = 21;
         p.length1 = 18;
         p.length2 = 17;
-        p.diffs = diffList(new DiffMatchPatch.Diff(EQUAL, "jump"), new DiffMatchPatch.Diff(DELETE, "s"), new DiffMatchPatch.Diff(INSERT, "ed"), new DiffMatchPatch.Diff(EQUAL, " over "), new DiffMatchPatch.Diff(DELETE, "the"), new DiffMatchPatch.Diff(INSERT, "a"), new DiffMatchPatch.Diff(EQUAL, "\nlaz"));
+        p.diffs = diffList(diff(EQUAL, "jump"), diff(DELETE, "s"), diff(INSERT, "ed"), diff(EQUAL, " over "), diff(DELETE, "the"), diff(INSERT, "a"), diff(EQUAL, "\nlaz"));
         String strp = "@@ -21,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n %0Alaz\n";
         assertEquals("Patch: toString.", strp, p.toString());
     }
@@ -732,7 +733,7 @@ public class DiffMatchPatchTest {
         patches = diffMatchPatch.patchMake("`1234567890-=[]\\;',./", "~!@#$%^&*()_+{}|:\"<>?");
         assertEquals("patchToText: Character encoding.", "@@ -1,21 +1,21 @@\n-%601234567890-=%5B%5D%5C;',./\n+~!@#$%25%5E&*()_+%7B%7D%7C:%22%3C%3E?\n", diffMatchPatch.patchToText(patches));
 
-        diffs = diffList(new DiffMatchPatch.Diff(DELETE, "`1234567890-=[]\\;',./"), new DiffMatchPatch.Diff(INSERT, "~!@#$%^&*()_+{}|:\"<>?"));
+        diffs = diffList(diff(DELETE, "`1234567890-=[]\\;',./"), diff(INSERT, "~!@#$%^&*()_+{}|:\"<>?"));
         assertEquals("patchFromText: Character decoding.", diffs, diffMatchPatch.patchFromText("@@ -1,21 +1,21 @@\n-%601234567890-=%5B%5D%5C;',./\n+~!@#$%25%5E&*()_+%7B%7D%7C:%22%3C%3E?\n").get(0).diffs);
 
         text1 = "";

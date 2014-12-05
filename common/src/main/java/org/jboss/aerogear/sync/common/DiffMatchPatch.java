@@ -200,6 +200,10 @@ public class DiffMatchPatch {
 
     }
 
+    public static Diff diff(final Operation operation, final String text) {
+        return new Diff(operation, text);
+    }
+
     /**
      * Internal class for returning results from diffLinesToChars().
      * Other less paranoid languages just use a three-element array.
@@ -2447,7 +2451,7 @@ public class DiffMatchPatch {
              * @param operation One of INSERT, DELETE or EQUAL.
              * @param text      The text being applied.
              */
-            public Diff(Operation operation, String text) {
+            private Diff(Operation operation, String text) {
                 // Construct a diff with the specified operation and text.
                 this.operation = operation;
                 this.text = text;

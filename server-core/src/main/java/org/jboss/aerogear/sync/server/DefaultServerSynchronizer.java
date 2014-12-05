@@ -90,7 +90,7 @@ public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
     private static LinkedList<DiffMatchPatch.Diff> asDiffUtilDiffs(final LinkedList<Diff> diffs) {
         final LinkedList<DiffMatchPatch.Diff> dsf = new LinkedList<DiffMatchPatch.Diff>();
         for (Diff d : diffs) {
-            dsf.add(new DiffMatchPatch.Diff(diffutilOp(d.operation()), d.text()));
+            dsf.add(DiffMatchPatch.diff(diffutilOp(d.operation()), d.text()));
         }
         return dsf;
     }
