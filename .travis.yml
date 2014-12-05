@@ -6,23 +6,21 @@ jdk:
 
 android:
   components:
+    - android-19
     - build-tools-21.0.2
-    - android-21
     - extra-android-support
-    - extra-google-google_play_services
-    - addon-google_apis-google-21
-    - sys-img-armeabi-v7a-android-21
+    - sys-img-armeabi-v7a-android-19
 
 notifications:
   irc: "irc.freenode.org#aerogear"
 
 env:
     matrix:
-      - ANDROID_SDKS=android-21 ANDROID_TARGET=android-21 ANDROID_ABI=google_apis/armeabi-v7a
+      - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
 
 before_install:
 
-  - echo no | android create avd --force -n test -t 'Google Inc.:Google APIs:21' --abi google_apis/armeabi-v7a
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window -memory 256&
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
@@ -44,8 +42,7 @@ before_install:
   - mvn install -N --quiet
   - cd -
 
-  # Install locally google-play-services
-  - cd $PWD/maven-android-sdk-deployer/extras/google-play-services
+  # Install locally google-m2repository
+  - cd $PWD/maven-android-sdk-deployer/repositories/google-m2repository
   - mvn install -N --quiet
-  - cd -
 
