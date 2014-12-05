@@ -10,7 +10,7 @@ that can be started using Maven or directly in an IDE.
     mvn exec:exec
 
 ### Configuration option
-The server can be configured using [sync.config](./src/main/resources/sync.config]
+The server can be configured using [sync.config](./src/main/resources/sync.config)
 Example config:
 
     {
