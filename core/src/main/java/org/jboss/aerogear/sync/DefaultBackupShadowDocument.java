@@ -19,4 +19,10 @@ public class DefaultBackupShadowDocument<T> implements BackupShadowDocument<T> {
     public ShadowDocument<T> shadow() {
         return shadow;
     }
+
+    @Override
+    public String toString() {
+        return "DefaultBackupShadowDocument[version=" + version + ", shadow=" + shadow + ']';
+
+    }
 }
