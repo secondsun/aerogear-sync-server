@@ -1,48 +1,9 @@
-language: android
+language: java
 
 jdk:
   - oraclejdk8
   - oraclejdk7
 
-android:
-  components:
-    - android-19
-    - build-tools-21.0.2
-    - extra-android-support
-    - sys-img-armeabi-v7a-android-19
-
 notifications:
   irc: "irc.freenode.org#aerogear"
-
-env:
-    matrix:
-      - ANDROID_SDKS=android-19 ANDROID_TARGET=android-19 ANDROID_ABI=armeabi-v7a
-
-before_install:
-
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window -memory 256&
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
-
-  #################################################
-  ########## maven-android-sdk-deployer ###########
-  #################################################
-
-  # Checkout maven-android-sdk-deployer
-  - git clone git://github.com/mosabua/maven-android-sdk-deployer.git
-
-  # Install android maven repository
-  - cd $PWD/maven-android-sdk-deployer/platforms/$ANDROID_TARGET
-  - mvn  install -N --quiet
-  - cd -
-
-  # Install locally compatibility-v4
-  - cd $PWD/maven-android-sdk-deployer/extras/compatibility-v4
-  - mvn install -N --quiet
-  - cd -
-
-  # Install locally google-m2repository
-  - cd $PWD/maven-android-sdk-deployer/repositories/google-m2repository
-  - mvn install -N --quiet
 
