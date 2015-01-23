@@ -65,7 +65,7 @@ public class GcmHandler extends ChannelHandlerAdapter {
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);
         config.setReconnectionAllowed(true);
         config.setRosterLoadedAtLogin(false);
-        config.setDebuggerEnabled(true);
+        config.setDebuggerEnabled(false);
         config.setSendPresence(false);
         config.setSocketFactory(SSLSocketFactory.getDefault());
 
