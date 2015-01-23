@@ -90,14 +90,14 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit = DefaultEdit.withDocumentId(documentId)
+        final PatchMessage patchMessage = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
-                .build();
-        engine.patch(edits(documentId, clientId, edit));
+                .build());
+        engine.patch(patchMessage);
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
@@ -122,7 +122,7 @@ public class ClientSyncEngineTest {
                 .delete(".")
                 .add("!")
                 .build();
-        engine.patch(edits(documentId, clientId, edit, edit));
+        engine.patch(patchMessage(documentId, clientId, edit, edit));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
@@ -150,7 +150,7 @@ public class ClientSyncEngineTest {
                 .delete(".")
                 .add("!")
                 .build();
-        engine.patch(edits(documentId, clientId, edit, edit));
+        engine.patch(patchMessage(documentId, clientId, edit, edit));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
@@ -185,7 +185,7 @@ public class ClientSyncEngineTest {
                 .add("hing")
                 .unchanged(", there is no try!")
                 .build();
-        engine.patch(edits(documentId, clientId, edit1, edit2));
+        engine.patch(patchMessage(documentId, clientId, edit1, edit2));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().content(), equalTo(finalVersion));
@@ -203,30 +203,45 @@ public class ClientSyncEngineTest {
         final String clientId = "client1";
         final String originalVersion = "Do or do not, there is no try.";
         final String finalVersion = "Do or do nothing, there is no trying";
+
+        // add the original document to the client engine. This will create a shadow document with client version 0,
+        // and server version 0.
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit1 = DefaultEdit.withDocumentId(documentId)
+        final PatchMessage serverPatch = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
-                .serverVersion(0)
+                .clientVersion(0)  // this patch was based on client version 0
+                .serverVersion(0)  // this patch was based on server version 0
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
-                .build();
-        engine.patch(edits(documentId, clientId, edit1));
+                .build());
+
+        engine.patch(serverPatch);
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument.document().content(), equalTo("Do or do not, there is no try!"));
-        assertThat(shadowDocument.clientVersion(), is(0L));
+        // server version is incremented when the client shadow is patched
         assertThat(shadowDocument.serverVersion(), is(1L));
+        // the client version is not updated until after a diff is taken, that is when the client is sending a patch
+        // to the server, is taken so it will still be 0
+        assertThat(shadowDocument.clientVersion(), is(0L));
 
         final BackupShadowDocument<String> backupShadowDocument = dataStore.getBackupShadowDocument(documentId, clientId);
+        assertThat(backupShadowDocument.shadow().document().content(), equalTo("Do or do not, there is no try!"));
+        // the backup shadow on the client will still be 0 since this was the client version that the server handed
         assertThat(backupShadowDocument.version(), is(0L));
 
-        // simulate an client side diff that would update the client shadow.
+        // simulate an client side diff that would update the client shadow. The situation here would be that
+        // the client has done a diff, which increments the shadows client version, but the patch message was dropped
+        // some where on route to the server.
         dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, "Do or do nothing, there is not trying"));
 
-        final Edit edit2 = DefaultEdit.withDocumentId(documentId)
+        final PatchMessage serverPatch2 = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
+                // this is to simulate an earlier version coming from the server, which means that the server never
+                // got version 1 that the client sent. Remember that we are simulating this using the previous
+                // saveShadowDocument call above which set the client version to 1.
                 .clientVersion(0)
                 .serverVersion(1)
                 .unchanged("Do or do not")
@@ -234,8 +249,10 @@ public class ClientSyncEngineTest {
                 .unchanged(", there is no try")
                 .delete("!")
                 .add("ing")
-                .build();
-        engine.patch(edits(documentId, clientId, edit2));
+                .build());
+
+        // patch should now revert to version 0 and apply the edits
+        engine.patch(serverPatch2);
 
         final ShadowDocument<String> shadowDocument2 = dataStore.getShadowDocument(documentId, clientId);
         assertThat(shadowDocument2.document().content(), equalTo(finalVersion));
@@ -246,6 +263,8 @@ public class ClientSyncEngineTest {
         assertThat(backupShadowDocument2.version(), is(0L));
         assertThat(backupShadowDocument2.shadow().document().content(), equalTo(finalVersion));
 
+        // the edit stack should be cleared now as we have reverted to a previous version. The client doc has been
+        // updated and any new edits will be done on that version, and new patches sent to the server based on it.
         final Queue<Edit> edits = dataStore.getEdits(documentId, clientId);
         assertThat(edits.isEmpty(), is(true));
     }
@@ -254,7 +273,7 @@ public class ClientSyncEngineTest {
         return new DefaultClientDocument<String>(docId, clientId, content);
     }
 
-    private static PatchMessage edits(final String docId, final String clientId, Edit... edit) {
+    private static PatchMessage patchMessage(final String docId, final String clientId, Edit... edit) {
         return new DefaultPatchMessage(docId, clientId, new LinkedList<Edit>(Arrays.asList(edit)));
     }
 
