@@ -149,7 +149,7 @@ public class ServerSyncEngineTest {
                 .add("\"Mr.Rosen\"")
                 .unchanged("}")
                 .build();
-        engine.patch(edits(documentId, subscriber.clientId(), edit));
+        engine.patch(patchMessage(documentId, subscriber.clientId(), edit));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().id(), equalTo(documentId));
@@ -178,7 +178,7 @@ public class ServerSyncEngineTest {
                 .add("\"Mr.Rosen\"")
                 .unchanged("}")
                 .build();
-        engine.patch(edits(documentId, subscriber.clientId(), edit, edit));
+        engine.patch(patchMessage(documentId, subscriber.clientId(), edit, edit));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().id(), equalTo(documentId));
@@ -220,7 +220,7 @@ public class ServerSyncEngineTest {
                 .add("\"Mr.Poon\"")
                 .unchanged("}")
                 .build();
-        engine.patch(edits(documentId, subscriber.clientId(), edit1, edit2));
+        engine.patch(patchMessage(documentId, subscriber.clientId(), edit1, edit2));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().content(), equalTo(secondVersion));
@@ -243,18 +243,20 @@ public class ServerSyncEngineTest {
 
         final Edit firstEdit = DefaultEdit.withDocumentId(documentId)
                 .clientId(subscriber.clientId())
-                .clientVersion(0)
-                .serverVersion(0)
+                .clientVersion(0)  // this patch was based on client version 0
+                .serverVersion(0)  // this patch was based on server version 0
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Babar\"")
                 .add("\"Mr.Rosen\"")
                 .unchanged("}")
                 .build();
 
-        engine.patch(edits(documentId, subscriber.clientId(), firstEdit));
+        engine.patch(patchMessage(documentId, subscriber.clientId(), firstEdit));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(shadowDocument.document().content(), equalTo(secondVersion));
+        // client version is updated when the patch is applied to the server side shadow. This will have happend on
+        // the client side after the diff was taken. So both client and server are now identical.
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.serverVersion(), is(0L));
 
@@ -263,32 +265,39 @@ public class ServerSyncEngineTest {
         assertThat(backupShadowDocument.shadow().document().content(), equalTo(secondVersion));
         assertThat(backupShadowDocument.version(), is(0L));
 
-        // simulate an server side diff that would update the server side client shadow.
+        // simulate an server side diff that would update the shadow, incrementing the server version. The situation
+        // here would be that the server has done a diff, which increments the shadows server version, but the patch
+        // message was dropped some where on route to the client.
         dataStore.saveShadowDocument(shadowDoc(documentId, subscriber.clientId(), 1L, 1L, thirdVersion));
 
         final Edit secondEdit = DefaultEdit.withDocumentId(documentId)
                 .clientId(subscriber.clientId())
-                .clientVersion(1)
+                // this is to simulate an earlier version coming from the client, which means that the client never
+                // got version 1 that the server sent. Remember that we are simulating this using the previous
+                // saveShadowDocument call above which set the server version to 1.
                 .serverVersion(0)
+                .clientVersion(1)
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Rosen\"")
                 .add("\"Mr.Poon\"")
                 .unchanged("}")
                 .build();
 
-        engine.patch(edits(documentId, subscriber.clientId(), firstEdit, secondEdit));
+        engine.patch(patchMessage(documentId, subscriber.clientId(), firstEdit, secondEdit));
 
         final ShadowDocument<String> secondShadow = dataStore.getShadowDocument(documentId, subscriber.clientId());
         assertThat(secondShadow.document().content(), equalTo(thirdVersion));
-        // client version would have been incremented on the client side during the post diff processing.
+        // a patch on the shadow will increment the client version so that it matches the shadow on the client. Remember
+        // on the client side the shadow version is updated after the diff is taken.
         assertThat(secondShadow.clientVersion(), is(2L));
         assertThat(secondShadow.serverVersion(), is(0L));
 
+        // the edit stack should be cleared now as we have reverted to a previous version.
         final Queue<Edit> edits = dataStore.getEdits(documentId, subscriber.clientId());
         assertThat(edits.isEmpty(), is(true));
     }
 
-    private static PatchMessage edits(final String docId, final String clientId, Edit... edit) {
+    private static PatchMessage patchMessage(final String docId, final String clientId, Edit... edit) {
         return new DefaultPatchMessage(docId, clientId, new LinkedList<Edit>(asList(edit)));
     }
 
