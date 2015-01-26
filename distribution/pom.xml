@@ -33,6 +33,8 @@
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-assembly-plugin</artifactId>
               <configuration>
+                <finalName>aerogear-sync-server-${version}</finalName>
+                <appendAssemblyId>false</appendAssemblyId>
                 <descriptors> 
                   <descriptor>src/assembly/dist.xml</descriptor>
                 </descriptors>
