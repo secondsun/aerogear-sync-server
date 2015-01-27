@@ -60,7 +60,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             case ADD:
                 final Document<String> doc = documentFromJson(json);
                 final String clientId = json.get("clientId").asText();
-                final PatchMessage patchMessage =  addSubscriber(doc, clientId, ctx);
+                final PatchMessage patchMessage = addSubscriber(doc, clientId, ctx);
                 ctx.attr(DOC_ADD).set(true);
                 ctx.channel().writeAndFlush(textFrame(toJson(patchMessage)));
                 break;

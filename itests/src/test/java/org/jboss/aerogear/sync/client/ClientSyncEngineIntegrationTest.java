@@ -25,7 +25,7 @@ import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
-import org.jboss.aerogear.sync.server.DefaultServerSynchronizer;
+import org.jboss.aerogear.sync.server.DiffMatchPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.Subscriber;
@@ -51,7 +51,7 @@ public class ClientSyncEngineIntegrationTest {
     public void setup() {
         dataStore = new ClientInMemoryDataStore();
         clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), dataStore);
-        serverSyncEngine = new ServerSyncEngine<String>(new DefaultServerSynchronizer(), new ServerInMemoryDataStore());
+        serverSyncEngine = new ServerSyncEngine<String>(new DiffMatchPatchServerSynchronizer(), new ServerInMemoryDataStore());
     }
 
     @Test

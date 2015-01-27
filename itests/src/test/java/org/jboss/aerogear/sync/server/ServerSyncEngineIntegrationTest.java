@@ -49,7 +49,7 @@ public class ServerSyncEngineIntegrationTest {
     @Before
     public void setup() {
         dataStore = new ServerInMemoryDataStore();
-        serverSyncEngine = new ServerSyncEngine<String>(new DefaultServerSynchronizer(), dataStore);
+        serverSyncEngine = new ServerSyncEngine<String>(new DiffMatchPatchServerSynchronizer(), dataStore);
     }
 
     @Test

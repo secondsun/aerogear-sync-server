@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import org.jboss.aerogear.sync.server.DefaultServerSynchronizer;
+import org.jboss.aerogear.sync.server.DiffMatchPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
@@ -46,7 +46,7 @@ public final class DiffSyncServer {
         final StandaloneConfig config = ConfigReader.parse(configFile);
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
         final ServerSyncEngine<String> syncEngine = new ServerSyncEngine<String>(synchronizer, dataStore);
         final DiffSyncHandler diffSyncHandler = new DiffSyncHandler(syncEngine);

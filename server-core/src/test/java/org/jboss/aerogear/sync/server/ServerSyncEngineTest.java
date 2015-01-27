@@ -40,7 +40,7 @@ public class ServerSyncEngineTest {
     @Before
     public void setup() {
         dataStore = new ServerInMemoryDataStore();
-        engine = new ServerSyncEngine<String>(new DefaultServerSynchronizer(), dataStore);
+        engine = new ServerSyncEngine<String>(new DiffMatchPatchServerSynchronizer(), dataStore);
         when(subscriber.clientId()).thenReturn("client1");
     }
 

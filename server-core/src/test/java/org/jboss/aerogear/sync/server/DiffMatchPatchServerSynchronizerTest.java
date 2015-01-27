@@ -30,11 +30,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class DefaultServerSynchronizerTest {
+public class DiffMatchPatchServerSynchronizerTest {
 
     @Test
     public void clientDiff() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
@@ -51,7 +51,7 @@ public class DefaultServerSynchronizerTest {
 
     @Test
     public void serverDiff() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
@@ -68,7 +68,7 @@ public class DefaultServerSynchronizerTest {
 
     @Test
     public void patchShadow() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
@@ -79,7 +79,7 @@ public class DefaultServerSynchronizerTest {
 
     @Test
     public void patchShadowFromClientDiff() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "Beve");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "I'm the man");
 
@@ -90,7 +90,7 @@ public class DefaultServerSynchronizerTest {
 
     @Test
     public void patchShadowFromClientDiffCustomEdit() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "Beve");
 
         final Edit edit1 = DefaultEdit.withDocumentId("1234")
@@ -107,7 +107,7 @@ public class DefaultServerSynchronizerTest {
 
     @Test
     public void patchDocument() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 

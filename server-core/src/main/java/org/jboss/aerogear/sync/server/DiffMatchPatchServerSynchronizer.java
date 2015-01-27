@@ -29,15 +29,15 @@ import static org.jboss.aerogear.sync.common.DiffMatchPatch.checksum;
 /**
  * A {@link ServerSynchronizer} implementation that can handle text documents.
  */
-public class DefaultServerSynchronizer implements ServerSynchronizer<String> {
+public class DiffMatchPatchServerSynchronizer implements ServerSynchronizer<String> {
 
     private final DiffMatchPatch diffMatchPatch;
 
-    public DefaultServerSynchronizer() {
+    public DiffMatchPatchServerSynchronizer() {
         this(builder().build());
     }
 
-    public DefaultServerSynchronizer(final DiffMatchPatch diffMatchPatch) {
+    public DiffMatchPatchServerSynchronizer(final DiffMatchPatch diffMatchPatch) {
         this.diffMatchPatch = diffMatchPatch;
     }
 

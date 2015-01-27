@@ -24,7 +24,7 @@ import org.jboss.aerogear.sync.Diff.Operation;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.client.DefaultClientSynchronizer;
-import org.jboss.aerogear.sync.server.DefaultServerSynchronizer;
+import org.jboss.aerogear.sync.server.DiffMatchPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
@@ -522,7 +522,7 @@ public class DiffSyncHandlerTest {
     }
 
     private static EmbeddedChannel embeddedChannel(final ServerInMemoryDataStore dataStore) {
-        final ServerSynchronizer<String> synchronizer = new DefaultServerSynchronizer();
+        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
         final ServerSyncEngine<String> syncEngine = new ServerSyncEngine<String>(synchronizer, dataStore);
         return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
     }
