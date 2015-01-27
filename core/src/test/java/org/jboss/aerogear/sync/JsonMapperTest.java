@@ -1,12 +1,12 @@
 package org.jboss.aerogear.sync;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
-import org.jboss.aerogear.sync.client.ClientSyncEngine;
-import org.jboss.aerogear.sync.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.Diff.Operation;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -16,12 +16,21 @@ public class JsonMapperTest {
 
     @Test
     public void serializeEdits() {
-        final PatchMessage patchMessage = generateClientSideEdits("1234", "version1", "client1", "version2");
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+                DefaultEdit.withDocumentId(documentId)
+                        .clientId(clientId)
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "version"))
+                        .diff(new DefaultDiff(Operation.DELETE, "1"))
+                        .diff(new DefaultDiff(Operation.ADD, "2"))
+                        .build());
+
         final String json = JsonMapper.toJson(patchMessage);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
         assertThat(jsonNode.get("msgType").asText(), equalTo("patch"));
-        assertThat(jsonNode.get("id").asText(), equalTo("1234"));
-        assertThat(jsonNode.get("clientId").asText(), equalTo("client1"));
+        assertThat(jsonNode.get("id").asText(), equalTo(documentId));
+        assertThat(jsonNode.get("clientId").asText(), equalTo(clientId));
         final JsonNode editsNode = jsonNode.get("edits");
         assertThat(editsNode.isArray(), is(true));
         assertThat(editsNode.size(), is(1));
@@ -33,16 +42,28 @@ public class JsonMapperTest {
         assertThat(diffs.size(), is(3));
     }
 
+    private static PatchMessage patchMessage(final String docId, final String clientId, Edit... edit) {
+        return new DefaultPatchMessage(docId, clientId, new LinkedList<Edit>(Arrays.asList(edit)));
+    }
+
     @Test
     public void serializeEditsWithArray() {
-        final String content = "{\"content\": [\"one\", \"one\"]}";
-        final String content2 = "{\"content\": [\"one\", \"two\"]}";
-        final PatchMessage patchMessage = generateClientSideEdits("1234", content, "client1", content2);
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+                DefaultEdit.withDocumentId(documentId)
+                        .clientId(clientId)
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
+                        .diff(new DefaultDiff(Operation.ADD, "tw"))
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "o"))
+                        .diff(new DefaultDiff(Operation.DELETE, "ne"))
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "\"]}"))
+                        .build());
         final String json = JsonMapper.toJson(patchMessage);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
         assertThat(jsonNode.get("msgType").asText(), equalTo("patch"));
-        assertThat(jsonNode.get("id").asText(), equalTo("1234"));
-        assertThat(jsonNode.get("clientId").asText(), equalTo("client1"));
+        assertThat(jsonNode.get("id").asText(), equalTo(documentId));
+        assertThat(jsonNode.get("clientId").asText(), equalTo(clientId));
         final JsonNode editsNode = jsonNode.get("edits");
         assertThat(editsNode.isArray(), is(true));
         assertThat(editsNode.size(), is(1));
@@ -66,14 +87,22 @@ public class JsonMapperTest {
 
     @Test
     public void serializeEditsWithArrayToJsonAndBack() {
-        final String content = "{\"content\": [\"one\", \"one\"]}";
-        final String content2 = "{\"content\": [\"one\", \"two\"]}";
-        final PatchMessage patchMessage = generateClientSideEdits("1234", content, "client1", content2);
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+                DefaultEdit.withDocumentId(documentId)
+                        .clientId(clientId)
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
+                        .diff(new DefaultDiff(Operation.ADD, "tw"))
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "o"))
+                        .diff(new DefaultDiff(Operation.DELETE, "ne"))
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "\"]}"))
+                        .build());
         final String json = JsonMapper.toJson(patchMessage);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
         assertThat(jsonNode.get("msgType").asText(), equalTo("patch"));
-        assertThat(jsonNode.get("id").asText(), equalTo("1234"));
-        assertThat(jsonNode.get("clientId").asText(), equalTo("client1"));
+        assertThat(jsonNode.get("id").asText(), equalTo(documentId));
+        assertThat(jsonNode.get("clientId").asText(), equalTo(clientId));
         final JsonNode editsNode = jsonNode.get("edits");
         assertThat(editsNode.isArray(), is(true));
         assertThat(editsNode.size(), is(1));
@@ -97,12 +126,20 @@ public class JsonMapperTest {
 
     @Test
     public void deserializeEdits() {
-        final PatchMessage patchMessage = generateClientSideEdits("1234", "version1", "client1", "version2");
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+                DefaultEdit.withDocumentId(documentId)
+                        .clientId(clientId)
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "version"))
+                        .diff(new DefaultDiff(Operation.DELETE, "1"))
+                        .diff(new DefaultDiff(Operation.ADD, "2"))
+                        .build());
         final DefaultPatchMessage deserialized = JsonMapper.fromJson(JsonMapper.toJson(patchMessage), DefaultPatchMessage.class);
         assertThat(deserialized.edits().size(), is(1));
         final Edit edit = deserialized.edits().peek();
-        assertThat(edit.documentId(), equalTo("1234"));
-        assertThat(edit.clientId(), equalTo("client1"));
+        assertThat(edit.documentId(), equalTo(documentId));
+        assertThat(edit.clientId(), equalTo(clientId));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.diffs().size(), is(3));
@@ -130,11 +167,19 @@ public class JsonMapperTest {
 
     @Test
     public void serializeEdit() {
-        final PatchMessage patchMessage = generateClientSideEdits("1234", "version1", "client1", "version2");
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+                DefaultEdit.withDocumentId(documentId)
+                        .clientId(clientId)
+                        .diff(new DefaultDiff(Operation.UNCHANGED, "version"))
+                        .diff(new DefaultDiff(Operation.DELETE, "1"))
+                        .diff(new DefaultDiff(Operation.ADD, "2"))
+                        .build());
         final String json = JsonMapper.toJson(patchMessage.edits().peek());
         final JsonNode edit = JsonMapper.asJsonNode(json);
-        assertThat(edit.get("clientId").asText(), equalTo("client1"));
-        assertThat(edit.get("id").asText(), equalTo("1234"));
+        assertThat(edit.get("clientId").asText(), equalTo(clientId));
+        assertThat(edit.get("id").asText(), equalTo(documentId));
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
         final JsonNode diffs = edit.get("diffs");
@@ -154,14 +199,4 @@ public class JsonMapperTest {
         assertThat(elements.next().asText(), equalTo("two"));
     }
 
-    private static PatchMessage generateClientSideEdits(final String documentId,
-                                                       final String originalContent,
-                                                       final String clientId,
-                                                       final String updatedContent) {
-        final ClientSyncEngine<String> clientSyncEngine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(),
-                new ClientInMemoryDataStore());
-        clientSyncEngine.addDocument(new DefaultClientDocument<String>(documentId, clientId, originalContent));
-        final DefaultClientDocument<String> doc = new DefaultClientDocument<String>(documentId, clientId, updatedContent);
-        return clientSyncEngine.diff(doc);
-    }
 }
