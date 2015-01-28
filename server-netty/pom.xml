@@ -63,6 +63,10 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-diffmatchpatch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-server-xmpp</artifactId>
         </dependency>
         <dependency>

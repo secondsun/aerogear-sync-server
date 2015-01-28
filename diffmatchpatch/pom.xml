@@ -23,32 +23,36 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>sync-client-core</artifactId>
+    <artifactId>sync-diffmatchpatch</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization Client Core</name>
+    <name>AeroGear Data Synchronization DiffMatchPath</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-diffmatchpatch</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-        </dependency>
+      <dependency>
+        <groupId>org.jboss.aerogear</groupId>
+        <artifactId>sync-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.aerogear</groupId>
+        <artifactId>sync-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+      </dependency>
     </dependencies>
-
+    
 </project>
 

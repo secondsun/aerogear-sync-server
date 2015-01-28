@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.client;
+package org.jboss.aerogear.sync.diffmatchpatch;
 
 import org.jboss.aerogear.sync.*;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatch;
@@ -22,24 +22,27 @@ import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
 import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
+import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatch.*;
+import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatch.Patch;
+import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatch.builder;
+import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatch.checksum;
 
 /**
- * A {@link ClientSynchronizer} implementation that can handle text documents.
+ * A {@link ServerSynchronizer} implementation that can handle text documents.
  */
-public class DefaultClientSynchronizer implements ClientSynchronizer<String, DiffMatchPatchEdit> {
+public class DiffMatchPatchServerSynchronizer implements ServerSynchronizer<String, DiffMatchPatchEdit> {
 
     private final DiffMatchPatch diffMatchPatch;
 
-    public DefaultClientSynchronizer() {
+    public DiffMatchPatchServerSynchronizer() {
         this(builder().build());
     }
 
-    public DefaultClientSynchronizer(final DiffMatchPatch diffMatchPatch) {
+    public DiffMatchPatchServerSynchronizer(final DiffMatchPatch diffMatchPatch) {
         this.diffMatchPatch = diffMatchPatch;
     }
 
@@ -49,21 +52,19 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
         return DiffMatchPatchEdit.withDocumentId(document.id())
                 .clientId(shadowDocument.document().clientId())
-                .clientVersion(shadowDocument.clientVersion())
-                .serverVersion(shadowDocument.serverVersion())
                 .checksum(checksum(shadowText))
                 .diffs(asAeroGearDiffs(diffs))
                 .build();
     }
-    
+
     @Override
     public DiffMatchPatchEdit serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
         return DiffMatchPatchEdit.withDocumentId(document.id())
                 .clientId(shadowDocument.document().clientId())
-                .clientVersion(shadowDocument.clientVersion())
                 .serverVersion(shadowDocument.serverVersion())
+                .clientVersion(shadowDocument.clientVersion())
                 .checksum(checksum(shadowText))
                 .diffs(asAeroGearDiffs(diffs))
                 .build();
@@ -80,15 +81,17 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
     }
 
     @Override
-    public ClientDocument<String> patchDocument(final DiffMatchPatchEdit edit, final ClientDocument<String> document) {
+    public Document<String> patchDocument(final DiffMatchPatchEdit edit, final Document<String> document) {
         final LinkedList<Patch> patches = patchesFrom(edit);
-        //TODO: results also contains a boolean array. Not sure what we should do with it.
         final Object[] results = diffMatchPatch.patchApply(patches, document.content());
-        return new DefaultClientDocument<String>(document.id(), document.clientId(), (String) results[0]);
+        //TODO: results also contains a boolean array. Not sure what we should do with it.
+        return new DefaultDocument<String>(document.id(), (String) results[0]);
     }
 
     @Override
-    public PatchMessage<DiffMatchPatchEdit> createPatchMessage(String documentId, String clientId, Queue<DiffMatchPatchEdit> edits) {
+    public PatchMessage<DiffMatchPatchEdit> createPatchMessage(final String documentId,
+                                                        final String clientId,
+                                                        final Queue<DiffMatchPatchEdit> edits) {
         return new DiffMatchPatchMessage(documentId, clientId, edits);
     }
 
@@ -104,7 +107,7 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
     private static LinkedList<DiffMatchPatch.Diff> asDiffUtilDiffs(final LinkedList<DiffMatchPatchDiff> diffs) {
         final LinkedList<DiffMatchPatch.Diff> dsf = new LinkedList<DiffMatchPatch.Diff>();
         for (DiffMatchPatchDiff d : diffs) {
-            dsf.add(diff(diffutilOp(d.operation()), d.text()));
+            dsf.add(DiffMatchPatch.diff(diffutilOp(d.operation()), d.text()));
         }
         return dsf;
     }
@@ -117,20 +120,20 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
         return syncDiffs;
     }
 
-    private static Operation diffutilOp(final DiffMatchPatchDiff.Operation operation) {
+    private static DiffMatchPatch.Operation diffutilOp(final DiffMatchPatchDiff.Operation operation) {
         switch (operation) {
             case DELETE:
-                return Operation.DELETE;
+                return DiffMatchPatch.Operation.DELETE;
             case ADD:
-                return Operation.INSERT;
+                return DiffMatchPatch.Operation.INSERT;
             case UNCHANGED:
-                return Operation.EQUAL;
+                return DiffMatchPatch.Operation.EQUAL;
             default:
                 throw new RuntimeException("Unsupported Operation: " + operation);
         }
     }
 
-    private static DiffMatchPatchDiff.Operation aerogearOp(final Operation operation) {
+    private static DiffMatchPatchDiff.Operation aerogearOp(final DiffMatchPatch.Operation operation) {
         switch (operation) {
             case DELETE:
                 return DiffMatchPatchDiff.Operation.DELETE;

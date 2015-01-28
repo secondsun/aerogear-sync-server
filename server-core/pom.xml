@@ -29,6 +29,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -37,12 +41,13 @@
             <artifactId>mockito-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-diffmatchpatch</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

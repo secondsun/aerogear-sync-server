@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
+import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 import org.jboss.aerogear.sync.server.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

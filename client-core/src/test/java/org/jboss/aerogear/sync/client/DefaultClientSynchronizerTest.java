@@ -19,16 +19,18 @@ package org.jboss.aerogear.sync.client;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.jboss.aerogear.sync.*;
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
-import static org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
+import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 
 public class DefaultClientSynchronizerTest {
 
-    private ClientSynchronizer<String, DefaultEdit> clientSynchronizer;
+    private ClientSynchronizer<String, DiffMatchPatchEdit> clientSynchronizer;
 
     @Before
     public void createDocuments() {
@@ -43,7 +45,7 @@ public class DefaultClientSynchronizerTest {
         final String update = "Do or do not, there is no try!";
         final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, original);
 
-        final DefaultEdit edit = clientSynchronizer.clientDiff(newDoc(documentId, update), clientShadow);
+        final DiffMatchPatchEdit edit = clientSynchronizer.clientDiff(newDoc(documentId, update), clientShadow);
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientId(), is(clientId));
@@ -65,7 +67,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do not, there is no try!";
         final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, originalVersion);
 
-        final DefaultEdit edit = DefaultEdit.withDocumentId(documentId)
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
@@ -83,7 +85,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do nothing, there is no try.";
         final ClientDocument<String> clientShadow = new DefaultClientDocument<String>(documentId, clientId, originalVersion);
 
-        final DefaultEdit edit = DefaultEdit.withDocumentId(documentId)
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("Do or do not")
                 .add("hing")

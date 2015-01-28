@@ -39,9 +39,9 @@
     </properties>
 
     <modules>
-        <module>common</module>
         <module>api</module>
         <module>core</module>
+        <module>diffmatchpatch</module>
         <module>server-core</module>
         <module>client-core</module>
         <module>client-netty</module>
@@ -64,7 +64,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-common</artifactId>
+                <artifactId>sync-diffmatchpatch</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

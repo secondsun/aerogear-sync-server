@@ -35,6 +35,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;

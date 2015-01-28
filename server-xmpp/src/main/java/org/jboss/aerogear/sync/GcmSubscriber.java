@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import java.util.UUID;
 
 import static org.jboss.aerogear.sync.GcmMessages.createJsonMessage;
-import static org.jboss.aerogear.sync.JsonMapper.toJson;
+import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.toJson;
 
 public class GcmSubscriber implements Subscriber<XMPPConnection> {
 

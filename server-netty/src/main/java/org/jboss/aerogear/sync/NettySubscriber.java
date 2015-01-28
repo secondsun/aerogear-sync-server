@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.server.Subscriber;
 
-import static org.jboss.aerogear.sync.JsonMapper.toJson;
+import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.toJson;
 
 public class NettySubscriber implements Subscriber<ChannelHandlerContext> {
 

@@ -1,6 +1,7 @@
 package org.jboss.aerogear.sync;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 import org.json.simple.JSONValue;
 
 import java.util.HashMap;

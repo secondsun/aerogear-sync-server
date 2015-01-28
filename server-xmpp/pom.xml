@@ -56,6 +56,10 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-diffmatchpatch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-client-core</artifactId>
             <scope>test</scope>
         </dependency>

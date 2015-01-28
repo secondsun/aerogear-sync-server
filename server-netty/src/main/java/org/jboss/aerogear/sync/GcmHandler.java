@@ -2,6 +2,7 @@ package org.jboss.aerogear.sync;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
@@ -26,13 +27,13 @@ public class GcmHandler extends ChannelHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GcmHandler.class);
 
     private final StandaloneConfig syncConfig;
-    private final ServerSyncEngine<String, DefaultEdit> syncEngine;
+    private final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine;
     private final ExecutorService executorService;
 
     private XMPPConnection connection;
 
     public GcmHandler(final StandaloneConfig syncConfig,
-                      final ServerSyncEngine<String, DefaultEdit> syncEngine,
+                      final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine,
                       final ExecutorService executorService) {
         this.syncConfig = syncConfig;
         this.syncEngine = syncEngine;

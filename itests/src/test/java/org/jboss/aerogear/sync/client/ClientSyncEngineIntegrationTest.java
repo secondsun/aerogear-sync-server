@@ -20,13 +20,13 @@ import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DefaultDocument;
-import org.jboss.aerogear.sync.DefaultEdit;
-import org.jboss.aerogear.sync.DiffMatchPatchDiff;
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
-import org.jboss.aerogear.sync.server.DiffMatchPatchServerSynchronizer;
-import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchInMemoryDataStore;
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.Subscriber;
 import org.junit.Before;
@@ -38,21 +38,21 @@ import java.util.Queue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.*;
-import static org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
+import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ClientSyncEngineIntegrationTest {
 
-    private ClientDataStore<String, DefaultEdit> dataStore;
-    private ClientSyncEngine<String, DefaultEdit> clientSyncEngine;
-    private ServerSyncEngine<String, DefaultEdit> serverSyncEngine;
+    private ClientDataStore<String, DiffMatchPatchEdit> dataStore;
+    private ClientSyncEngine<String, DiffMatchPatchEdit> clientSyncEngine;
+    private ServerSyncEngine<String, DiffMatchPatchEdit> serverSyncEngine;
 
     @Before
     public void setup() {
         dataStore = new ClientInMemoryDataStore();
-        clientSyncEngine = new ClientSyncEngine<String, DefaultEdit>(new DefaultClientSynchronizer(), dataStore);
-        serverSyncEngine = new ServerSyncEngine<String, DefaultEdit>(new DiffMatchPatchServerSynchronizer(), new ServerInMemoryDataStore());
+        clientSyncEngine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(), dataStore);
+        serverSyncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchServerSynchronizer(), new DiffMatchPatchInMemoryDataStore());
     }
 
     @Test
@@ -87,11 +87,11 @@ public class ClientSyncEngineIntegrationTest {
 
         clientSyncEngine.addDocument(newClientDoc(docId, originalVersion, clientOne));
 
-        final PatchMessage<DefaultEdit> patchMessage = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = clientSyncEngine.diff(newClientDoc(docId, secondVersion, clientOne));
         assertThat(patchMessage.documentId(), equalTo(docId));
         assertThat(patchMessage.clientId(), equalTo(clientOne));
         assertThat(patchMessage.edits().size(), is(1));
-        final DefaultEdit edit = patchMessage.edits().iterator().next();
+        final DiffMatchPatchEdit edit = patchMessage.edits().iterator().next();
         // client version is only incremented after the diff is taken. See shadowDocument asserts below.
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
@@ -128,11 +128,11 @@ public class ClientSyncEngineIntegrationTest {
         serverSyncEngine.addSubscriber(subscriberOne, newDoc(docId, originalVersion));
         serverSyncEngine.addSubscriber(subscriberTwo, newDoc(docId, originalVersion));
 
-        final PatchMessage<DefaultEdit> patchMessage = clientSyncEngine.diff(newClientDoc(docId, secondVersion, subscriberOne.clientId()));
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = clientSyncEngine.diff(newClientDoc(docId, secondVersion, subscriberOne.clientId()));
         assertThat(patchMessage.documentId(), equalTo(docId));
         assertThat(patchMessage.clientId(), equalTo(subscriberOne.clientId()));
         assertThat(patchMessage.edits().size(), is(1));
-        final DefaultEdit edit = patchMessage.edits().peek();
+        final DiffMatchPatchEdit edit = patchMessage.edits().peek();
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         final List<DiffMatchPatchDiff> diffs = edit.diffs();
@@ -146,11 +146,11 @@ public class ClientSyncEngineIntegrationTest {
 
         serverSyncEngine.patch(patchMessage);
 
-        final PatchMessage<DefaultEdit> serverPatchMessage = serverSyncEngine.diffs(docId, subscriberTwo.clientId());
+        final PatchMessage<DiffMatchPatchEdit> serverPatchMessage = serverSyncEngine.diffs(docId, subscriberTwo.clientId());
         assertThat(serverPatchMessage.clientId(), equalTo(subscriberTwo.clientId()));
         assertThat(serverPatchMessage.documentId(), equalTo(docId));
         assertThat(serverPatchMessage.edits().size(), is(1));
-        final DefaultEdit serverEdit = serverPatchMessage.edits().peek();
+        final DiffMatchPatchEdit serverEdit = serverPatchMessage.edits().peek();
         assertThat(serverEdit.clientVersion(), is(0L));
         assertThat(serverEdit.serverVersion(), is(0L));
         assertThat(serverEdit.diffs().size(), is(3));
@@ -164,16 +164,16 @@ public class ClientSyncEngineIntegrationTest {
         assertThat(serverDiffs.get(2).text(), equalTo("!"));
 
         clientSyncEngine.patch(serverPatchMessage);
-        final Queue<DefaultEdit> clientOneEdits = dataStore.getEdits(docId, subscriberTwo.clientId());
+        final Queue<DiffMatchPatchEdit> clientOneEdits = dataStore.getEdits(docId, subscriberTwo.clientId());
         assertThat(clientOneEdits.isEmpty(), is(true));
-        final Queue<DefaultEdit> clientTwoEdits = dataStore.getEdits(docId, subscriberTwo.clientId());
+        final Queue<DiffMatchPatchEdit> clientTwoEdits = dataStore.getEdits(docId, subscriberTwo.clientId());
         assertThat(clientTwoEdits.isEmpty(), is(true));
 
-        final DefaultEdit serverEdit1 = serverSyncEngine.diff(docId, subscriberOne.clientId());
+        final DiffMatchPatchEdit serverEdit1 = serverSyncEngine.diff(docId, subscriberOne.clientId());
         assertThat(serverEdit1.diffs().size(), is(1));
         assertThat(serverEdit1.diffs().get(0).operation(), is(Operation.UNCHANGED));
 
-        final DefaultEdit serverEdit2 = serverSyncEngine.diff(docId, subscriberTwo.clientId());
+        final DiffMatchPatchEdit serverEdit2 = serverSyncEngine.diff(docId, subscriberTwo.clientId());
         assertThat(serverEdit2.diffs().size(), is(1));
         assertThat(serverEdit2.diffs().get(0).operation(), is(Operation.UNCHANGED));
         assertThat(serverEdit2.diffs().get(0).text(), equalTo("Do or do not, there is no try!"));
