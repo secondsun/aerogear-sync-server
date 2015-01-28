@@ -23,9 +23,9 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>sync-diffmatchpatch</artifactId>
+    <artifactId>sync-json-patch</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization DiffMatchPatch</name>
+    <name>AeroGear Data Synchronization JSON Patch</name>
 
     <dependencies>
       <dependency>
@@ -35,6 +35,10 @@
       <dependency>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>sync-core</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>com.github.fge</groupId>
+          <artifactId>json-patch</artifactId>
       </dependency>
       <dependency>
         <groupId>junit</groupId>

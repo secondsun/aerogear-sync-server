@@ -14,12 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.jsonpatch;
+
+import com.github.fge.jsonpatch.JsonPatch;
+import org.jboss.aerogear.sync.Diff;
 
 public class JsonPatchDiff implements Diff {
 
+    private final JsonPatch jsonPatch;
+
+    public JsonPatchDiff(final JsonPatch jsonPatch) {
+        this.jsonPatch = jsonPatch;
+    }
+
+    public JsonPatch jsonPatch() {
+        return jsonPatch;
+    }
+
     @Override
     public String toString() {
-        return "JsonPatchDiff[]";
+        return "JsonPatchDiff[jsonPatch=" + jsonPatch + ']';
     }
 }

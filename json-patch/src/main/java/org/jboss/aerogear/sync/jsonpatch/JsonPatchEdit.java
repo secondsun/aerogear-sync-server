@@ -14,7 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.jsonpatch;
+
+import com.github.fge.jsonpatch.JsonPatch;
+import org.jboss.aerogear.sync.Edit;
 
 import java.util.LinkedList;
 
@@ -151,8 +154,8 @@ public class JsonPatchEdit implements Edit {
             return this;
         }
 
-        public Builder diff(final String text) {
-            //diffs.add(new JsonPatchDiff());
+        public Builder diff(final JsonPatch patch) {
+            diffs.add(new JsonPatchDiff(patch));
             return this;
         }
 
@@ -161,7 +164,7 @@ public class JsonPatchEdit implements Edit {
             return this;
         }
 
-        public Edit build() {
+        public JsonPatchEdit build() {
             if (clientId == null) {
                 throw new IllegalArgumentException("clientId must not be null");
             }
