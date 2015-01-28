@@ -35,7 +35,7 @@ public class GcmDiffSyncHandler implements PacketListener {
     private static final String GCM_ELEMENT_NAME = "gcm";
     private static final String GCM_NAMESPACE = "google:mobile:data";
     private XMPPConnection connection;
-    private final ServerSyncEngine<String> syncEngine;
+    private final ServerSyncEngine<String, DefaultEdit> syncEngine;
 
     /**
      * Indicates whether the connection is in draining state, which means that
@@ -55,7 +55,7 @@ public class GcmDiffSyncHandler implements PacketListener {
                 });
     }
 
-    public GcmDiffSyncHandler(final ServerSyncEngine<String> syncEngine, XMPPConnection connection) {
+    public GcmDiffSyncHandler(final ServerSyncEngine<String, DefaultEdit> syncEngine, XMPPConnection connection) {
         this.connection = connection;
         this.syncEngine = syncEngine;
     }
@@ -171,11 +171,11 @@ public class GcmDiffSyncHandler implements PacketListener {
         switch (MessageType.from(syncMessage.get("msgType").asText())) {
             case ADD:
                 final Document<String> doc = documentFromJson(syncMessage);
-                final PatchMessage patchMessage = addSubscriber(doc, diffsyncClientId, googleRegistrationId);
+                final PatchMessage<DefaultEdit> patchMessage = addSubscriber(doc, diffsyncClientId, googleRegistrationId);
                 send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), toJson(patchMessage)));
                 break;
             case PATCH:
-                final PatchMessage clientPatchMessage = fromJson(syncMessage.toString(), DefaultPatchMessage.class);
+                final PatchMessage<DefaultEdit> clientPatchMessage = fromJson(syncMessage.toString(), DefaultPatchMessage.class);
                 checkForReconnect(clientPatchMessage.documentId(), googleRegistrationId, diffsyncClientId);
                 logger.log(Level.FINER, "Client Edits=" + clientPatchMessage);
                 patch(clientPatchMessage);
@@ -189,14 +189,14 @@ public class GcmDiffSyncHandler implements PacketListener {
         }
     }
 
-    private PatchMessage addSubscriber(final Document<String> document,
+    private PatchMessage<DefaultEdit> addSubscriber(final Document<String> document,
                                        final String clientId,
                                        final String googleRegistrationId) {
         final GcmSubscriber gcmSubscriber = new GcmSubscriber(clientId, googleRegistrationId, connection);
         return syncEngine.addSubscriber(gcmSubscriber, document);
     }
 
-    private void patch(final PatchMessage clientEdit) {
+    private void patch(final PatchMessage<DefaultEdit> clientEdit) {
         syncEngine.patchAndNotifySubscribers(clientEdit);
     }
 

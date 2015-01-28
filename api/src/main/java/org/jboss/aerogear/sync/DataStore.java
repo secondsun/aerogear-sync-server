@@ -8,7 +8,7 @@ import java.util.Queue;
  *
  * @param <T> The type of the Document that this data store can handle.
  */
-public interface DataStore<T> {
+public interface DataStore<T, S extends Edit> {
 
     /**
      * Saves a shadow document.
@@ -47,23 +47,23 @@ public interface DataStore<T> {
      *
      * @param edit the edit to be saved.
      */
-    void saveEdits(Edit edit);
+    void saveEdits(S edit);
 
     /**
      * Retreives the queue of {@link Edit}s for the specified document documentId.
      *
      * @param documentId the document identifier of the edit.
      * @param clientId the client identifier for which to fetch the document.
-     * @return {@code Queue<Edits>} the edits for the document.
+     * @return {@code Queue<S>} the edits for the document.
      */
-    Queue<Edit> getEdits(String documentId, String clientId);
+    Queue<S> getEdits(String documentId, String clientId);
 
     /**
      * Removes the edit from the store.
      *
      * @param edit the edit to be removed.
      */
-    void removeEdit(Edit edit);
+    void removeEdit(S edit);
 
     /**
      * Removes all edits for the specific client and document pair.

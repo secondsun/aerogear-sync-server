@@ -16,22 +16,22 @@
  */
 package org.jboss.aerogear.sync;
 
-public class DefaultDiff implements Diff {
+public class DiffMatchPatchDiff implements Diff {
+
+    public enum Operation { DELETE, ADD, UNCHANGED }
 
     private final Operation operation;
     private final String text;
 
-    public DefaultDiff(final Operation operation, final String text) {
+    public DiffMatchPatchDiff(final Operation operation, final String text) {
         this.operation = operation;
         this.text = text;
     }
 
-    @Override
     public Operation operation() {
         return operation;
     }
 
-    @Override
     public String text() {
         return text;
     }
@@ -45,7 +45,7 @@ public class DefaultDiff implements Diff {
             return false;
         }
 
-        DefaultDiff that = (DefaultDiff) o;
+        DiffMatchPatchDiff that = (DiffMatchPatchDiff) o;
 
         if (operation != that.operation) {
             return false;

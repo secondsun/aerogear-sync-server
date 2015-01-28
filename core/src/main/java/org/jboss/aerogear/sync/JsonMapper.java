@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
+
 public final class JsonMapper {
 
     private static ObjectMapper om = createObjectMapper();
@@ -42,10 +44,10 @@ public final class JsonMapper {
     private static ObjectMapper createObjectMapper() {
         om = new ObjectMapper();
         final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null, "aerogear", "sync"));
-        module.addDeserializer(Edit.class, new EditDeserializer());
-        module.addSerializer(Edit.class, new EditSerializer());
+        module.addDeserializer(DefaultEdit.class, new EditDeserializer());
+        module.addSerializer(DefaultEdit.class, new EditSerializer());
         module.addDeserializer(DefaultPatchMessage.class, new PatchMessageDeserializer());
-        module.addSerializer(PatchMessage.class, new PatchMessageSerializer());
+        module.addSerializer(DefaultPatchMessage.class, new PatchMessageSerializer());
         om.registerModule(module);
         return om;
     }
@@ -121,7 +123,7 @@ public final class JsonMapper {
             final String documentId = node.get("id").asText();
             final String clientId = node.get("clientId").asText();
             final JsonNode jsonEdits = node.get("edits");
-            final Queue<Edit> edits = new ConcurrentLinkedQueue<Edit>();
+            final Queue<DefaultEdit> edits = new ConcurrentLinkedQueue<DefaultEdit>();
             if (jsonEdits.isArray()) {
                 for (JsonNode edit : jsonEdits) {
                     if (edit.isNull()) {
@@ -137,7 +139,7 @@ public final class JsonMapper {
                             if (d.isNull()) {
                                 continue;
                             }
-                            eb.diff(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
+                            eb.diff(new DiffMatchPatchDiff(Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                         }
                     }
                     edits.add(eb.build());
@@ -147,10 +149,10 @@ public final class JsonMapper {
         }
     }
 
-    private static class PatchMessageSerializer extends JsonSerializer<PatchMessage> {
+    private static class PatchMessageSerializer extends JsonSerializer<DefaultPatchMessage> {
 
         @Override
-        public void serialize(final PatchMessage patchMessage,
+        public void serialize(final DefaultPatchMessage patchMessage,
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
@@ -158,7 +160,7 @@ public final class JsonMapper {
             jgen.writeStringField("id", patchMessage.documentId());
             jgen.writeStringField("clientId", patchMessage.clientId());
             jgen.writeArrayFieldStart("edits");
-            for (Edit edit : patchMessage.edits()) {
+            for (DefaultEdit edit : patchMessage.edits()) {
                 if (edit == null) {
                     continue;
                 }
@@ -170,7 +172,7 @@ public final class JsonMapper {
                 jgen.writeStringField("checksum", edit.checksum());
                 jgen.writeArrayFieldStart("diffs");
                 if (!edit.diffs().isEmpty()) {
-                    for (Diff diff : edit.diffs()) {
+                    for (DiffMatchPatchDiff diff : edit.diffs()) {
                         jgen.writeStartObject();
                         jgen.writeStringField("operation", diff.operation().toString());
                         jgen.writeStringField("text", diff.text());
@@ -185,10 +187,10 @@ public final class JsonMapper {
         }
     }
 
-    private static class EditDeserializer extends JsonDeserializer<Edit> {
+    private static class EditDeserializer extends JsonDeserializer<DefaultEdit> {
 
         @Override
-        public Edit deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+        public DefaultEdit deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode edit = oc.readTree(jp);
             final Builder eb = DefaultEdit.withDocumentId(edit.get("id").asText());
@@ -199,17 +201,17 @@ public final class JsonMapper {
             final JsonNode diffsNode = edit.get("diffs");
             if (diffsNode.isArray()) {
                 for (JsonNode d : diffsNode) {
-                    eb.diff(new DefaultDiff(Diff.Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
+                    eb.diff(new DiffMatchPatchDiff(Operation.valueOf(d.get("operation").asText()), d.get("text").asText()));
                 }
             }
             return eb.build();
         }
     }
 
-    private static class EditSerializer extends JsonSerializer<Edit> {
+    private static class EditSerializer extends JsonSerializer<DefaultEdit> {
 
         @Override
-        public void serialize(final Edit edit,
+        public void serialize(final DefaultEdit edit,
                               final JsonGenerator jgen,
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
@@ -221,7 +223,7 @@ public final class JsonMapper {
             jgen.writeStringField("checksum", edit.checksum());
             jgen.writeArrayFieldStart("diffs");
             if (!edit.diffs().isEmpty()) {
-                for (Diff diff : edit.diffs()) {
+                for (DiffMatchPatchDiff diff : edit.diffs()) {
                     jgen.writeStartObject();
                     jgen.writeStringField("operation", diff.operation().toString());
                     jgen.writeStringField("text", diff.text());

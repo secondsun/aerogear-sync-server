@@ -19,7 +19,10 @@ package org.jboss.aerogear.sync.client;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
+
+import java.util.Queue;
 
 /**
  * A instance of this class will be able to handle tasks needed to implement
@@ -27,7 +30,7 @@ import org.jboss.aerogear.sync.ShadowDocument;
  *
  * @param <T> The type of documents that this engine can handle.
  */
-public interface ClientSynchronizer<T> {
+public interface ClientSynchronizer<T, S extends Edit> {
 
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.
@@ -35,7 +38,7 @@ public interface ClientSynchronizer<T> {
      * @param edit The edit.
      * @return {@link ShadowDocument} a new patched shadow document.
      */
-    ShadowDocument<T> patchShadow(Edit edit, ShadowDocument<T> shadowDocument);
+    ShadowDocument<T> patchShadow(S edit, ShadowDocument<T> shadowDocument);
 
     /**
      * Called when the document should be patched.
@@ -44,7 +47,7 @@ public interface ClientSynchronizer<T> {
      * @param document the client document that
      * @return {@link ClientDocument} a new patched document.
      */
-    ClientDocument<T> patchDocument(Edit edit, ClientDocument<T> document);
+    ClientDocument<T> patchDocument(S edit, ClientDocument<T> document);
 
     /**
      * Is called to produce an {@link Edit} of changes coming from a server.
@@ -53,7 +56,7 @@ public interface ClientSynchronizer<T> {
      * @param shadowDocument the document shadow containing the servers changes.
      * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edit serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+    S serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
     
     /**
      * The first step in a sync is to produce a an edit for the changes.
@@ -63,7 +66,10 @@ public interface ClientSynchronizer<T> {
      * @param shadowDocument the document shadow.
      * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edit clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
-    
+    S clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+
+    PatchMessage<S> createPatchMessage(String documentId, String clientId, Queue<S> edits);
+
+    PatchMessage<S> patchMessageFromJson(String json);
 
 }

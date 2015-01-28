@@ -39,9 +39,9 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
     private static final Logger logger = LoggerFactory.getLogger(DiffSyncHandler.class);
     private static final AttributeKey<Boolean> DOC_ADD = AttributeKey.valueOf(DiffSyncHandler.class, "DOC_ADD");
 
-    private final ServerSyncEngine<String> syncEngine;
+    private final ServerSyncEngine<String, DefaultEdit> syncEngine;
 
-    public DiffSyncHandler(final ServerSyncEngine<String> syncEngine) {
+    public DiffSyncHandler(final ServerSyncEngine<String, DefaultEdit> syncEngine) {
         this.syncEngine = syncEngine;
     }
 
@@ -60,12 +60,12 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             case ADD:
                 final Document<String> doc = documentFromJson(json);
                 final String clientId = json.get("clientId").asText();
-                final PatchMessage patchMessage = addSubscriber(doc, clientId, ctx);
+                final PatchMessage<DefaultEdit> patchMessage = addSubscriber(doc, clientId, ctx);
                 ctx.attr(DOC_ADD).set(true);
                 ctx.channel().writeAndFlush(textFrame(toJson(patchMessage)));
                 break;
             case PATCH:
-                final PatchMessage clientPatchMessage = JsonMapper.fromJson(json.toString(), DefaultPatchMessage.class);
+                final PatchMessage<DefaultEdit> clientPatchMessage = JsonMapper.fromJson(json.toString(), DefaultPatchMessage.class);
                 checkForReconnect(clientPatchMessage.documentId(), clientPatchMessage.clientId(), ctx);
                 logger.debug("Client Edits=" + clientPatchMessage);
                 patch(clientPatchMessage);
@@ -82,7 +82,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private PatchMessage addSubscriber(final Document<String> document,
+    private PatchMessage<DefaultEdit> addSubscriber(final Document<String> document,
                                        final String clientId,
                                        final ChannelHandlerContext ctx) {
         final NettySubscriber subscriber = new NettySubscriber(clientId, ctx);
@@ -90,7 +90,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         return syncEngine.addSubscriber(subscriber, document);
     }
 
-    private void patch(final PatchMessage clientEdit) {
+    private void patch(final PatchMessage<DefaultEdit> clientEdit) {
         syncEngine.patchAndNotifySubscribers(clientEdit);
     }
 

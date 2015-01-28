@@ -16,5 +16,20 @@
  */
 package org.jboss.aerogear.sync;
 
-public interface Diff {
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class DefaultPatchMessageTest {
+
+    @Test
+    public void diffMatchPatch() {
+        final DefaultEdit edit = DefaultEdit.withDocumentId("1234").clientId("client1").unchanged("kalle").build();
+        final PatchMessage<DefaultEdit> patchMessage = new DefaultPatchMessage("1234", "client1", new LinkedList<DefaultEdit>(Arrays.asList(edit)));
+        assertThat(patchMessage.documentId(), equalTo("1234"));
+    }
 }

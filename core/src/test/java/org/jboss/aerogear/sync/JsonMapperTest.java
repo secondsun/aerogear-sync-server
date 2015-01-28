@@ -1,7 +1,7 @@
 package org.jboss.aerogear.sync;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.jboss.aerogear.sync.Diff.Operation;
+import org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -18,12 +18,12 @@ public class JsonMapperTest {
     public void serializeEdits() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+        final PatchMessage<DefaultEdit> patchMessage = patchMessage(documentId, clientId,
                 DefaultEdit.withDocumentId(documentId)
                         .clientId(clientId)
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "version"))
-                        .diff(new DefaultDiff(Operation.DELETE, "1"))
-                        .diff(new DefaultDiff(Operation.ADD, "2"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "version"))
+                        .diff(new DiffMatchPatchDiff(Operation.DELETE, "1"))
+                        .diff(new DiffMatchPatchDiff(Operation.ADD, "2"))
                         .build());
 
         final String json = JsonMapper.toJson(patchMessage);
@@ -42,22 +42,22 @@ public class JsonMapperTest {
         assertThat(diffs.size(), is(3));
     }
 
-    private static PatchMessage patchMessage(final String docId, final String clientId, Edit... edit) {
-        return new DefaultPatchMessage(docId, clientId, new LinkedList<Edit>(Arrays.asList(edit)));
+    private static PatchMessage<DefaultEdit> patchMessage(final String docId, final String clientId, DefaultEdit... edit) {
+        return new DefaultPatchMessage(docId, clientId, new LinkedList<DefaultEdit>(Arrays.asList(edit)));
     }
 
     @Test
     public void serializeEditsWithArray() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+        final PatchMessage<DefaultEdit> patchMessage = patchMessage(documentId, clientId,
                 DefaultEdit.withDocumentId(documentId)
                         .clientId(clientId)
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
-                        .diff(new DefaultDiff(Operation.ADD, "tw"))
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "o"))
-                        .diff(new DefaultDiff(Operation.DELETE, "ne"))
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "\"]}"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
+                        .diff(new DiffMatchPatchDiff(Operation.ADD, "tw"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "o"))
+                        .diff(new DiffMatchPatchDiff(Operation.DELETE, "ne"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "\"]}"))
                         .build());
         final String json = JsonMapper.toJson(patchMessage);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
@@ -89,14 +89,14 @@ public class JsonMapperTest {
     public void serializeEditsWithArrayToJsonAndBack() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+        final PatchMessage<DefaultEdit> patchMessage = patchMessage(documentId, clientId,
                 DefaultEdit.withDocumentId(documentId)
                         .clientId(clientId)
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
-                        .diff(new DefaultDiff(Operation.ADD, "tw"))
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "o"))
-                        .diff(new DefaultDiff(Operation.DELETE, "ne"))
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "\"]}"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
+                        .diff(new DiffMatchPatchDiff(Operation.ADD, "tw"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "o"))
+                        .diff(new DiffMatchPatchDiff(Operation.DELETE, "ne"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "\"]}"))
                         .build());
         final String json = JsonMapper.toJson(patchMessage);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
@@ -128,12 +128,12 @@ public class JsonMapperTest {
     public void deserializeEdits() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+        final PatchMessage<DefaultEdit> patchMessage = patchMessage(documentId, clientId,
                 DefaultEdit.withDocumentId(documentId)
                         .clientId(clientId)
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "version"))
-                        .diff(new DefaultDiff(Operation.DELETE, "1"))
-                        .diff(new DefaultDiff(Operation.ADD, "2"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "version"))
+                        .diff(new DiffMatchPatchDiff(Operation.DELETE, "1"))
+                        .diff(new DiffMatchPatchDiff(Operation.ADD, "2"))
                         .build());
         final DefaultPatchMessage deserialized = JsonMapper.fromJson(JsonMapper.toJson(patchMessage), DefaultPatchMessage.class);
         assertThat(deserialized.edits().size(), is(1));
@@ -169,12 +169,12 @@ public class JsonMapperTest {
     public void serializeEdit() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final PatchMessage patchMessage = patchMessage(documentId, clientId,
+        final PatchMessage<DefaultEdit> patchMessage = patchMessage(documentId, clientId,
                 DefaultEdit.withDocumentId(documentId)
                         .clientId(clientId)
-                        .diff(new DefaultDiff(Operation.UNCHANGED, "version"))
-                        .diff(new DefaultDiff(Operation.DELETE, "1"))
-                        .diff(new DefaultDiff(Operation.ADD, "2"))
+                        .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "version"))
+                        .diff(new DiffMatchPatchDiff(Operation.DELETE, "1"))
+                        .diff(new DiffMatchPatchDiff(Operation.ADD, "2"))
                         .build());
         final String json = JsonMapper.toJson(patchMessage.edits().peek());
         final JsonNode edit = JsonMapper.asJsonNode(json);

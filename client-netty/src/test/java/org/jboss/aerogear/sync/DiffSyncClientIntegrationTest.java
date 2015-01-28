@@ -10,7 +10,7 @@ public class DiffSyncClientIntegrationTest {
         final String clientId = "client2";
         final String originalVersion = "{\"id\": 9999}";
         
-        final DiffSyncClient<String> client = DiffSyncClient.<String>forHost("localhost").port(7777).path("/sync").build();
+        final DiffSyncClient<String, DefaultEdit> client = DiffSyncClient.<String, DefaultEdit>forHost("localhost").port(7777).path("/sync").build();
         client.connect();
         client.addDocument(clientDoc(documentId, clientId, originalVersion));
         Thread.sleep(1000);

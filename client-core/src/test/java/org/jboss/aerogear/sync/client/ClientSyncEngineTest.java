@@ -17,7 +17,7 @@
 package org.jboss.aerogear.sync.client;
 
 import org.jboss.aerogear.sync.*;
-import org.jboss.aerogear.sync.Diff.Operation;
+import org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,13 +31,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ClientSyncEngineTest {
 
-    private ClientSyncEngine<String> engine;
+    private ClientSyncEngine<String, DefaultEdit> engine;
     private ClientInMemoryDataStore dataStore;
 
     @Before
     public void setup() {
         dataStore = new ClientInMemoryDataStore();
-        engine = new ClientSyncEngine<String>(new DefaultClientSynchronizer(), dataStore);
+        engine = new ClientSyncEngine<String, DefaultEdit>(new DefaultClientSynchronizer(), dataStore);
     }
 
     @Test
@@ -65,13 +65,13 @@ public class ClientSyncEngineTest {
         final String shadowVersion = "{\"id\": 6666}";
         engine.addDocument(clientDoc(documentId, clientId, updatedVersion));
 
-        final PatchMessage patchMessage = engine.diff(clientDoc(documentId, clientId, shadowVersion));
+        final PatchMessage<DefaultEdit> patchMessage = engine.diff(clientDoc(documentId, clientId, shadowVersion));
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
-        final Edit edit = patchMessage.edits().peek();
+        final DefaultEdit edit = patchMessage.edits().peek();
         assertThat(edit.diffs().size(), is(4));
-        final LinkedList<Diff> diffs = edit.diffs();
+        final LinkedList<DiffMatchPatchDiff> diffs = edit.diffs();
         assertThat(diffs.size(), is(4));
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), is("{\"id\": "));
@@ -90,7 +90,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final PatchMessage patchMessage = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
+        final PatchMessage<DefaultEdit> patchMessage = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
@@ -115,7 +115,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit = DefaultEdit.withDocumentId(documentId)
+        final DefaultEdit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
@@ -142,7 +142,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit = DefaultEdit.withDocumentId(documentId)
+        final DefaultEdit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .clientVersion(-1)
                 .serverVersion(1)
@@ -171,14 +171,14 @@ public class ClientSyncEngineTest {
         final String finalVersion = "Do or do nothing, there is no try!";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final Edit edit1 = DefaultEdit.withDocumentId(documentId)
+        final DefaultEdit edit1 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
                 .build();
-        final Edit edit2 = DefaultEdit.withDocumentId(documentId)
+        final DefaultEdit edit2 = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .serverVersion(1)
                 .unchanged("Do or do not")
@@ -208,7 +208,7 @@ public class ClientSyncEngineTest {
         // and server version 0.
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final PatchMessage serverPatch = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
+        final PatchMessage<DefaultEdit> serverPatch = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .clientVersion(0)  // this patch was based on client version 0
                 .serverVersion(0)  // this patch was based on server version 0
@@ -237,7 +237,7 @@ public class ClientSyncEngineTest {
         // some where on route to the server.
         dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, "Do or do nothing, there is not trying"));
 
-        final PatchMessage serverPatch2 = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
+        final PatchMessage<DefaultEdit> serverPatch2 = patchMessage(documentId, clientId, DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 // this is to simulate an earlier version coming from the server, which means that the server never
                 // got version 1 that the client sent. Remember that we are simulating this using the previous
@@ -265,7 +265,7 @@ public class ClientSyncEngineTest {
 
         // the edit stack should be cleared now as we have reverted to a previous version. The client doc has been
         // updated and any new edits will be done on that version, and new patches sent to the server based on it.
-        final Queue<Edit> edits = dataStore.getEdits(documentId, clientId);
+        final Queue<DefaultEdit> edits = dataStore.getEdits(documentId, clientId);
         assertThat(edits.isEmpty(), is(true));
     }
 
@@ -273,8 +273,8 @@ public class ClientSyncEngineTest {
         return new DefaultClientDocument<String>(docId, clientId, content);
     }
 
-    private static PatchMessage patchMessage(final String docId, final String clientId, Edit... edit) {
-        return new DefaultPatchMessage(docId, clientId, new LinkedList<Edit>(Arrays.asList(edit)));
+    private static PatchMessage<DefaultEdit> patchMessage(final String docId, final String clientId, DefaultEdit... edit) {
+        return new DefaultPatchMessage(docId, clientId, new LinkedList<DefaultEdit>(Arrays.asList(edit)));
     }
 
     private static ShadowDocument<String> shadowDoc(final String docId,

@@ -18,18 +18,16 @@ package org.jboss.aerogear.sync;
 
 import java.util.LinkedList;
 
-import static org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
-
-public class DefaultEdit implements Edit {
+public class JsonPatchEdit implements Edit {
 
     private final String clientId;
     private final String documentId;
     private final long clientVersion;
     private final long serverVersion;
     private final String checksum;
-    private final LinkedList<DiffMatchPatchDiff> diffs;
+    private final LinkedList<JsonPatchDiff> diffs;
 
-    private DefaultEdit(final Builder builder) {
+    private JsonPatchEdit(final Builder builder) {
         clientId = builder.clientId;
         documentId = builder.documentId;
         clientVersion = builder.clientVersion;
@@ -64,7 +62,7 @@ public class DefaultEdit implements Edit {
     }
 
     @Override
-    public LinkedList<DiffMatchPatchDiff> diffs() {
+    public LinkedList<JsonPatchDiff> diffs() {
         return diffs;
     }
 
@@ -77,7 +75,7 @@ public class DefaultEdit implements Edit {
             return false;
         }
 
-        final DefaultEdit that = (DefaultEdit) o;
+        final JsonPatchEdit that = (JsonPatchEdit) o;
 
         if (clientVersion != that.clientVersion) {
             return false;
@@ -110,7 +108,7 @@ public class DefaultEdit implements Edit {
 
     @Override
     public String toString() {
-        return "DefaultEdit[documentId=" + documentId  +
+        return "JsonPatctEdit[documentId=" + documentId  +
                 ", clientId=" + clientId +
                 ", serverVersion=" + serverVersion +
                 ", clientVersion=" + clientVersion +
@@ -128,7 +126,7 @@ public class DefaultEdit implements Edit {
         private long serverVersion;
         private long clientVersion;
         private String checksum;
-        private final LinkedList<DiffMatchPatchDiff> diffs = new LinkedList<DiffMatchPatchDiff>();
+        private final LinkedList<JsonPatchDiff> diffs = new LinkedList<JsonPatchDiff>();
 
         public static Builder withDocumentId(final String documentId) {
             return new Builder(documentId);
@@ -153,28 +151,8 @@ public class DefaultEdit implements Edit {
             return this;
         }
 
-        public Builder unchanged(final String text) {
-            diffs.add(new DiffMatchPatchDiff(Operation.UNCHANGED, text));
-            return this;
-        }
-
-        public Builder add(final String text) {
-            diffs.add(new DiffMatchPatchDiff(Operation.ADD, text));
-            return this;
-        }
-
-        public Builder delete(final String text) {
-            diffs.add(new DiffMatchPatchDiff(Operation.DELETE, text));
-            return this;
-        }
-
-        public Builder diff(final DiffMatchPatchDiff diff) {
-            diffs.add(diff);
-            return this;
-        }
-
-        public Builder diffs(final LinkedList<DiffMatchPatchDiff> diffs) {
-            this.diffs.addAll(diffs);
+        public Builder diff(final String text) {
+            //diffs.add(new JsonPatchDiff());
             return this;
         }
 
@@ -183,11 +161,11 @@ public class DefaultEdit implements Edit {
             return this;
         }
 
-        public DefaultEdit build() {
+        public Edit build() {
             if (clientId == null) {
                 throw new IllegalArgumentException("clientId must not be null");
             }
-            return new DefaultEdit(this);
+            return new JsonPatchEdit(this);
         }
     }
 }

@@ -20,9 +20,8 @@ import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.DefaultEdit;
 import org.jboss.aerogear.sync.DefaultShadowDocument;
-import org.jboss.aerogear.sync.Diff.Operation;
+import org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.Document;
-import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.ShadowDocument;
 import org.junit.Test;
 
@@ -34,11 +33,11 @@ public class DiffMatchPatchServerSynchronizerTest {
 
     @Test
     public void clientDiff() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
+        final ServerSynchronizer<String, DefaultEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
-        final Edit edit = synchronizer.clientDiff(document, shadowDocument);
+        final DefaultEdit edit = synchronizer.clientDiff(document, shadowDocument);
         assertThat(edit.clientId(), equalTo("client1"));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
@@ -51,11 +50,11 @@ public class DiffMatchPatchServerSynchronizerTest {
 
     @Test
     public void serverDiff() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
+        final ServerSynchronizer<String, DefaultEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
-        final Edit edit = synchronizer.serverDiff(document, shadowDocument);
+        final DefaultEdit edit = synchronizer.serverDiff(document, shadowDocument);
         assertThat(edit.clientId(), equalTo("client1"));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
@@ -68,32 +67,32 @@ public class DiffMatchPatchServerSynchronizerTest {
 
     @Test
     public void patchShadow() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
+        final ServerSynchronizer<String, DefaultEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
-        final Edit edit = synchronizer.serverDiff(document, shadowDocument);
+        final DefaultEdit edit = synchronizer.serverDiff(document, shadowDocument);
         final ShadowDocument<String> patchedShadow = synchronizer.patchShadow(edit, shadowDocument);
         assertThat(patchedShadow.document().content(), equalTo("test"));
     }
 
     @Test
     public void patchShadowFromClientDiff() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
+        final ServerSynchronizer<String, DefaultEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "Beve");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "I'm the man");
 
-        final Edit edit = synchronizer.clientDiff(document, shadowDocument);
+        final DefaultEdit edit = synchronizer.clientDiff(document, shadowDocument);
         final ShadowDocument<String> patchedShadow = synchronizer.patchShadow(edit, shadowDocument);
         assertThat(patchedShadow.document().content(), equalTo("I'm the man"));
     }
 
     @Test
     public void patchShadowFromClientDiffCustomEdit() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
+        final ServerSynchronizer<String, DefaultEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "Beve");
 
-        final Edit edit1 = DefaultEdit.withDocumentId("1234")
+        final DefaultEdit edit1 = DefaultEdit.withDocumentId("1234")
                 .clientId("client1")
                 .delete("B")
                 .add("I'm th")
@@ -107,11 +106,11 @@ public class DiffMatchPatchServerSynchronizerTest {
 
     @Test
     public void patchDocument() throws Exception {
-        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
+        final ServerSynchronizer<String, DefaultEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final Document<String> document = new DefaultDocument<String>("1234", "test");
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
-        final Edit edit = synchronizer.clientDiff(document, shadowDocument);
+        final DefaultEdit edit = synchronizer.clientDiff(document, shadowDocument);
         final Document<String> patchedDocument = synchronizer.patchDocument(edit, document);
         assertThat(patchedDocument.content(), equalTo("testing"));
     }

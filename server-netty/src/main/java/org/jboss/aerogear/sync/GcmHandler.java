@@ -26,13 +26,13 @@ public class GcmHandler extends ChannelHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GcmHandler.class);
 
     private final StandaloneConfig syncConfig;
-    private final ServerSyncEngine<String> syncEngine;
+    private final ServerSyncEngine<String, DefaultEdit> syncEngine;
     private final ExecutorService executorService;
 
     private XMPPConnection connection;
 
     public GcmHandler(final StandaloneConfig syncConfig,
-                      final ServerSyncEngine<String> syncEngine,
+                      final ServerSyncEngine<String, DefaultEdit> syncEngine,
                       final ExecutorService executorService) {
         this.syncConfig = syncConfig;
         this.syncEngine = syncEngine;

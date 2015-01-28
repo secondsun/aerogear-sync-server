@@ -44,18 +44,18 @@ import java.util.Observer;
 /**
  * A Netty based WebSocket client that is able to handle differential synchronization edits.
  */
-public final class DiffSyncClient<T> extends Observable {
+public final class DiffSyncClient<T, S extends Edit> extends Observable {
 
     private final String host;
     private final int port;
     private final String path;
     private final URI uri;
-    private final ClientSyncEngine<T> syncEngine;
+    private final ClientSyncEngine<T, S> syncEngine;
     private final String subprotocols;
     private EventLoopGroup group;
     private Channel channel;
 
-    private DiffSyncClient(final Builder builder) {
+    private DiffSyncClient(final Builder<T, S> builder) {
         host = builder.host;
         port = builder.port;
         path = builder.path;
@@ -67,7 +67,7 @@ public final class DiffSyncClient<T> extends Observable {
         }
     }
     
-    public DiffSyncClient<T> connect() throws InterruptedException {
+    public DiffSyncClient<T, S> connect() throws InterruptedException {
         final DiffSyncClientHandler diffSyncClientHandler = new DiffSyncClientHandler(syncEngine);
         final WebSocketClientHandler handler = newWebSocketClientHandler();
         final Bootstrap b = new Bootstrap();
@@ -115,7 +115,7 @@ public final class DiffSyncClient<T> extends Observable {
     }
     
     public void diffAndSend(final ClientDocument<T> document) {
-        final PatchMessage patchMessage = syncEngine.diff(document);
+        final PatchMessage<S> patchMessage = syncEngine.diff(document);
         if (channel.isOpen()) {
             channel.writeAndFlush(new TextWebSocketFrame(JsonMapper.toJson(patchMessage)));
         } else {
@@ -135,11 +135,11 @@ public final class DiffSyncClient<T> extends Observable {
         System.out.println("SyncClient disconnected");
     }
     
-    public static <T> Builder<T> forHost(final String host) {
-        return new Builder<T>(host);
+    public static <T, S extends Edit> Builder<T, S> forHost(final String host) {
+        return new Builder<T, S>(host);
     }
     
-    public static class Builder<T> {
+    public static class Builder<T, S extends Edit> {
         
         private final String host;
         private int port;
@@ -147,52 +147,52 @@ public final class DiffSyncClient<T> extends Observable {
         private boolean wss;
         private URI uri;
         private String subprotocols;
-        private ClientSyncEngine<T> engine;
+        private ClientSyncEngine<T, S> engine;
         private Observer observer;
         
         public Builder(final String host) {
             this.host = host;
         }
         
-        public Builder<T> port(final int port) {
+        public Builder<T, S> port(final int port) {
             this.port = port;
             return this;
         }
         
-        public Builder<T> path(final String path) {
+        public Builder<T, S> path(final String path) {
             this.path = path;
             return this;
         }
         
-        public Builder<T> wss(final boolean wss) {
+        public Builder<T, S> wss(final boolean wss) {
             this.wss = wss;
             return this;
         }
         
-        public Builder<T> subprotocols(final String subprotocols) {
+        public Builder<T, S> subprotocols(final String subprotocols) {
             this.subprotocols = subprotocols;
             return this;
         }
         
-        public Builder<T> syncEngine(final ClientSyncEngine<T> engine) {
+        public Builder<T, S> syncEngine(final ClientSyncEngine<T, S> engine) {
             this.engine = engine;
             return this;
         }
         
-        public Builder<T> observer(final Observer observer) {
+        public Builder<T, S> observer(final Observer observer) {
             this.observer = observer;
             return this;
         }
         
-        public DiffSyncClient<T> build() {
+        public DiffSyncClient<T, S> build() {
             if (engine == null) {
                 engine = new ClientSyncEngine(new DefaultClientSynchronizer(), new ClientInMemoryDataStore());
             }
             uri = parseUri(this);
-            return new DiffSyncClient<T>(this);
+            return new DiffSyncClient<T, S>(this);
         }
     
-        private URI parseUri(final Builder<T> b) {
+        private URI parseUri(final Builder<T, S> b) {
             try {
                 return new URI(b.wss ? "wss" : "ws" + "://" + b.host + ':' + b.port + b.path);
             } catch (URISyntaxException e) {

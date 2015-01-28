@@ -66,6 +66,6 @@ public interface Edit {
      *
      * @return {@code LinkedList<Diff>} the diff that represents the changes for this edit.
      */
-    LinkedList<Diff> diffs();
+    LinkedList<? extends Diff> diffs();
 
 }

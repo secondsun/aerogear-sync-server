@@ -27,13 +27,13 @@ import org.jboss.aerogear.sync.server.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DiffSyncClientHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+public class DiffSyncClientHandler<T, S extends Edit> extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiffSyncClientHandler.class);
 
-    private final ClientSyncEngine<?> syncEngine;
+    private final ClientSyncEngine<T, S> syncEngine;
 
-    public DiffSyncClientHandler(final ClientSyncEngine<?> syncEngine) {
+    public DiffSyncClientHandler(final ClientSyncEngine<T, S> syncEngine) {
         this.syncEngine = syncEngine;
     }
 
@@ -51,7 +51,7 @@ public class DiffSyncClientHandler extends SimpleChannelInboundHandler<WebSocket
             logger.info("json: " + json);
             switch (MessageType.from(json.get("msgType").asText())) {
             case PATCH:
-                final PatchMessage serverPatchMessage = JsonMapper.fromJson(json.toString(), DefaultPatchMessage.class);
+                final PatchMessage<S> serverPatchMessage = syncEngine.fromJson(json.toString());
                 logger.info("Edits: " + serverPatchMessage);
                 patch(serverPatchMessage);
                 break;
@@ -64,7 +64,7 @@ public class DiffSyncClientHandler extends SimpleChannelInboundHandler<WebSocket
         }
     }
 
-    private void patch(final PatchMessage clientEdit) {
+    private void patch(final PatchMessage<S> clientEdit) {
         syncEngine.patch(clientEdit);
     }
 

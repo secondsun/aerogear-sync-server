@@ -24,10 +24,11 @@ import org.junit.Test;
 
 import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
+import static org.jboss.aerogear.sync.DiffMatchPatchDiff.Operation;
 
 public class DefaultClientSynchronizerTest {
 
-    private ClientSynchronizer<String> clientSynchronizer;
+    private ClientSynchronizer<String, DefaultEdit> clientSynchronizer;
 
     @Before
     public void createDocuments() {
@@ -42,17 +43,17 @@ public class DefaultClientSynchronizerTest {
         final String update = "Do or do not, there is no try!";
         final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, original);
 
-        final Edit edit = clientSynchronizer.clientDiff(newDoc(documentId, update), clientShadow);
+        final DefaultEdit edit = clientSynchronizer.clientDiff(newDoc(documentId, update), clientShadow);
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientId(), is(clientId));
         assertThat(edit.diffs().size(), is(3));
-        final List<Diff> diffs = edit.diffs();
-        assertThat(diffs.get(0).operation(), is(Diff.Operation.UNCHANGED));
+        final List<DiffMatchPatchDiff> diffs = edit.diffs();
+        assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
-        assertThat(diffs.get(1).operation(), is(Diff.Operation.DELETE));
+        assertThat(diffs.get(1).operation(), is(Operation.DELETE));
         assertThat(diffs.get(1).text(), equalTo("!"));
-        assertThat(diffs.get(2).operation(), is(Diff.Operation.ADD));
+        assertThat(diffs.get(2).operation(), is(Operation.ADD));
         assertThat(diffs.get(2).text(), equalTo("."));
     }
 
@@ -64,7 +65,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do not, there is no try!";
         final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, originalVersion);
 
-        final Edit edit = DefaultEdit.withDocumentId(documentId)
+        final DefaultEdit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
@@ -82,7 +83,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do nothing, there is no try.";
         final ClientDocument<String> clientShadow = new DefaultClientDocument<String>(documentId, clientId, originalVersion);
 
-        final Edit edit = DefaultEdit.withDocumentId(documentId)
+        final DefaultEdit edit = DefaultEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .unchanged("Do or do not")
                 .add("hing")

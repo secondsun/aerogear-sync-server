@@ -2,13 +2,13 @@ package org.jboss.aerogear.sync;
 
 import java.util.Queue;
 
-public class DefaultPatchMessage implements PatchMessage {
+public class DefaultPatchMessage implements PatchMessage<DefaultEdit> {
 
     private final String documentId;
     private final String clientId;
-    private final Queue<Edit> edits;
+    private final Queue<DefaultEdit> edits;
 
-    public DefaultPatchMessage(final String documentId, final String clientId, final Queue<Edit> edits) {
+    public DefaultPatchMessage(final String documentId, final String clientId, final Queue<DefaultEdit> edits) {
         this.documentId = documentId;
         this.clientId = clientId;
         this.edits = edits;
@@ -25,7 +25,7 @@ public class DefaultPatchMessage implements PatchMessage {
     }
 
     @Override
-    public Queue<Edit> edits() {
+    public Queue<DefaultEdit> edits() {
         return edits;
     }
 

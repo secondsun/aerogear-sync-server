@@ -5,7 +5,7 @@ import java.util.Queue;
 /**
  * Represents a stack of edits.
  */
-public interface PatchMessage {
+public interface PatchMessage<T extends Edit> {
 
     /**
      * Identifies the client that this edit instance belongs to.
@@ -26,6 +26,6 @@ public interface PatchMessage {
      *
      * @return {@code Queue<Edit>} the individual edits.
      */
-    Queue<Edit> edits();
+    Queue<T> edits();
 
 }

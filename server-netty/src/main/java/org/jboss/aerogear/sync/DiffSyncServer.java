@@ -46,9 +46,9 @@ public final class DiffSyncServer {
         final StandaloneConfig config = ConfigReader.parse(configFile);
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
-        final ServerSynchronizer<String> synchronizer = new DiffMatchPatchServerSynchronizer();
+        final ServerSynchronizer<String, DefaultEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final ServerInMemoryDataStore dataStore = new ServerInMemoryDataStore();
-        final ServerSyncEngine<String> syncEngine = new ServerSyncEngine<String>(synchronizer, dataStore);
+        final ServerSyncEngine<String, DefaultEdit> syncEngine = new ServerSyncEngine<String, DefaultEdit>(synchronizer, dataStore);
         final DiffSyncHandler diffSyncHandler = new DiffSyncHandler(syncEngine);
         try {
             final ServerBootstrap sb = new ServerBootstrap();

@@ -18,8 +18,8 @@ package org.jboss.aerogear.sync.server;
 
 import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.DefaultEdit;
 import org.jboss.aerogear.sync.Document;
-import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.ShadowDocument;
 
 import java.util.Iterator;
@@ -29,13 +29,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-public class ServerInMemoryDataStore implements ServerDataStore<String> {
+public class ServerInMemoryDataStore implements ServerDataStore<String, DefaultEdit> {
 
-    private static final Queue<Edit> EMPTY_QUEUE = new LinkedList<Edit>();
+    private static final Queue<DefaultEdit> EMPTY_QUEUE = new LinkedList<DefaultEdit>();
     private final ConcurrentMap<String, Document<String>> documents = new ConcurrentHashMap<String, Document<String>>();
     private final ConcurrentMap<Id, ShadowDocument<String>> shadows = new ConcurrentHashMap<Id, ShadowDocument<String>>();
     private final ConcurrentMap<Id, BackupShadowDocument<String>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<String>>();
-    private final ConcurrentHashMap<Id, Queue<Edit>> pendingEdits = new ConcurrentHashMap<Id, Queue<Edit>>();
+    private final ConcurrentHashMap<Id, Queue<DefaultEdit>> pendingEdits = new ConcurrentHashMap<Id, Queue<DefaultEdit>>();
 
     @Override
     public void saveShadowDocument(final ShadowDocument<String> shadowDocument) {
@@ -73,14 +73,14 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     }
 
     @Override
-    public void saveEdits(final Edit edit) {
+    public void saveEdits(final DefaultEdit edit) {
         final Id id = id(edit.documentId(), edit.clientId());
-        final Queue<Edit> newEdits = new ConcurrentLinkedQueue<Edit>();
+        final Queue<DefaultEdit> newEdits = new ConcurrentLinkedQueue<DefaultEdit>();
         while (true) {
-            final Queue<Edit> currentEdits = pendingEdits.get(id);
+            final Queue<DefaultEdit> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
                 newEdits.add(edit);
-                final Queue<Edit> previous = pendingEdits.putIfAbsent(id, newEdits);
+                final Queue<DefaultEdit> previous = pendingEdits.putIfAbsent(id, newEdits);
                 if (previous != null) {
                     newEdits.addAll(previous);
                     if (pendingEdits.replace(id, previous, newEdits)) {
@@ -100,17 +100,17 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     }
 
     @Override
-    public void removeEdit(final Edit edit) {
+    public void removeEdit(final DefaultEdit edit) {
         final Id id = id(edit.documentId(), edit.clientId());
         while (true) {
-            final Queue<Edit> currentEdits = pendingEdits.get(id);
+            final Queue<DefaultEdit> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
                 break;
             }
-            final Queue<Edit> newEdits = new ConcurrentLinkedQueue<Edit>();
+            final Queue<DefaultEdit> newEdits = new ConcurrentLinkedQueue<DefaultEdit>();
             newEdits.addAll(currentEdits);
-            for (Iterator<Edit> iter = newEdits.iterator(); iter.hasNext();) {
-                final Edit oldEdit = iter.next();
+            for (Iterator<DefaultEdit> iter = newEdits.iterator(); iter.hasNext();) {
+                final DefaultEdit oldEdit = iter.next();
                 if (oldEdit.clientVersion() <= edit.clientVersion()) {
                     iter.remove();
                 }
@@ -122,8 +122,8 @@ public class ServerInMemoryDataStore implements ServerDataStore<String> {
     }
 
     @Override
-    public Queue<Edit> getEdits(final String documentId, final String clientId) {
-        final Queue<Edit> edits = pendingEdits.get(id(documentId, clientId));
+    public Queue<DefaultEdit> getEdits(final String documentId, final String clientId) {
+        final Queue<DefaultEdit> edits = pendingEdits.get(id(documentId, clientId));
         if (edits == null) {
             return EMPTY_QUEUE;
         }

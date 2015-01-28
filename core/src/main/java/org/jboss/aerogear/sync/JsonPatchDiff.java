@@ -16,5 +16,10 @@
  */
 package org.jboss.aerogear.sync;
 
-public interface Diff {
+public class JsonPatchDiff implements Diff {
+
+    @Override
+    public String toString() {
+        return "JsonPatchDiff[]";
+    }
 }
