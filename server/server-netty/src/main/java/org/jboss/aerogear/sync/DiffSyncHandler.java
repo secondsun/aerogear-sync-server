@@ -99,12 +99,8 @@ public class DiffSyncHandler<T, S extends Edit<? extends Diff>> extends SimpleCh
         }
         logger.info("Reconnected client [" + clientId + "]. Adding as listener.");
         // the context was used to reconnect so we need to add client as a listener
-        addSubscriber(ctx, clientId, documentId);
-    }
-
-    private void addSubscriber(final ChannelHandlerContext ctx, final String clientId, final String documentId) {
         final NettySubscriber subscriber = new NettySubscriber(clientId, ctx);
-        syncEngine.addSubscriber(subscriber, documentId);
+        syncEngine.connectSubscriber(subscriber, documentId);
         addCloseHandler(ctx, subscriber, documentId);
     }
 

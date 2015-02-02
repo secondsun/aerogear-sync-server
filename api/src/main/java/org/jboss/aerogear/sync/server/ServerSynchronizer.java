@@ -38,6 +38,7 @@ public interface ServerSynchronizer<T, S extends Edit<? extends Diff>> {
      * Called when the shadow should be patched. Is called when an update is recieved.
      *
      * @param edit The edits.
+     * @param shadowDocument the {@link ShadowDocument} to patch
      * @return {@link ShadowDocument} a new patched shadow document.
      */
     ShadowDocument<T> patchShadow(S edit, ShadowDocument<T> shadowDocument);

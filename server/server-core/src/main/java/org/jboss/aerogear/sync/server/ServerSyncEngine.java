@@ -55,62 +55,26 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
      * and a first revision is added to this synchronization engine by this method call.
      *
      * @param subscriber the subscriber to add
-     * @param document the document that the subscriber subscribes to. Will be added to the underlying
-     *                 datastore if it does not already exist in the datastore.
+     * @param document   the document that the subscriber subscribes to. Will be added to the underlying
+     *                   datastore if it does not already exist in the datastore.
+     * @return {@link PatchMessage} for the {@link Document}. Will either be an PatchMessage with an empty
+     *                   diff if this is the initial addition of the document, or if there document already
+     *                   exists in the underlying datastore the patch message be patches to bring the document
+     *                   up to date.
      */
     public PatchMessage<S> addSubscriber(final Subscriber<?> subscriber, final Document<T> document) {
-        addSubscriber(subscriber, document.id());
-        return addDocument(document, subscriber.clientId());
-    }
-
-    public PatchMessage<S> patchMessageFromJson(final String json) {
-        return synchronizer.patchMessageFromJson(json);
-    }
-
-    public Document<T> documentFromJson(final JsonNode json) {
-        return synchronizer.documentFromJson(json);
-    }
-
-    private PatchMessage<S> addDocument(final Document<T> document, final String clientId) {
-        if (document.content() == null) {
-            final Document<T> existingDoc = getDocument(document.id());
-            if (existingDoc == null) {
-                return synchronizer.createPatchMessage(document.id(), clientId, emptyQueue());
-            } else {
-                final ShadowDocument<T> shadow = addShadowForClient(document.id(), clientId);
-                logger.debug("Document with id [" + document.id() + "] already exists.");
-                final S edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
-                updateDocument(patchDocument(shadow));
-                return synchronizer.createPatchMessage(document.id(), clientId, asQueue(edit));
-            }
-        }
-        final boolean newDoc = saveDocument(document);
-        final ShadowDocument<T> shadow = addShadowForClient(document.id(), clientId);
-        if (newDoc) {
-            final S edit = serverDiff(shadow.document(), incrementServerVersion(shadow));
-            return synchronizer.createPatchMessage(document.id(), clientId, asQueue(edit));
-        } else {
-            logger.debug("Document with id [" + document.id() + "] already exists.");
-            final S edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
-            return synchronizer.createPatchMessage(document.id(), clientId, asQueue(edit));
-        }
-    }
-
-    private Queue<S> emptyQueue() {
-        return new LinkedList<S>();
-    }
-
-    private Queue<S> asQueue(final S edit) {
-        return new LinkedList<S>(Collections.singleton(edit));
+        final PatchMessage<S> patchMessage = addDocument(document, subscriber.clientId());
+        connectSubscriber(subscriber, document.id());
+        return patchMessage;
     }
 
     /**
-     * Adds a subscriber to an already existing document.
+     * Connects a subscriber to an already existing document.
      *
      * @param subscriber the {@link Subscriber} to add
      * @param documentId the id of the document that the subscriber wants to subscribe.
      */
-    public void addSubscriber(final Subscriber<?> subscriber, final String documentId) {
+    public void connectSubscriber(final Subscriber<?> subscriber, final String documentId) {
         final Set<Subscriber<?>> newSub = Collections.newSetFromMap(new ConcurrentHashMap<Subscriber<?>, Boolean>());
         newSub.add(subscriber);
         while(true) {
@@ -132,6 +96,12 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
         }
     }
 
+    /**
+     * Removes the specified {@link Subscriber}.
+     *
+     * @param subscriber the {@link Subscriber} to remove
+     * @param documentId the document id that the subscriber subscribes to
+     */
     public void removeSubscriber(final Subscriber<?> subscriber, final String documentId) {
         while (true) {
             final Set<Subscriber<?>> currentClients = subscribers.get(documentId);
@@ -149,14 +119,14 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
         }
     }
 
-    public Set<Subscriber<?>> subscribers(final String documentId) {
+    /**
+     * Returns all the subscribers for the specified document.
+     *
+     * @param documentId the id of the document for which all subscribers should be returned.
+     * @return {@code Set} all the {@link Subscriber}s
+     */
+    public Set<Subscriber<?>> getSubscribers(final String documentId) {
         return subscribers.get(documentId);
-    }
-
-    private ShadowDocument<T> seededShadowFrom(final ShadowDocument<T> shadow, final Document<T> doc) {
-        final Document<T> document = doc.content() == null ? getDocument(doc.id()) : doc;
-        final ClientDocument<T> clientDoc = newClientDocument(doc.id(), shadow.document().clientId(), document.content());
-        return new DefaultShadowDocument<T>(SEEDED_SERVER_VERSION, SEEDED_CLIENT_VERSION, clientDoc);
     }
 
     /**
@@ -188,6 +158,26 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
     }
 
     /**
+     * Creates a {link PatchMessage} by parsing the passed-in json.
+     *
+     * @param json the json representation of a {@code PatchMessage}
+     * @return {@link PatchMessage} the created {code PatchMessage}
+     */
+    public PatchMessage<S> patchMessageFromJson(final String json) {
+        return synchronizer.patchMessageFromJson(json);
+    }
+
+    /**
+     * Converts the {@link JsonNode} into a {@link Document} instance.
+     *
+     * @param json the {@link JsonNode} to convert
+     * @return {@link Document} the document representing the contents of the {@link JsonNode} instance.
+     */
+    public Document<T> documentFromJson(final JsonNode json) {
+        return synchronizer.documentFromJson(json);
+    }
+
+    /**
      * Performs the server side patching for a specific client and updates
      * all subscribers to the patched document.
      *
@@ -195,6 +185,18 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
      */
     public void patchAndNotifySubscribers(final PatchMessage<S> patchMessage) {
         notifySubscribers(patch(patchMessage));
+    }
+
+    /**
+     * Returns the {@link PatchMessage} for the specified documentId and clientId.
+     *
+     * @param documentId the document identifier
+     * @param clientId the client identifier
+     * @return {@link PatchMessage} for the current document/client combination
+     */
+    public PatchMessage<S> getPatchMessage(final String documentId, final String clientId) {
+        diff(documentId, clientId);
+        return synchronizer.createPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
     }
 
     private void notifySubscribers(final PatchMessage<S> clientPatchMessage) {
@@ -206,17 +208,43 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
             return;
         }
         final String documentId = clientPatchMessage.documentId();
-        final Set<Subscriber<?>> subscribers = subscribers(documentId);
+        final Set<Subscriber<?>> subscribers = getSubscribers(documentId);
         for (Subscriber<?> subscriber: subscribers) {
-            final PatchMessage<?> patchMessage = diffs(documentId, subscriber.clientId());
+            final PatchMessage<?> patchMessage = getPatchMessage(documentId, subscriber.clientId());
             logger.debug("Sending to [" + subscriber.clientId() + "] : " + patchMessage);
             subscriber.patched(patchMessage);
         }
     }
 
-    public PatchMessage<S> diffs(final String documentId, final String clientId) {
-        diff(documentId, clientId);
-        return synchronizer.createPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
+    private PatchMessage<S> addDocument(final Document<T> document, final String clientId) {
+        if (document.content() == null) {
+            final Document<T> existingDoc = getDocument(document.id());
+            if (existingDoc == null) {
+                return synchronizer.createPatchMessage(document.id(), clientId, emptyQueue());
+            } else {
+                final ShadowDocument<T> shadow = addShadowForClient(document.id(), clientId);
+                logger.debug("Document with id [" + document.id() + "] already exists.");
+                final S edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
+                updateDocument(patchDocument(shadow));
+                return synchronizer.createPatchMessage(document.id(), clientId, asQueue(edit));
+            }
+        }
+        final boolean newDoc = saveDocument(document);
+        final ShadowDocument<T> shadow = addShadowForClient(document.id(), clientId);
+        if (newDoc) {
+            final S edit = serverDiff(shadow.document(), incrementServerVersion(shadow));
+            return synchronizer.createPatchMessage(document.id(), clientId, asQueue(edit));
+        } else {
+            logger.debug("Document with id [" + document.id() + "] already exists.");
+            final S edit = serverDiff(shadow.document(), seededShadowFrom(shadow, document));
+            return synchronizer.createPatchMessage(document.id(), clientId, asQueue(edit));
+        }
+    }
+
+    private ShadowDocument<T> seededShadowFrom(final ShadowDocument<T> shadow, final Document<T> doc) {
+        final Document<T> document = doc.content() == null ? getDocument(doc.id()) : doc;
+        final ClientDocument<T> clientDoc = newClientDocument(doc.id(), shadow.document().clientId(), document.content());
+        return new DefaultShadowDocument<T>(SEEDED_SERVER_VERSION, SEEDED_CLIENT_VERSION, clientDoc);
     }
 
     private void diffPatchShadow(final ShadowDocument<T> shadow, final S edit) {
@@ -380,6 +408,14 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
 
     private void updateDocument(final Document<T> document) {
         dataStore.updateDocument(document);
+    }
+
+    private Queue<S> emptyQueue() {
+        return new LinkedList<S>();
+    }
+
+    private Queue<S> asQueue(final S edit) {
+        return new LinkedList<S>(Collections.singleton(edit));
     }
 
 }

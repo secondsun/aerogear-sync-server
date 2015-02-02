@@ -217,6 +217,9 @@ public class GcmDiffSyncHandler<T, S extends Edit<? extends Diff>> implements Pa
 
     /**
      * Sends a packet with contents provided.
+     *
+     * @param jsonRequest the request in JSON format
+     * @throws SmackException.NotConnectedException if not connected
      */
     protected void send(String jsonRequest) throws SmackException.NotConnectedException {
         Packet request = new GcmPacketExtension(jsonRequest).toPacket();
@@ -227,7 +230,7 @@ public class GcmDiffSyncHandler<T, S extends Edit<? extends Diff>> implements Pa
         logger.info("Reconnected client [" + registrationId + "]. Adding as listener.");
         // the context was used to reconnect so we need to add client as a listener
         final GcmSubscriber gcmSubscriber = new GcmSubscriber(clientId, registrationId, connection);
-        syncEngine.addSubscriber(gcmSubscriber, documentId);
+        syncEngine.connectSubscriber(gcmSubscriber, documentId);
     }
 
     private static String clientIdFromJson(JsonNode syncMessage) {

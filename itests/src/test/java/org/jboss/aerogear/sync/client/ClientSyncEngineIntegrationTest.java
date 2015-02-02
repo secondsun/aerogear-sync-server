@@ -147,7 +147,7 @@ public class ClientSyncEngineIntegrationTest {
 
         serverSyncEngine.patch(patchMessage);
 
-        final PatchMessage<DiffMatchPatchEdit> serverPatchMessage = serverSyncEngine.diffs(docId, subscriberTwo.clientId());
+        final PatchMessage<DiffMatchPatchEdit> serverPatchMessage = serverSyncEngine.getPatchMessage(docId, subscriberTwo.clientId());
         assertThat(serverPatchMessage.clientId(), equalTo(subscriberTwo.clientId()));
         assertThat(serverPatchMessage.documentId(), equalTo(docId));
         assertThat(serverPatchMessage.edits().size(), is(1));

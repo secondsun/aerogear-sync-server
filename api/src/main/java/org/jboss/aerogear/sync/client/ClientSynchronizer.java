@@ -109,6 +109,7 @@ public interface ClientSynchronizer<T, S extends Edit<? extends Diff>> {
      * but one that stores JsonNode object will want to add its content as an object.
      *
      * @param content the content to be added
+     * @param objectNode the {@link ObjectNode} to add the content to
      * @param fieldName the name of the field
      */
     void addContent(T content, ObjectNode objectNode, String fieldName);

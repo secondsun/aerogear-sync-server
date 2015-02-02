@@ -38,7 +38,7 @@ public final class ConfigReader {
      *
      * @param fileName the name of a file on the file system or on the classpath.
      * @return {@link StandaloneConfig} populated with the values in the JSON configuration file.
-     * @throws Exception
+     * @throws Exception  if en error occurs while parsing the file
      */
     public static StandaloneConfig parse(final String fileName) throws Exception {
         final File configFile = new File(fileName);
