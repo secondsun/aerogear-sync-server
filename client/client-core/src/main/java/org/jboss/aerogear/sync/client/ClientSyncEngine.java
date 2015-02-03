@@ -108,6 +108,12 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
         return clientSynchronizer.patchMessageFromJson(json);
     }
 
+    /**
+     * Converts the {@link ClientDocument} into a JSON {@code String} representation.
+     *
+     * @param document the {@link ClientDocument} to convert
+     * @return {@code String} the JSON String representation of the document.
+     */
     public String documentToJson(final ClientDocument<T> document) {
         final ObjectNode objectNode = OM.createObjectNode();
         objectNode.put("msgType", "add");
@@ -117,6 +123,15 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
         return objectNode.toString();
     }
 
+    /**
+     * Creates a new {@link PatchMessage} with the with the type of {@link Edit} that this
+     * synchronizer can handle.
+     *
+     * @param documentId the document identifier for the {@code PatchMessage}
+     * @param clientId the client identifier for the {@code PatchMessage}
+     * @param edits the {@link Edit}s for the {@code PatchMessage}
+     * @return {@link PatchMessage} the created {code PatchMessage}
+     */
     public PatchMessage<S> createPatchMessage(final String documentId, final String clientId, final Queue<S> edits) {
         return clientSynchronizer.createPatchMessage(documentId, clientId, edits);
     }

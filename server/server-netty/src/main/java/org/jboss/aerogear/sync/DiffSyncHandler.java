@@ -89,8 +89,8 @@ public class DiffSyncHandler<T, S extends Edit<? extends Diff>> extends SimpleCh
         return syncEngine.addSubscriber(subscriber, document);
     }
 
-    private void patch(final PatchMessage<S> clientEdit) {
-        syncEngine.patchAndNotifySubscribers(clientEdit);
+    private void patch(final PatchMessage<S> patchMessage) {
+        syncEngine.notifySubscribers(syncEngine.patch(patchMessage));
     }
 
     private void checkForReconnect(final String documentId, final String clientId, final ChannelHandlerContext ctx) {

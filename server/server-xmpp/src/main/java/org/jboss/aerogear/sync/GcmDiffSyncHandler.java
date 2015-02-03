@@ -211,8 +211,8 @@ public class GcmDiffSyncHandler<T, S extends Edit<? extends Diff>> implements Pa
         return syncEngine.addSubscriber(gcmSubscriber, document);
     }
 
-    private void patch(final PatchMessage<S> clientEdit) {
-        syncEngine.patchAndNotifySubscribers(clientEdit);
+    private void patch(final PatchMessage<S> patchMessage) {
+        syncEngine.notifySubscribers(syncEngine.patch(patchMessage));
     }
 
     /**

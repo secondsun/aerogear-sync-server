@@ -58,9 +58,9 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
      * @param document   the document that the subscriber subscribes to. Will be added to the underlying
      *                   datastore if it does not already exist in the datastore.
      * @return {@link PatchMessage} for the {@link Document}. Will either be an PatchMessage with an empty
-     *                   diff if this is the initial addition of the document, or if there document already
-     *                   exists in the underlying datastore the patch message be patches to bring the document
-     *                   up to date.
+     *                   diff, if this is the initial addition of the document, or if the document already
+     *                   exists in the underlying datastore the patch message will contain a diff to bring
+     *                   the document up to date.
      */
     public PatchMessage<S> addSubscriber(final Subscriber<?> subscriber, final Document<T> document) {
         final PatchMessage<S> patchMessage = addDocument(document, subscriber.clientId());
@@ -131,7 +131,7 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
 
     /**
      * Performs the server side diff which is performed when the server document is modified.
-     * The produced {@link Edit} can be sent to the client for patching the client side documents.
+     * The produced {@link Edit} can be sent to the client for patching the client side document.
      *
      * @param documentId the document in question.
      * @param clientId the clientId for whom we should perform a diff and create edits for.
@@ -158,6 +158,29 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
     }
 
     /**
+     * Performs the server side patching for a specific client and updates
+     * all subscribers to the patched document.
+     *
+     * @param patchMessage the changes made by a client.
+     */
+    public void notifySubscribers(final PatchMessage<S> patchMessage) {
+        final S peek = patchMessage.edits().peek();
+        if (peek == null) {
+            // edits could be null as a client is allowed to send an patch message
+            // that only contains an acknowledgement that it has received a specific
+            // version from the server.
+            return;
+        }
+        final String documentId = patchMessage.documentId();
+        final Set<Subscriber<?>> subscribers1 = getSubscribers(documentId);
+        for (Subscriber<?> subscriber: subscribers1) {
+            final PatchMessage<?> patchMessage1 = getPatchMessage(documentId, subscriber.clientId());
+            logger.debug("Sending to [" + subscriber.clientId() + "] : " + patchMessage1);
+            subscriber.patched(patchMessage1);
+        }
+    }
+
+    /**
      * Creates a {link PatchMessage} by parsing the passed-in json.
      *
      * @param json the json representation of a {@code PatchMessage}
@@ -178,16 +201,6 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
     }
 
     /**
-     * Performs the server side patching for a specific client and updates
-     * all subscribers to the patched document.
-     *
-     * @param patchMessage the changes made by a client.
-     */
-    public void patchAndNotifySubscribers(final PatchMessage<S> patchMessage) {
-        notifySubscribers(patch(patchMessage));
-    }
-
-    /**
      * Returns the {@link PatchMessage} for the specified documentId and clientId.
      *
      * @param documentId the document identifier
@@ -197,23 +210,6 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
     public PatchMessage<S> getPatchMessage(final String documentId, final String clientId) {
         diff(documentId, clientId);
         return synchronizer.createPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
-    }
-
-    private void notifySubscribers(final PatchMessage<S> clientPatchMessage) {
-        final S peek = clientPatchMessage.edits().peek();
-        if (peek == null) {
-            // edits could be null as a client is allowed to send an patch message
-            // that only contains an acknowledgement that it has received a specific
-            // version from the server.
-            return;
-        }
-        final String documentId = clientPatchMessage.documentId();
-        final Set<Subscriber<?>> subscribers = getSubscribers(documentId);
-        for (Subscriber<?> subscriber: subscribers) {
-            final PatchMessage<?> patchMessage = getPatchMessage(documentId, subscriber.clientId());
-            logger.debug("Sending to [" + subscriber.clientId() + "] : " + patchMessage);
-            subscriber.patched(patchMessage);
-        }
     }
 
     private PatchMessage<S> addDocument(final Document<T> document, final String clientId) {
