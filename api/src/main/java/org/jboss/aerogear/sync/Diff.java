@@ -17,11 +17,4 @@
 package org.jboss.aerogear.sync;
 
 public interface Diff {
-
-    enum Operation { DELETE, ADD, UNCHANGED }
-
-    Operation operation();
-
-    String text();
-
 }

@@ -40,7 +40,7 @@
                 </descriptors>
                 <archive>
                   <manifest>
-                    <mainClass>org.jboss.aerogear.sync.DiffSyncServer</mainClass>
+                    <mainClass>org.jboss.aerogear.sync.JsonMergePatchSyncServer</mainClass>
                     <addClasspath>true</addClasspath>
                   </manifest>
                 </archive>
@@ -80,11 +80,19 @@
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
+            <artifactId>netty-handler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>sync-server-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>sync-json-patch-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>

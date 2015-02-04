@@ -33,6 +33,6 @@ public interface Subscriber<T> {
      *
      * @param patchMessage the result of patching this subscribers underying document.
      */
-    void patched(PatchMessage patchMessage);
+    void patched(PatchMessage<?> patchMessage);
 
 }

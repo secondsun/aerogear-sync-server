@@ -16,25 +16,32 @@
  */
 package org.jboss.aerogear.sync.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
+
+import java.util.Queue;
 
 /**
  * A instance of this class will be able to handle tasks needed to implement
  * Differential Synchronization for a specific type of documents.
  *
  * @param <T> The type of documents that this engine can handle.
+ * @param <S> The type of {@link Edit}s that this synchronizer can handle
  */
-public interface ServerSynchronizer<T> {
+public interface ServerSynchronizer<T, S extends Edit<? extends Diff>> {
 
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.
      *
      * @param edit The edits.
+     * @param shadowDocument the {@link ShadowDocument} to patch
      * @return {@link ShadowDocument} a new patched shadow document.
      */
-    ShadowDocument<T> patchShadow(Edit edit, ShadowDocument<T> shadowDocument);
+    ShadowDocument<T> patchShadow(S edit, ShadowDocument<T> shadowDocument);
 
     /**
      * Called when the document should be patched.
@@ -43,7 +50,7 @@ public interface ServerSynchronizer<T> {
      * @param document the document to be patched.
      * @return {@link Document} a new patched document.
      */
-    Document<T> patchDocument(Edit edit, Document<T> document);
+    Document<T> patchDocument(S edit, Document<T> document);
 
     /**
      * The first step in a sync is to produce a an edit for the changes.
@@ -53,7 +60,7 @@ public interface ServerSynchronizer<T> {
      * @param shadowDocument the document shadow.
      * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edit serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+    S serverDiff(Document<T> document, ShadowDocument<T> shadowDocument);
 
     /**
      * Is called to produce an {@link Edit} of changes coming from a client.
@@ -62,6 +69,33 @@ public interface ServerSynchronizer<T> {
      * @param shadowDocument the document shadow containing the client changes.
      * @return {@link Edit} the edit representing the diff between the document and it's shadow document.
      */
-    Edit clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+    S clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
+
+    /**
+     * Creates a new {@link PatchMessage} with the with the type of {@link Edit} that this
+     * synchronizer can handle.
+     *
+     * @param documentId the document identifier for the {@code PatchMessage}
+     * @param clientId the client identifier for the {@code PatchMessage}
+     * @param edits the {@link Edit}s for the {@code PatchMessage}
+     * @return {@link PatchMessage} the created {code PatchMessage}
+     */
+    PatchMessage<S> createPatchMessage(String documentId, String clientId, Queue<S> edits);
+
+    /**
+     * Creates a {link PatchMessage} by parsing the passed-in json.
+     *
+     * @param json the json representation of a {@code PatchMessage}
+     * @return {@link PatchMessage} the created {code PatchMessage}
+     */
+    PatchMessage<S> patchMessageFromJson(String json);
+
+    /**
+     * Converts the {@link JsonNode} into a {@link Document} instance.
+     *
+     * @param json the {@link JsonNode} to convert
+     * @return {@link Document} the document representing the contents of the {@link JsonNode} instance.
+     */
+    Document<T> documentFromJson(JsonNode json);
 
 }

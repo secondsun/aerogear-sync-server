@@ -21,40 +21,24 @@ Contains the interfaces for the server and client, plus definitions of common ty
 Contains a base implementation of the common types from the [api](./api) module. These are used by both the
 [client-core](./client-core) and the [server-core](./server-core) modules.
 
-* [server-core](./server-core)  
-Contains a concrete implementation of the server side core API. This implementation is inteded to be "embedded" in a server
+* [synchronizers](./synchronizers)  
+Contains a implementations that perform the synchronization operations in the Differential Synchronization algorithm.
+
+* [server](./server)  
+Contains a concrete implementations of the server side core API. These implementation is inteded to be "embedded" in a server
 component, like a Servlet, a Netty server, etc.
 
-* [server-netty](./server-netty)  
-Contains a Netty server that uses the [server-core](./server-core).
-
-* [server-xmpp](./server-xmpp)  
-Contains a Google Cloud Messaging XMPP implmentation that is used by the [server-netty](./server-netty) module.
-
-* [client-core](./client-core)  
+* [client](./client)  
 Contains a concrete implementation of the client side core API. This implementation is inteded to be "embedded" in a client
 component, like a Netty client, an Android device, etc.
-
-* [client-netty](./client-netty)  
-A diffsync client that uses Netty.
-
-* [client-xmpp](./client-xmpp)  
-A diffsync client that uses Google Cloud Messaging XMPP.
 
 * [itests](./itests)  
 Contains tests that use both the [server-core](./server-core) and [client-core](./client-core) in cooperation.
 
-* [common](./common)  
-Contains [google-diff-match-patch](https://code.google.com/p/google-diff-match-patch/) with some minor tweaks.
-
-* [js-client](./js-client)  
-Contains a JavaScript client library and tests for verifiying the servers funtionality.
-This will most likely be moved out of this project if we decide to move forward with it.
-
 ### Usage
 
 #### Starting the server
-    cd server-netty
+    cd server/server-netty
     mvn exec:exec
 
 
@@ -66,5 +50,85 @@ To build this project simply use the following maven command:
 To run the the unit tests:
 
     mvn test
+    
+### Creating a distribution
+A distribution (a "fat" jar) can be produces by running the following maven command from the [distribution](./distribution)
+directory:
+
+    mvn package
+
+This willl produce a ```target/aerogear-sync-server-VERSION.jar``` file.
 
 
+## Message format
+This section defines the message format that is sent between a client and a server.
+
+### Add message type
+The _add_ message is sent when a client wants to add a document/object into the server sync engine.
+The format is in Java Object Notation (JSON) and has the following structure:
+
+    { "msgType": "add",
+      "id":"12345",
+      "clientId":"76170b10-5d2f-496f-b4ba-c71b31a27f72",
+      "content":{"name":"Luke Skywalker"}
+    }
+
+*msgType*  
+The typeof this message. Must be ```add```.
+
+*id*  
+The document identifier for this document being added. This value is chosen by the client and all clients that use the same document id receive updates when this
+document is updated.
+
+*clientId*  
+An identifier for the client adding the document. This value must be a unique identifier for the client.
+
+*content*  
+The actual content of the document/object being added. The type of content depends upon the type of documents the server supports.
+In the above example the document/object content type is JSON.
+
+
+## Patch message type
+The _patch_ message is sent when a client or server has updates that need to be sent the the other side.
+The format is in JSON and has the following structure:
+
+    { "msgType": "patch",
+      "id": "12345",
+      "clientId":"76170b10-5d2f-496f-b4ba-c71b31a27f72",
+      "edits":[
+        { "clientVersion":0,
+          "serverVersion":0,
+          "checksum": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+          "diffs": [
+            { "op":"replace","path":"/name","value":"Darth Vader" }
+          ]
+        }
+      ]
+    }
+
+*msgType*  
+The typeof this message. Must be ```patch```.
+
+*id*  
+The document identifier for this document being updated.
+
+*clientId*  
+An identifier for the client.
+
+*edits*  
+Is an array of updates. An edit is created for each diff taken on the client or server side. These edits are stored before sending to the opposing side, and
+removed after being applied. They act as acknowledgments.
+
+*clientVersion*  
+This is client version that this edit was based on.
+
+*serverVersion*  
+This is server version that this edit was based on.
+
+*checksum*  
+This is checksum for the shadow document on the opposing side.
+
+*diffs*  
+The format of diffs depends on the type of document/object type that the server supports. In the above example the type 
+that the server stores is JsonNode instance, and the format of patches is of JSON Patch format. For more information 
+about the various type, please refer to the different [synchronizers](./synchronizers).

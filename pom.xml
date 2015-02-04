@@ -39,14 +39,11 @@
     </properties>
 
     <modules>
-        <module>common</module>
         <module>api</module>
         <module>core</module>
-        <module>server-core</module>
-        <module>client-core</module>
-        <module>client-netty</module>
-        <module>server-netty</module>
-        <module>server-xmpp</module>
+        <module>synchronizers</module>
+        <module>server</module>
+        <module>client</module>
         <module>itests</module>
     </modules>
 
@@ -64,7 +61,57 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-common</artifactId>
+                <artifactId>sync-diffmatchpatch-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-diffmatchpatch-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-diffmatchpatch-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-patch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-patch-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-patch-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-patch-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -88,8 +135,18 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.github.fge</groupId>
+                <artifactId>json-patch</artifactId>
+                <version>1.9</version>
+            </dependency>
+            <dependency>
                 <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>${version.io.netty}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
                 <version>${version.io.netty}</version>
             </dependency>
             <dependency>

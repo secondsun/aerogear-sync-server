@@ -1,3 +1,19 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.aerogear.sync;
 
 import java.util.Queue;
@@ -8,7 +24,7 @@ import java.util.Queue;
  *
  * @param <T> The type of the Document that this data store can handle.
  */
-public interface DataStore<T> {
+public interface DataStore<T, S extends Edit<? extends Diff>> {
 
     /**
      * Saves a shadow document.
@@ -46,24 +62,28 @@ public interface DataStore<T> {
      * Saves an {@link Edit} to the data store.
      *
      * @param edit the edit to be saved.
+     * @param documentId the document identifier for the edit
+     * @param clientId the client identifier for the edit
      */
-    void saveEdits(Edit edit);
+    void saveEdits(S edit, String documentId, String clientId);
 
     /**
      * Retreives the queue of {@link Edit}s for the specified document documentId.
      *
      * @param documentId the document identifier of the edit.
      * @param clientId the client identifier for which to fetch the document.
-     * @return {@code Queue<Edits>} the edits for the document.
+     * @return {@code Queue<S>} the edits for the document.
      */
-    Queue<Edit> getEdits(String documentId, String clientId);
+    Queue<S> getEdits(String documentId, String clientId);
 
     /**
      * Removes the edit from the store.
      *
      * @param edit the edit to be removed.
+     * @param documentId the document identifier for the edit
+     * @param clientId the client identifier for the edit
      */
-    void removeEdit(Edit edit);
+    void removeEdit(S edit, String documentId, String clientId);
 
     /**
      * Removes all edits for the specific client and document pair.
