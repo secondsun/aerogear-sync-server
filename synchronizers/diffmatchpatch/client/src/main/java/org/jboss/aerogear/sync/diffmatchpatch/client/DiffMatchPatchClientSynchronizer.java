@@ -32,15 +32,15 @@ import java.util.Queue;
 /**
  * A {@link ClientSynchronizer} implementation that can handle text documents.
  */
-public class DefaultClientSynchronizer implements ClientSynchronizer<String, DiffMatchPatchEdit> {
+public class DiffMatchPatchClientSynchronizer implements ClientSynchronizer<String, DiffMatchPatchEdit> {
 
     private final DiffMatchPatch diffMatchPatch;
 
-    public DefaultClientSynchronizer() {
+    public DiffMatchPatchClientSynchronizer() {
         this(DiffMatchPatch.builder().build());
     }
 
-    public DefaultClientSynchronizer(final DiffMatchPatch diffMatchPatch) {
+    public DiffMatchPatchClientSynchronizer(final DiffMatchPatch diffMatchPatch) {
         this.diffMatchPatch = diffMatchPatch;
     }
 

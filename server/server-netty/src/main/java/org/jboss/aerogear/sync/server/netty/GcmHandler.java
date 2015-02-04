@@ -14,10 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.server.netty;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import org.jboss.aerogear.sync.Diff;
+import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.server.gcm.GcmDiffSyncHandler;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;

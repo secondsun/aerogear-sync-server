@@ -14,14 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.client.netty;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchClientSynchronizer;
+import org.jboss.aerogear.sync.jsonpatch.client.JsonPatchClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.junit.Test;
 

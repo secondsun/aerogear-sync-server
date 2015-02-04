@@ -21,7 +21,7 @@ import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
-import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchronizer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class ClientSyncEngineTest {
     @Before
     public void setup() {
         dataStore = new ClientInMemoryDataStore<String, DiffMatchPatchEdit>();
-        engine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(), dataStore);
+        engine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(), dataStore);
     }
 
     @Test

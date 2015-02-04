@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
  * language governing permissions and limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.server.netty;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,7 +20,7 @@ import java.io.InputStream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jboss.aerogear.sync.StandaloneConfig.Builder;
+import org.jboss.aerogear.sync.server.netty.StandaloneConfig.Builder;
 
 /**
  * Utility to read a JSON config files.

@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.server.gcm;
 
-import org.jboss.aerogear.sync.GcmDiffSyncHandler.GcmPacketExtension;
+import org.jboss.aerogear.sync.server.gcm.GcmDiffSyncHandler.GcmPacketExtension;
+import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.server.Subscriber;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
@@ -26,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.UUID;
 
-import static org.jboss.aerogear.sync.GcmMessages.createJsonMessage;
+import static org.jboss.aerogear.sync.server.gcm.GcmMessages.createJsonMessage;
 
 public class GcmSubscriber implements Subscriber<XMPPConnection> {
 

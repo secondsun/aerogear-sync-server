@@ -14,19 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.server.netty;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.jboss.aerogear.sync.DefaultClientDocument;
+import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
 import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
-import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchronizer;
 import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
@@ -541,7 +543,7 @@ public class DiffSyncHandlerTest {
     }
 
     private static ClientSyncEngine<String, DiffMatchPatchEdit> newClientSyncEngine() {
-        return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(),
+        return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(),
                 new ClientInMemoryDataStore<String, DiffMatchPatchEdit>());
     }
 

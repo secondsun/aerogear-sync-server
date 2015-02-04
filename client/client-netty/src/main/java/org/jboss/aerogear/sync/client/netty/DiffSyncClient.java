@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.client.netty;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -31,9 +31,13 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
+import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.Diff;
+import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
-import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchronizer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -179,7 +183,7 @@ public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Obs
         
         public DiffSyncClient<T, S> build() {
             if (engine == null) {
-                engine = new ClientSyncEngine(new DefaultClientSynchronizer(), new ClientInMemoryDataStore());
+                engine = new ClientSyncEngine(new DiffMatchPatchClientSynchronizer(), new ClientInMemoryDataStore());
             }
             uri = parseUri(this);
             return new DiffSyncClient<T, S>(this);

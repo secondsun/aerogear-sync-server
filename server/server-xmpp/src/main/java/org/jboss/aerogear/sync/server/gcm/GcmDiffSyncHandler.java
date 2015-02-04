@@ -14,8 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.server.gcm;
 
+import org.jboss.aerogear.sync.Diff;
+import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
@@ -41,8 +45,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.server.MessageType;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jivesoftware.smack.PacketListener;
-
-import static org.jboss.aerogear.sync.GcmMessages.createJsonMessage;
 
 public class GcmDiffSyncHandler<T, S extends Edit<? extends Diff>> implements PacketListener {
 
@@ -187,7 +189,7 @@ public class GcmDiffSyncHandler<T, S extends Edit<? extends Diff>> implements Pa
             case ADD:
                 final Document<T> doc = syncEngine.documentFromJson(syncMessage);
                 final PatchMessage<S> patchMessage = addSubscriber(doc, diffsyncClientId, googleRegistrationId);
-                send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), patchMessage.asJson()));
+                send(GcmMessages.createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), patchMessage.asJson()));
                 break;
             case PATCH:
                 final PatchMessage<S> clientPatchMessage = syncEngine.patchMessageFromJson(syncMessage.toString());

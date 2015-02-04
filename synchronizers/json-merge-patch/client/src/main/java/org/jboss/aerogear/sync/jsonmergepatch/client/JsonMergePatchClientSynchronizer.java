@@ -14,17 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch;
+package org.jboss.aerogear.sync.jsonmergepatch.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jsonpatch.diff.JsonDiff;
+import com.github.fge.jsonpatch.JsonPatchException;
+import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DefaultShadowDocument;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMapper;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
 import java.math.BigInteger;
@@ -35,22 +39,23 @@ import java.util.Queue;
 /**
  * A {@link ServerSynchronizer} implementation that can handle text documents.
  */
-public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode, JsonPatchEdit> {
+public class JsonMergePatchClientSynchronizer implements ClientSynchronizer<JsonNode, JsonMergePatchEdit> {
 
     private static final String UTF_8 = Charset.forName("UTF-8").displayName();
 
     @Override
-    public JsonPatchEdit clientDiff(final ShadowDocument<JsonNode> shadowDocument, final ClientDocument<JsonNode> document) {
+    public JsonMergePatchEdit clientDiff(final ShadowDocument<JsonNode> shadowDocument, final ClientDocument<JsonNode> document) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(document.content(), shadowObject))
+        return JsonMergePatchEdit.withPatch(patchFromJsonNode(document.content()))
                 .checksum(checksum(shadowObject))
                 .build();
     }
 
+
     @Override
-    public JsonPatchEdit serverDiff(final ClientDocument<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
+    public JsonMergePatchEdit serverDiff(final ClientDocument<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(shadowObject, document.content()))
+        return JsonMergePatchEdit.withPatch(patchFromJsonNode(shadowObject))
                 .serverVersion(shadowDocument.serverVersion())
                 .clientVersion(shadowDocument.clientVersion())
                 .checksum(checksum(shadowObject))
@@ -58,28 +63,28 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     }
 
     @Override
-    public ShadowDocument<JsonNode> patchShadow(final JsonPatchEdit edit, final ShadowDocument<JsonNode> shadowDocument) {
+    public ShadowDocument<JsonNode> patchShadow(final JsonMergePatchEdit edit, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode content = patch(edit, shadowDocument.document().content());
         return new DefaultShadowDocument<JsonNode>(shadowDocument.serverVersion(), shadowDocument.clientVersion(),
                 new DefaultClientDocument<JsonNode>(shadowDocument.document().id(), shadowDocument.document().clientId(), content));
     }
 
     @Override
-    public ClientDocument<JsonNode> patchDocument(final JsonPatchEdit edit, final ClientDocument<JsonNode> document) {
+    public ClientDocument<JsonNode> patchDocument(final JsonMergePatchEdit edit, final ClientDocument<JsonNode> document) {
         final JsonNode content = patch(edit, document.content());
         return new DefaultClientDocument<JsonNode>(document.id(), document.clientId(), content);
     }
 
     @Override
-    public PatchMessage<JsonPatchEdit> createPatchMessage(final String documentId,
+    public PatchMessage<JsonMergePatchEdit> createPatchMessage(final String documentId,
                                                         final String clientId,
-                                                        final Queue<JsonPatchEdit> edits) {
-        return new JsonPatchMessage(documentId, clientId, edits);
+                                                        final Queue<JsonMergePatchEdit> edits) {
+        return new JsonMergePatchMessage(documentId, clientId, edits);
     }
 
     @Override
-    public PatchMessage<JsonPatchEdit> patchMessageFromJson(String json) {
-        return JsonMapper.fromJson(json, JsonPatchMessage.class);
+    public PatchMessage<JsonMergePatchEdit> patchMessageFromJson(String json) {
+        return JsonMapper.fromJson(json, JsonMergePatchMessage.class);
     }
 
     @Override
@@ -87,9 +92,9 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
         objectNode.put(fieldName, content);
     }
 
-    private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {
+    private static JsonNode patch(final JsonMergePatchEdit edit, final JsonNode target) {
         try {
-            return edit.diff().jsonPatch().apply(target);
+            return edit.diff().jsonMergePatch().apply(target);
         } catch (final Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -102,6 +107,14 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
             return new BigInteger(1, md.digest()).toString(16);
         } catch (final Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
+        }
+    }
+
+    private static JsonMergePatch patchFromJsonNode(final JsonNode content) {
+        try {
+            return JsonMergePatch.fromJson(content);
+        } catch (final JsonPatchException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

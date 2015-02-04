@@ -14,9 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.client.netty;
 
+import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
+import org.jboss.aerogear.sync.client.netty.DiffSyncClient;
 import org.junit.Test;
 
 public class DiffSyncClientIntegrationTest {

@@ -95,7 +95,7 @@
                 <arguments>
                   <argument>-classpath</argument>
                   <classpath/>
-                  <argument>org.jboss.aerogear.sync.DiffMatchPatchSyncServer</argument>
+                  <argument>org.jboss.aerogear.sync.server.netty.DiffMatchPatchSyncServer</argument>
                 </arguments>
                 <classpathScope>compile</classpathScope>
                 <systemProperties>
@@ -122,7 +122,7 @@
                 <arguments>
                   <argument>-classpath</argument>
                   <classpath/>
-                  <argument>org.jboss.aerogear.sync.JsonPatchSyncServer</argument>
+                  <argument>org.jboss.aerogear.sync.server.netty.JsonPatchSyncServer</argument>
                 </arguments>
                 <classpathScope>compile</classpathScope>
                 <systemProperties>
@@ -149,7 +149,7 @@
                           <arguments>
                               <argument>-classpath</argument>
                               <classpath/>
-                              <argument>org.jboss.aerogear.sync.JsonMergePatchSyncServer</argument>
+                              <argument>org.jboss.aerogear.sync.server.netty.JsonMergePatchSyncServer</argument>
                           </arguments>
                           <classpathScope>compile</classpathScope>
                           <systemProperties>

@@ -29,13 +29,13 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.*;
 import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 
-public class DefaultClientSynchronizerTest {
+public class DiffMatchPatchClientSynchronizerTest {
 
     private ClientSynchronizer<String, DiffMatchPatchEdit> clientSynchronizer;
 
     @Before
     public void createDocuments() {
-        clientSynchronizer = new DefaultClientSynchronizer();
+        clientSynchronizer = new DiffMatchPatchClientSynchronizer();
     }
 
     @Test
