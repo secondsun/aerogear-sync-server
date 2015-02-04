@@ -40,7 +40,7 @@
                 </descriptors>
                 <archive>
                   <manifest>
-                    <mainClass>org.jboss.aerogear.sync.JsonMergePatchSyncServer</mainClass>
+                    <mainClass>org.jboss.aerogear.sync.server.netty.JsonMergePatchSyncServer</mainClass>
                     <addClasspath>true</addClasspath>
                   </manifest>
                 </archive>

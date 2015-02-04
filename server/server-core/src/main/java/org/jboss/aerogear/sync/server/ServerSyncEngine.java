@@ -29,9 +29,30 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The server side of the differential synchronization implementation.
+ * The ServerSyncEngine is responsible for driving the main differential synchronization algorithm.
+ * <p>
+ * During construction the engine gets injected with an instance of {@link ServerSynchronizer}
+ * which takes care of diff/patching operations, and an instance of {@link ServerDataStore} for
+ * storing data.
+ * <p>
+ * A synchronizer in AeroGear is a module that serves two purposes which are closely related. One, is to provide
+ * storage for the data type, and the second is to provide the patching algorithm to be used on that data type.
+ * The name synchronizer is because they take care of the synchronization part of the Differential Synchronization
+ * algorithm. For example, one synchronizer might support plain text while another supports JSON Objects as the
+ * content of documents being stored. But a patching algorithm used for plain text might not be appropriate for JSON
+ * Objects.
+ * <p>
  *
- * @param <T> The type of document that this implementation can handle.
+ * To construct a server that uses the JSON Patch you would use the following code:
+ * <pre>
+ * {@code
+ * final JsonPatchServerSynchronizer synchronizer = new JsonPatchServerSynchronizer();
+ * final ServerInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ServerInMemoryDataStore<JsonNode, JsonPatchEdit>();
+ * final ServerSyncEngine<JsonNode, JsonPatchEdit> syncEngine = new ServerSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
+ * }</pre>
+ *
+ * @param <T> The data type data that this implementation can handle.
+ * @param <S> The type of {@link Edit}s that this implementation can handle.
  */
 public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
 
@@ -43,6 +64,12 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
     private final ServerSynchronizer<T, S> synchronizer;
     private final ServerDataStore<T, S> dataStore;
 
+    /**
+     * Sole constructor.
+     *
+     * @param synchronizer an instance of {@link ServerSynchronizer} that will take care for the diff/patching
+     * @param dataStore an instance of {@link ServerDataStore} to store the document/objects
+     */
     public ServerSyncEngine(final ServerSynchronizer<T, S> synchronizer, final ServerDataStore<T, S> dataStore) {
         this.synchronizer = synchronizer;
         this.dataStore = dataStore;

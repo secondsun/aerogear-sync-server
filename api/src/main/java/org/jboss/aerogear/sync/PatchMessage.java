@@ -19,7 +19,12 @@ package org.jboss.aerogear.sync;
 import java.util.Queue;
 
 /**
- * Represents a stack of edits.
+ * Represents a stack of changes made on the server of client side.
+ * <p>
+ * A PatchMessage is what is passed between the client and the server. It contains a Queue of
+ * {@link Edit}s that represent updates to be performed on the opposing sides document.
+ *
+ * @param <T> The type of the {@link Edit} that this PatchMessage holds
  */
 public interface PatchMessage<T extends Edit<? extends Diff>> extends Payload<PatchMessage<T>> {
 

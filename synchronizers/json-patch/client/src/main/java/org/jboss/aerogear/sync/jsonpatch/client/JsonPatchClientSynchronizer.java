@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch.server;
+package org.jboss.aerogear.sync.jsonpatch.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonpatch.JsonPatchException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.diff.JsonDiff;
+import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
-import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.DefaultShadowDocument;
-import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
+import org.jboss.aerogear.sync.client.ClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchMessage;
@@ -36,14 +36,14 @@ import java.security.MessageDigest;
 import java.util.Queue;
 
 /**
- * A {@link ServerSynchronizer} implementation that can handle {@link JsonNode} objects.
+ * A {@link ServerSynchronizer} implementation that can handle text documents.
  */
-public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode, JsonPatchEdit> {
+public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode, JsonPatchEdit> {
 
     private static final String UTF_8 = Charset.forName("UTF-8").displayName();
 
     @Override
-    public JsonPatchEdit clientDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
+    public JsonPatchEdit clientDiff(final ShadowDocument<JsonNode> shadowDocument, final ClientDocument<JsonNode> document) {
         final JsonNode shadowObject = shadowDocument.document().content();
         return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(document.content(), shadowObject))
                 .checksum(checksum(shadowObject))
@@ -51,7 +51,7 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     }
 
     @Override
-    public JsonPatchEdit serverDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
+    public JsonPatchEdit serverDiff(final ClientDocument<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
         return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(shadowObject, document.content()))
                 .serverVersion(shadowDocument.serverVersion())
@@ -68,9 +68,9 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     }
 
     @Override
-    public Document<JsonNode> patchDocument(final JsonPatchEdit edit, final Document<JsonNode> document) {
+    public ClientDocument<JsonNode> patchDocument(final JsonPatchEdit edit, final ClientDocument<JsonNode> document) {
         final JsonNode content = patch(edit, document.content());
-        return new DefaultDocument<JsonNode>(document.id(), content);
+        return new DefaultClientDocument<JsonNode>(document.id(), document.clientId(), content);
     }
 
     @Override
@@ -86,14 +86,14 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     }
 
     @Override
-    public Document<JsonNode> documentFromJson(JsonNode json) {
-        return new DefaultDocument<JsonNode>(json.get("id").asText(), json.get("content"));
+    public void addContent(JsonNode content, final ObjectNode objectNode, final String fieldName) {
+        objectNode.put(fieldName, content);
     }
 
     private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {
         try {
             return edit.diff().jsonPatch().apply(target);
-        } catch (final JsonPatchException e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

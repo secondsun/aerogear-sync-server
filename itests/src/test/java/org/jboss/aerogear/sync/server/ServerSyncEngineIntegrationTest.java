@@ -28,7 +28,7 @@ import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.client.ClientDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
-import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchronizer;
 import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
 import org.junit.Before;
 import org.junit.Test;
@@ -194,7 +194,7 @@ public class ServerSyncEngineIntegrationTest {
 
     private static ClientSyncEngine<String, DiffMatchPatchEdit> clientSyncEngine() {
         final ClientDataStore<String, DiffMatchPatchEdit> clientDataStore = new ClientInMemoryDataStore<String, DiffMatchPatchEdit>();
-        return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(), clientDataStore);
+        return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(), clientDataStore);
     }
 
     private static DefaultDocument<String> newDoc(final String documentId, String content) {

@@ -25,8 +25,8 @@ import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
+import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchronizer;
 import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
-import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.Subscriber;
@@ -52,7 +52,7 @@ public class ClientSyncEngineIntegrationTest {
     @Before
     public void setup() {
         dataStore = new ClientInMemoryDataStore<String, DiffMatchPatchEdit>();
-        clientSyncEngine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(), dataStore);
+        clientSyncEngine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(), dataStore);
         serverSyncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchServerSynchronizer(), new ServerInMemoryDataStore<String, DiffMatchPatchEdit>());
     }
 

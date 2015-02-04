@@ -32,10 +32,32 @@ import java.util.Iterator;
 import java.util.Observable;
 import java.util.Queue;
 
+
 /**
- * The client side of the differential synchronization implementation.
+ * The ClientSyncEngine is responsible for driving client side of the differential synchronization algorithm.
+ * <p>
+ * During construction the engine gets injected with an instance of {@link ClientSynchronizer}
+ * which takes care of diff/patching operations, and an instance of {@link ClientDataStore} for
+ * storing data.
+ * <p>
+ * A synchronizer in AeroGear is a module that serves two purposes which are closely related. One, is to provide
+ * storage for the data type, and the second is to provide the patching algorithm to be used on that data type.
+ * The name synchronizer is because they take care of the synchronization part of the Differential Synchronization
+ * algorithm. For example, one synchronizer might support plain text while another supports JSON Objects as the
+ * content of documents being stored. But a patching algorithm used for plain text might not be appropriate for JSON
+ * Objects.
+ * <p>
  *
- * @param <T> The type of document that this implementation can handle.
+ * To construct a server that uses the JSON Patch you would use the following code:
+ * <pre>
+ * {@code
+ * final JsonPatchServerSynchronizer synchronizer = new JsonPatchServerSynchronizer();
+ * final ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
+ * final ClientSyncEngine<JsonNode, JsonPatchEdit> syncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
+ * }</pre>
+ *
+ * @param <T> The data type data that this implementation can handle.
+ * @param <S> The type of {@link Edit}s that this implementation can handle.
  */
 public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observable {
 
