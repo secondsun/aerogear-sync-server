@@ -16,10 +16,26 @@
  */
 package org.jboss.aerogear.sync;
 
+/**
+ * Represents something that can be exchanged in JSON format.
+ *
+ * @param <T> the type of the payload
+ */
 public interface Payload<T> {
 
+    /**
+     * Transforms this payload to a JSON String representation.
+     *
+     * @return {@code String} the payload as a JSON String representation
+     */
     String asJson();
 
+    /**
+     * Transforms the passed in {@code String} JSON representation into this payloads type.
+     *
+     * @param json a string representation of this payloads type
+     * @return {@code T} an instance of this payloads type
+     */
     T fromJson(String json);
 
 }

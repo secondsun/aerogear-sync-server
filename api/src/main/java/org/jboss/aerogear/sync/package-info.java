@@ -14,16 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
-
-import org.jboss.aerogear.sync.client.ClientSynchronizer;
-import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
 /**
- * A marker interface that represents a diff or two versions of a document/object.
+ * This package contains interfaces for AeroGear Sync.
  * <p>
- * The actual implementation of a diff will vary depending on the type of content the the
- * {@link ClientSynchronizer} or {@link ServerSynchronizer} can handle.
+ * The interfaces in this package are shared among both server and client implementations.
+ *
+ * @see org.jboss.aerogear.sync.client
+ * @see org.jboss.aerogear.sync.server
  */
-public interface Diff {
-}
+package org.jboss.aerogear.sync;

@@ -28,6 +28,14 @@ import org.jboss.aerogear.sync.server.MessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A Netty handler for {@link WebSocketFrame}s.
+ * <p>
+ * This handle takes care of the client side message processing for AeroGear Sync Server.
+ *
+ * @param <T> The type of the Document that this handler handles
+ * @param <S> The type of {@link Edit}s that this handler handles
+ */
 public class DiffSyncClientHandler<T, S extends Edit<? extends Diff>> extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiffSyncClientHandler.class);

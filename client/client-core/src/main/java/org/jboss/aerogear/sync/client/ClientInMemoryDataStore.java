@@ -29,6 +29,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * An in-memory implementation of {@link ClientDataStore}.
+ * <p>
+ * This implementation is mainly intended for testing and example applications.
+ *
+ * @param <T> The data type data that this implementation can handle.
+ * @param <S> The type of {@link Edit}s that this implementation can handle.
+ */
 public class ClientInMemoryDataStore<T, S extends Edit<? extends Diff>> implements ClientDataStore<T, S> {
 
     private final Queue<S> emptyQueue = new LinkedList<S>();

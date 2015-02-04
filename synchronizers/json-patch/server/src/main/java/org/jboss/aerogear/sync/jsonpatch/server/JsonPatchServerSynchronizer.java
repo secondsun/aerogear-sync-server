@@ -29,8 +29,6 @@ import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -38,12 +36,11 @@ import java.security.MessageDigest;
 import java.util.Queue;
 
 /**
- * A {@link ServerSynchronizer} implementation that can handle text documents.
+ * A {@link ServerSynchronizer} implementation that can handle {@link JsonNode} objects.
  */
 public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode, JsonPatchEdit> {
 
     private static final String UTF_8 = Charset.forName("UTF-8").displayName();
-    private static final Logger logger = LoggerFactory.getLogger(JsonPatchServerSynchronizer.class);
 
     @Override
     public JsonPatchEdit clientDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {

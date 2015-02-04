@@ -41,7 +41,10 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * A Netty based WebSocket client that is able to handle differential synchronization edits.
+ * A Netty based WebSocket client for AeroGear Diff Sync Server.
+ *
+ * @param <T> The type of the Document that this client can handle
+ * @param <S> The type of {@link Edit}s that this client can handle
  */
 public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Observable {
 
