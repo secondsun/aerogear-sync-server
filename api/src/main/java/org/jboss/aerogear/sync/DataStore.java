@@ -19,7 +19,7 @@ package org.jboss.aerogear.sync;
 import java.util.Queue;
 
 /**
- * A DataStore implementation is responible for storing and serving data for a
+ * A DataStore implementation is responsible for storing and serving data for a
  * Differential Synchronization implementation.
  *
  * @param <T> The type of the Document that this data store can store.

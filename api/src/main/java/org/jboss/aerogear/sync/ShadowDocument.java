@@ -18,10 +18,8 @@ package org.jboss.aerogear.sync;
 
 /**
  * A shadow document for each client will exist on the client side and also on the server side.
- *
- * A shadow document is update after a successful patch/merge as been performed. A patch/merge
- * is done with specific versions on the client and server document which are stored by instances
- * of this class.
+ * <p>
+ * A shadow document is updated after a successful patch has been performed.
  *
  * @param <T> The type of the Document that this instance shadows.
  */

@@ -22,7 +22,7 @@ import org.jboss.aerogear.sync.server.ServerSynchronizer;
 /**
  * A marker interface that represents a diff or two versions of a document/object.
  * <p>
- * The actual implementation of a diff will vary depending on the type of content the the
+ * The actual implementation of a diff will vary depending on the type of content the
  * {@link ClientSynchronizer} or {@link ServerSynchronizer} can handle.
  */
 public interface Diff {
