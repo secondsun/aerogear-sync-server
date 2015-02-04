@@ -1,6 +1,9 @@
 ## Netty Differential Synchronization Server Implementation
 This module contains a server implementations that uses the [server-core](../server-core)
 
+At the moment a single server can only support one data type/patch algorithm. Later version will most certainly be able
+to provide support for different types in the same server.
+
 ### DiffMatchPatchSyncServer
 The [DiffMatchPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/DiffMatchPatchSyncServer.java) is a standalone server implementation
 that uses [DiffMatchPatch](../../synchronizers/diffmatchpatch) for diffs/patches

@@ -1,7 +1,7 @@
 ### Modules
 
 * [server-core](./server-core)  
-Contains the ServerSyncEngine.
+Contains the ServerSyncEngine and an in-memory server data store implementation.
 
 * [server-netty](./server-netty)  
 Contains a Netty server that uses the [server-core](./server-core).
