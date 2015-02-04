@@ -28,31 +28,15 @@ Contains tests that use both the [server-core](./server-core) and [client-core](
 
 ## Project Info
 
-<table>
-    <tr>
-        <td>License:</td>
-        <td>Apache License, Version 2.0</td>
-    </tr>
-    <tr>
-        <td>Build:</td>
-        <td>Maven</td>
-    </tr>
-    <tr>
-        <td>Documentation:</td>
-        <td><a href="http://aerogear.org/sync">http://aerogear.org/sync</a></td>
-    </tr>
-    <tr>
-        <td>Issue tracker:</td>
-        <td><a href="https://issues.jboss.org/browse/AGSYNC">https://issues.jboss.org/browse/AGSYNC</a></td>
-    </tr>
-    <tr>
-        <td rowspan="2" valign="middle">Mailing lists:</td>
-        <td><a href="http://aerogear-users.1116366.n5.nabble.com/">aerogear-users</a> (<a href="https://lists.jboss.org/mailman/listinfo/aerogear-users">subscribe</a>)</td>
-    </tr>
-    <tr>
-        <td><a href="http://aerogear-dev.1069024.n5.nabble.com/">aerogear-dev</a> (<a href="https://lists.jboss.org/mailman/listinfo/aerogear-dev">subscribe</a>)</td>
-    </tr>
-</table>
+|                 | Project Info  |
+| --------------- | ------------- |
+| License:        | Apache License, Version 2.0  |
+| Build:          | Maven  |
+| Documentation:  | http://aerogear.org/sync/  |
+| Issue tracker:  | https://issues.jboss.org/browse/AGSYNC  |
+| Mailing lists:  | [aerogear-users](http://aerogear-users.1116366.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-users))  |
+|                 | [aerogear-dev](http://aerogear-dev.1069024.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-dev))  |
+
 
 ## Building
 
@@ -103,5 +87,4 @@ Join our [user mailing list](https://lists.jboss.org/mailman/listinfo/aerogear-u
 ## Found a bug?
 
 If you found a bug please create a ticket for us on [Jira](https://issues.jboss.org/browse/AGSYNC) with some steps to reproduce it.
-
 
