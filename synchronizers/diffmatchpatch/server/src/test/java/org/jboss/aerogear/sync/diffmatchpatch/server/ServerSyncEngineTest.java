@@ -31,8 +31,11 @@ import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.Subscriber;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -42,25 +45,35 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ServerSyncEngineTest {
-
+    private static final String DOCUMENT_ID = "1234";
     private ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore;
     private ServerSyncEngine<String, DiffMatchPatchEdit> engine;
+    private DiffMatchPatchServerSynchronizer synchronizer;
+    @SuppressWarnings("unchecked")
     private final Subscriber<String> subscriber = mock(Subscriber.class);
 
     @Before
     public void setup() {
         dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
-        engine = new ServerSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchServerSynchronizer(), dataStore);
+        synchronizer = new DiffMatchPatchServerSynchronizer();
+        engine = new ServerSyncEngine<String, DiffMatchPatchEdit>(synchronizer, dataStore);
         when(subscriber.clientId()).thenReturn("client1");
+    }
+
+    @After
+    public void tearDown() {
+        engine.removeSubscriber(subscriber, DOCUMENT_ID);
     }
 
     @Test
     public void addDocument() {
-        final String documentId = "1234";
-        final PatchMessage<DiffMatchPatchEdit> patchMessage = engine.addSubscriber(subscriber, doc(documentId, "Mr. Rosen"));
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = engine.addSubscriber(subscriber, doc(DOCUMENT_ID, "Mr. Rosen"));
         assertThat(patchMessage.edits().isEmpty(), is(false));
         assertThat(patchMessage.edits().peek().diff().diffs().peek().operation(), is(Operation.UNCHANGED));
         assertThat(patchMessage.edits().peek().diff().diffs().peek().text(), is("Mr. Rosen"));
@@ -300,6 +313,84 @@ public class ServerSyncEngineTest {
         // the edit stack should be cleared now as we have reverted to a previous version.
         final Queue<DiffMatchPatchEdit> edits = dataStore.getEdits(documentId, subscriber.clientId());
         assertThat(edits.isEmpty(), is(true));
+    }
+
+    @Test
+    public void notifySubscribersEmptyPatch() {
+        final String documentId = "1234";
+        final String originalVersion = "{\"name\": \"Mr.Babar\"}";
+        engine.addSubscriber(subscriber, doc(documentId, originalVersion));
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus")
+                .clientVersion(0)  // this patch was based on client version 0
+                .serverVersion(0)  // this patch was based on server version 0
+                .unchanged("{\"name\": ")
+                .delete("\"Mr.Babar\"")
+                .add("\"Mr.Rosen\"")
+                .unchanged("}")
+                .build();
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = engine.patch(patchMessage(documentId, subscriber.clientId(), edit));
+        engine.notifySubscribers(patchMessage);
+        verify(subscriber, never()).patched(Matchers.<PatchMessage<?>>any());
+    }
+
+    @Test
+    @SuppressWarnings("rawtypes, unchecked")
+    public void notifySubscribersWithInterleavedPatch() {
+        final String documentId = "1234";
+        final String client1Id = "client1";
+        final String client2Id = "client2";
+        final String originalVersion = "{\"name\": \"Mr.Babar\"}";
+        final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
+        final Document<String> document = doc(documentId, originalVersion);
+        final Subscriber<String> subscriber1 = mock(Subscriber.class);
+        when(subscriber1.clientId()).thenReturn(client1Id);
+        final Subscriber<String> subscriber2 = mock(Subscriber.class);
+        when(subscriber2.clientId()).thenReturn(client2Id);
+        try {
+            engine.addSubscriber(subscriber1, document);
+            engine.addSubscriber(subscriber2, document);
+
+            final DiffMatchPatchEdit firstEdit = DiffMatchPatchEdit.withChecksum("bogus")
+                    .clientVersion(0) // client version would be updated on the client side after this diff is taken
+                    .serverVersion(0)
+                    .unchanged("{\"name\": ")
+                    .delete("\"Mr.Babar\"")
+                    .add("\"Mr.Rosen\"")
+                    .unchanged("}")
+                    .build();
+            // patch the server with client1's patch
+            engine.patch(patchMessage(documentId, subscriber1.clientId(), firstEdit));
+
+            final DiffMatchPatchEdit secondEdit = DiffMatchPatchEdit.withChecksum("bogus")
+                    .clientVersion(0)
+                    .serverVersion(0)
+                    .unchanged("{\"name\": ")
+                    .delete("\"Mr.Babar\"")
+                    .add("\"Dr.RosenRosen\"")
+                    .unchanged("}")
+                    .build();
+            // patch the server with client2's patch
+            final PatchMessage<DiffMatchPatchEdit> patchMessage = engine.patch(patchMessage(documentId, subscriber2.clientId(), secondEdit));
+            engine.notifySubscribers(patchMessage);
+            verify(subscriber2, never()).patched(Matchers.<PatchMessage<?>>any());
+
+            final ArgumentCaptor<PatchMessage> captor = ArgumentCaptor.forClass(PatchMessage.class);
+            verify(subscriber1, times(1)).patched(captor.capture());
+
+            final PatchMessage<DiffMatchPatchEdit> sent = captor.getValue();
+            assertThat(sent.edits().size(), is(1));
+            final DiffMatchPatchEdit edit = sent.edits().peek();
+            final Document<String> patched = synchronizer.patchDocument(edit, doc(documentId, updatedVersion));
+            assertThat(patched.content(), equalTo("{\"name\": \"Dr.RosenRosen\"}"));
+            // the client version will have been incremented on the server after sucessfully patching the shadow doc
+            // to match the version on the client (remember that the version on the client is updated after the diff
+            // is taken.
+            assertThat(edit.clientVersion(), is(1L));
+            assertThat(edit.serverVersion(), is(0L));
+        } finally {
+            engine.removeSubscriber(subscriber1, documentId);
+            engine.removeSubscriber(subscriber2, documentId);
+        }
     }
 
     private static PatchMessage<DiffMatchPatchEdit> patchMessage(final String docId, final String clientId, DiffMatchPatchEdit... edit) {

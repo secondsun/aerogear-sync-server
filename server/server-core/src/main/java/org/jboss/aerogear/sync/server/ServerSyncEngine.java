@@ -199,11 +199,25 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
             return;
         }
         final String documentId = patchMessage.documentId();
-        final Set<Subscriber<?>> subscribers1 = getSubscribers(documentId);
-        for (Subscriber<?> subscriber: subscribers1) {
-            final PatchMessage<?> patchMessage1 = getPatchMessage(documentId, subscriber.clientId());
-            logger.debug("Sending to [" + subscriber.clientId() + "] : " + patchMessage1);
-            subscriber.patched(patchMessage1);
+        final String clientId = patchMessage.clientId();
+        for (Subscriber<?> subscriber: getSubscribers(documentId)) {
+            if (subscriber.clientId().equals(patchMessage.clientId())) {
+                // we only want to notify the client who sent the patch if there have been updates since
+                // the client patch was applied.
+                final S diff = diff(documentId, clientId);
+                // get a PatchMessage from the system which will contain any new edits.
+                final PatchMessage<S> pm = createPatchMessage(documentId, clientId);
+                if (pm.edits().size() == 1 && pm.edits().peek().equals(diff)) {
+                    continue;
+                } else {
+                    // there have beeen changes but we don't want to diff again so just send the PatchMessage
+                    // retreived above.
+                    subscriber.patched(pm);
+                }
+            }
+            final PatchMessage<?> pm = diffAndCreatePatchMessage(documentId, subscriber.clientId());
+            logger.info("Sending to [" + subscriber.clientId() + "] : " + pm);
+            subscriber.patched(pm);
         }
     }
 
@@ -234,8 +248,12 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
      * @param clientId the client identifier
      * @return {@link PatchMessage} for the current document/client combination
      */
-    public PatchMessage<S> getPatchMessage(final String documentId, final String clientId) {
+    public PatchMessage<S> diffAndCreatePatchMessage(final String documentId, final String clientId) {
         diff(documentId, clientId);
+        return synchronizer.createPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
+    }
+
+    private PatchMessage<S> createPatchMessage(final String documentId, final String clientId) {
         return synchronizer.createPatchMessage(documentId, clientId, dataStore.getEdits(documentId, clientId));
     }
 
