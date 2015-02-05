@@ -27,4 +27,26 @@ public class DiffMatchPatchInMemoryDataStoreTest {
         assertThat(iterator.next().clientVersion(), is(0L));
         assertThat(iterator.next().clientVersion(), is(1L));
     }
+
+    @Test
+    public void removeEdits() {
+        final String documentId = "12345";
+        final String clientId = "client1";
+        final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
+
+        final DiffMatchPatchEdit editOne = DiffMatchPatchEdit.withChecksum("bogus").serverVersion(0).build();
+        final DiffMatchPatchEdit editTwo = DiffMatchPatchEdit.withChecksum("bogus").serverVersion(1).build();
+        final DiffMatchPatchEdit editThree = DiffMatchPatchEdit.withChecksum("bogus").serverVersion(2).build();
+
+        dataStore.saveEdits(editOne, documentId, clientId);
+        dataStore.saveEdits(editTwo, documentId, clientId);
+        dataStore.saveEdits(editThree, documentId, clientId);
+
+        dataStore.removeEdit(editTwo, documentId, clientId);
+
+        final Queue<DiffMatchPatchEdit> edits = dataStore.getEdits(documentId, clientId);
+        assertThat(edits.size(), is(1));
+        final Iterator<DiffMatchPatchEdit> iterator = edits.iterator();
+        assertThat(iterator.next().serverVersion(), is(2L));
+    }
 }

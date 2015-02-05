@@ -110,6 +110,8 @@ public class ClientSyncEngineTest {
 
         final ClientDocument<String> document = dataStore.getClientDocument(documentId, clientId);
         assertThat(document.content(), equalTo("Do or do not, there is no try!"));
+        final Queue<DiffMatchPatchEdit> edits = dataStore.getEdits(documentId, clientId);
+        assertThat(edits.isEmpty(), is(true));
     }
 
     @Test
@@ -136,6 +138,8 @@ public class ClientSyncEngineTest {
         assertThat(shadowDocument2.document().content(), equalTo("Do or do not, there is no try!"));
         assertThat(shadowDocument2.serverVersion(), is(1L));
         assertThat(shadowDocument2.clientVersion(), is(0L));
+        final Queue<DiffMatchPatchEdit> edits = dataStore.getEdits(documentId, clientId);
+        assertThat(edits.isEmpty(), is(true));
     }
     
     @Test

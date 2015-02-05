@@ -22,6 +22,8 @@ import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.ShadowDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -45,6 +47,7 @@ public class ServerInMemoryDataStore<T, S extends Edit<? extends Diff>> implemen
     private final ConcurrentMap<Id, ShadowDocument<T>> shadows = new ConcurrentHashMap<Id, ShadowDocument<T>>();
     private final ConcurrentMap<Id, BackupShadowDocument<T>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<T>>();
     private final ConcurrentHashMap<Id, Queue<S>> pendingEdits = new ConcurrentHashMap<Id, Queue<S>>();
+    private static final Logger logger = LoggerFactory.getLogger(ServerInMemoryDataStore.class);
 
     @Override
     public void saveShadowDocument(final ShadowDocument<T> shadowDocument) {
@@ -120,7 +123,8 @@ public class ServerInMemoryDataStore<T, S extends Edit<? extends Diff>> implemen
             newEdits.addAll(currentEdits);
             for (Iterator<S> iter = newEdits.iterator(); iter.hasNext();) {
                 final S oldEdit = iter.next();
-                if (oldEdit.clientVersion() <= edit.clientVersion()) {
+                if (oldEdit.serverVersion() <= edit.serverVersion()) {
+                    logger.info("Removing version " + oldEdit);
                     iter.remove();
                 }
             }

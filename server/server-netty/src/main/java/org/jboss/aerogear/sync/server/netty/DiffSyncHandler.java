@@ -70,7 +70,7 @@ public class DiffSyncHandler<T, S extends Edit<? extends Diff>> extends SimpleCh
             case PATCH:
                 final PatchMessage<S> clientPatchMessage = syncEngine.patchMessageFromJson(json.toString());
                 checkForReconnect(clientPatchMessage.documentId(), clientPatchMessage.clientId(), ctx);
-                logger.debug("Client Edits=" + clientPatchMessage);
+                logger.debug("Client Edits = " + clientPatchMessage);
                 patch(clientPatchMessage);
                 break;
             case DETACH:
