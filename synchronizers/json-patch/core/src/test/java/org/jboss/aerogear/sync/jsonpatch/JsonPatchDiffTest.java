@@ -23,37 +23,32 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.sync.jsonpatch.Patches.*;
 
-public class JsonPatchEditTest {
+public class JsonPatchDiffTest {
 
     @Test (expected = NullPointerException.class)
-    public void constructWithNullPatch() {
-        JsonPatchEdit.withPatch(null).build();
-    }
-
-    @Test (expected = NullPointerException.class)
-    public void constructWithNullChecksum() {
-        JsonPatchEdit.withPatch(jsonPatch()).checksum(null).build();
+    public void constructWithNullDiff() {
+        new JsonPatchDiff(null);
     }
 
     @Test
     public void equalsReflexsive() throws Exception {
-        final JsonPatchEdit x = newJsonPatchEdit();
+        final JsonPatchDiff x = new JsonPatchDiff(jsonPatch());
         assertThat(x, equalTo(x));
     }
 
     @Test
     public void equalsSymmetric() throws Exception {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = newJsonPatchEdit();
+        final JsonPatchDiff x = new JsonPatchDiff(jsonPatch());
+        final JsonPatchDiff y = new JsonPatchDiff(jsonPatch());
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(x));
     }
 
     @Test
     public void equalsTransitive() {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = newJsonPatchEdit();
-        final JsonPatchEdit z = newJsonPatchEdit();
+        final JsonPatchDiff x = new JsonPatchDiff(jsonPatch());
+        final JsonPatchDiff y = new JsonPatchDiff(jsonPatch());
+        final JsonPatchDiff z = new JsonPatchDiff(jsonPatch());
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(z));
         assertThat(x, equalTo(z));
@@ -61,14 +56,14 @@ public class JsonPatchEditTest {
 
     @Test
     public void equalsNull() {
-        final JsonPatchEdit x = newJsonPatchEdit();
+        final JsonPatchDiff x = new JsonPatchDiff(jsonPatch());
         assertThat(x.equals(null), is(false));
     }
 
     @Test
     public void nonEquals() {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = JsonPatchEdit.withPatch(jsonPatch("lisa", "Lisa")).checksum("123").build();
+        final JsonPatchDiff x = new JsonPatchDiff(jsonPatch());
+        final JsonPatchDiff y = new JsonPatchDiff(jsonPatch("lisa", "Lisa"));
         assertThat(x.equals(y), is(false));
     }
 

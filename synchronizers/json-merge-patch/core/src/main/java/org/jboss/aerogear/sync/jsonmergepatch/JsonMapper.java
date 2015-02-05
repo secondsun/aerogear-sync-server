@@ -29,8 +29,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit.Builder;
 
 import java.io.IOException;
@@ -44,7 +42,7 @@ public final class JsonMapper {
 
     private static ObjectMapper createObjectMapper() {
         om = new ObjectMapper();
-        final SimpleModule module = new SimpleModule("JsonPatch", new Version(1, 0, 0, null, "aerogear", "sync"));
+        final SimpleModule module = new SimpleModule("JsonMergePatch", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(JsonMergePatchEdit.class, new EditDeserializer());
         module.addSerializer(JsonMergePatchEdit.class, new EditSerializer());
         module.addDeserializer(JsonMergePatchMessage.class, new PatchMessageDeserializer());
@@ -137,11 +135,7 @@ public final class JsonMapper {
                     eb.checksum(edit.get("checksum").asText());
                     final JsonNode diffsNode = edit.get("diffs");
                     if (!diffsNode.isNull()) {
-                        try {
-                            eb.patch(JsonMergePatch.fromJson(diffsNode));
-                        } catch (final JsonPatchException e) {
-                            throw new RuntimeException(e.getMessage(), e);
-                        }
+                        eb.patch(diffsNode);
                     }
                     edits.add(eb.build());
                 }
@@ -190,11 +184,7 @@ public final class JsonMapper {
             eb.serverVersion(edit.get("serverVersion").asLong());
             final JsonNode diffsNode = edit.get("diffs");
             if (!diffsNode.isNull()) {
-                try {
-                    eb.patch(JsonMergePatch.fromJson(diffsNode));
-                } catch (final JsonPatchException e) {
-                    throw new RuntimeException(e.getMessage(), e);
-                }
+                eb.patch(diffsNode);
             }
             return eb.build();
         }

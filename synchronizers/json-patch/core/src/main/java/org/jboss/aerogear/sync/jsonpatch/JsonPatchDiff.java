@@ -18,13 +18,14 @@ package org.jboss.aerogear.sync.jsonpatch;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import org.jboss.aerogear.sync.Diff;
+import org.jboss.aerogear.sync.util.Arguments;
 
 public class JsonPatchDiff implements Diff {
 
     private final JsonPatch jsonPatch;
 
     public JsonPatchDiff(final JsonPatch jsonPatch) {
-        this.jsonPatch = jsonPatch;
+        this.jsonPatch = Arguments.checkNotNull(jsonPatch, "jsonPatch must not be null");
     }
 
     public JsonPatch jsonPatch() {
@@ -34,5 +35,22 @@ public class JsonPatchDiff implements Diff {
     @Override
     public String toString() {
         return "JsonPatchDiff[jsonPatch=" + jsonPatch + ']';
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final JsonPatchDiff that = (JsonPatchDiff) o;
+        return jsonPatch.toString().equals(that.jsonPatch.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return jsonPatch.hashCode();
     }
 }

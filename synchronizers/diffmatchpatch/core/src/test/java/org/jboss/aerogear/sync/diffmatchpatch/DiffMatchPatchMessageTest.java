@@ -16,22 +16,83 @@
  */
 package org.jboss.aerogear.sync.diffmatchpatch;
 
-import org.jboss.aerogear.sync.PatchMessage;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Queue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DiffMatchPatchMessageTest {
 
-    @Test
-    public void diffMatchPatch() {
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build();
-        final PatchMessage<DiffMatchPatchEdit> patchMessage = new DiffMatchPatchMessage("1234", "client1",
-                new LinkedList<DiffMatchPatchEdit>(Arrays.asList(edit)));
-        assertThat(patchMessage.documentId(), equalTo("1234"));
+    @Test (expected = NullPointerException.class)
+    public void constructWithNullDocumentId() {
+        patchMessage(null, "clientId", asQueue(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build()));
     }
+
+    @Test (expected = NullPointerException.class)
+    public void constructWithNullClientId() {
+        patchMessage("docId", null, asQueue(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build()));
+    }
+
+    @Test (expected = NullPointerException.class)
+    public void constructWithNullEdit() {
+        patchMessage("docId", "clientId", null);
+    }
+
+    @Test
+    public void equalsReflexsive() {
+        final DiffMatchPatchMessage x = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        final DiffMatchPatchMessage y = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        assertThat(x, equalTo(y));
+    }
+
+    @Test
+    public void equalsSymmetric() {
+        final DiffMatchPatchMessage x = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        final DiffMatchPatchMessage y = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        assertThat(x, equalTo(y));
+        assertThat(y, equalTo(x));
+    }
+
+    @Test
+    public void equalsTransitive() {
+        final DiffMatchPatchMessage x = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        final DiffMatchPatchMessage y = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        final DiffMatchPatchMessage z = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        assertThat(x, equalTo(y));
+        assertThat(y, equalTo(z));
+        assertThat(x, equalTo(z));
+    }
+
+    @Test
+    public void equalsNull() {
+        final DiffMatchPatchMessage x = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        assertThat(x.equals(null), is(false));
+    }
+
+    @Test
+    public void nonEquals() {
+        final DiffMatchPatchMessage x = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("lalle").build());
+        final DiffMatchPatchMessage y = patchMessage(DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build());
+        assertThat(x.equals(y), is(false));
+    }
+
+    private static DiffMatchPatchMessage patchMessage(DiffMatchPatchEdit edit) {
+        return new DiffMatchPatchMessage("docId", "clientId", asQueue(edit));
+    }
+
+    private static DiffMatchPatchMessage patchMessage(final String documentId,
+                                                      final String clientId,
+                                                      final Queue<DiffMatchPatchEdit> edits) {
+        return new DiffMatchPatchMessage(documentId, clientId, edits);
+    }
+
+    private static Queue<DiffMatchPatchEdit> asQueue(DiffMatchPatchEdit... edits) {
+        return new LinkedList<DiffMatchPatchEdit>(Arrays.asList(edits));
+    }
+
 }

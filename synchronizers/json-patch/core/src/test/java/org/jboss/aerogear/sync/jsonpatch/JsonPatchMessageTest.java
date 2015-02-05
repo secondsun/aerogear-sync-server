@@ -23,37 +23,42 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.sync.jsonpatch.Patches.*;
 
-public class JsonPatchEditTest {
+public class JsonPatchMessageTest {
 
     @Test (expected = NullPointerException.class)
-    public void constructWithNullPatch() {
-        JsonPatchEdit.withPatch(null).build();
+    public void constructWithNullDocumentId() {
+        new JsonPatchMessage(null, "clientid", asQueue(newJsonPatchEdit()));
     }
 
     @Test (expected = NullPointerException.class)
-    public void constructWithNullChecksum() {
-        JsonPatchEdit.withPatch(jsonPatch()).checksum(null).build();
+    public void constructWithNullClientId() {
+        new JsonPatchMessage("docId", null, asQueue(newJsonPatchEdit()));
+    }
+
+    @Test (expected = NullPointerException.class)
+    public void constructWithNullDiff() {
+        new JsonPatchMessage("docId", "clientid", null);
     }
 
     @Test
     public void equalsReflexsive() throws Exception {
-        final JsonPatchEdit x = newJsonPatchEdit();
+        final JsonPatchMessage x = patchMessage(newJsonPatchEdit());
         assertThat(x, equalTo(x));
     }
 
     @Test
     public void equalsSymmetric() throws Exception {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = newJsonPatchEdit();
+        final JsonPatchMessage x = patchMessage(newJsonPatchEdit());
+        final JsonPatchMessage y = patchMessage(newJsonPatchEdit());
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(x));
     }
 
     @Test
     public void equalsTransitive() {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = newJsonPatchEdit();
-        final JsonPatchEdit z = newJsonPatchEdit();
+        final JsonPatchMessage x = patchMessage(newJsonPatchEdit());
+        final JsonPatchMessage y = patchMessage(newJsonPatchEdit());
+        final JsonPatchMessage z = patchMessage(newJsonPatchEdit());
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(z));
         assertThat(x, equalTo(z));
@@ -61,14 +66,14 @@ public class JsonPatchEditTest {
 
     @Test
     public void equalsNull() {
-        final JsonPatchEdit x = newJsonPatchEdit();
+        final JsonPatchMessage x = patchMessage(newJsonPatchEdit());
         assertThat(x.equals(null), is(false));
     }
 
     @Test
     public void nonEquals() {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = JsonPatchEdit.withPatch(jsonPatch("lisa", "Lisa")).checksum("123").build();
+        final JsonPatchMessage x = patchMessage(newJsonPatchEdit());
+        final JsonPatchMessage y = patchMessage(JsonPatchEdit.withPatch(jsonPatch("lisa", "Lisa")).checksum("123").build());
         assertThat(x.equals(y), is(false));
     }
 

@@ -18,8 +18,6 @@ package org.jboss.aerogear.sync.jsonmergepatch.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.jsonpatch.JsonPatchException;
-import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DefaultShadowDocument;
@@ -46,7 +44,7 @@ public class JsonMergePatchClientSynchronizer implements ClientSynchronizer<Json
     @Override
     public JsonMergePatchEdit clientDiff(final ShadowDocument<JsonNode> shadowDocument, final ClientDocument<JsonNode> document) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonMergePatchEdit.withPatch(patchFromJsonNode(document.content()))
+        return JsonMergePatchEdit.withPatch(document.content())
                 .checksum(checksum(shadowObject))
                 .build();
     }
@@ -55,7 +53,7 @@ public class JsonMergePatchClientSynchronizer implements ClientSynchronizer<Json
     @Override
     public JsonMergePatchEdit serverDiff(final ClientDocument<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonMergePatchEdit.withPatch(patchFromJsonNode(shadowObject))
+        return JsonMergePatchEdit.withPatch(shadowObject)
                 .serverVersion(shadowDocument.serverVersion())
                 .clientVersion(shadowDocument.clientVersion())
                 .checksum(checksum(shadowObject))
@@ -107,14 +105,6 @@ public class JsonMergePatchClientSynchronizer implements ClientSynchronizer<Json
             return new BigInteger(1, md.digest()).toString(16);
         } catch (final Exception e) {
             throw new RuntimeException(e.getMessage(), e.getCause());
-        }
-    }
-
-    private static JsonMergePatch patchFromJsonNode(final JsonNode content) {
-        try {
-            return JsonMergePatch.fromJson(content);
-        } catch (final JsonPatchException e) {
-            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

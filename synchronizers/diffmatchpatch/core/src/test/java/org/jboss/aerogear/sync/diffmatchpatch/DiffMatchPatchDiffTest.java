@@ -14,46 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch;
+package org.jboss.aerogear.sync.diffmatchpatch;
 
+import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jboss.aerogear.sync.jsonpatch.Patches.*;
 
-public class JsonPatchEditTest {
+public class DiffMatchPatchDiffTest {
 
     @Test (expected = NullPointerException.class)
-    public void constructWithNullPatch() {
-        JsonPatchEdit.withPatch(null).build();
+    public void constructWithNullOperation() {
+        new DiffMatchPatchDiff(null, "Fletch");
     }
 
     @Test (expected = NullPointerException.class)
-    public void constructWithNullChecksum() {
-        JsonPatchEdit.withPatch(jsonPatch()).checksum(null).build();
+    public void constructWithNullText() {
+        new DiffMatchPatchDiff(Operation.ADD, null);
     }
 
     @Test
-    public void equalsReflexsive() throws Exception {
-        final JsonPatchEdit x = newJsonPatchEdit();
+    public void equalsReflexsive() {
+        final DiffMatchPatchDiff x = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
         assertThat(x, equalTo(x));
     }
 
     @Test
-    public void equalsSymmetric() throws Exception {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = newJsonPatchEdit();
+    public void equalsSymmetric() {
+        final DiffMatchPatchDiff x = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
+        final DiffMatchPatchDiff y = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(x));
     }
 
     @Test
     public void equalsTransitive() {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = newJsonPatchEdit();
-        final JsonPatchEdit z = newJsonPatchEdit();
+        final DiffMatchPatchDiff x = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
+        final DiffMatchPatchDiff y = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
+        final DiffMatchPatchDiff z = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(z));
         assertThat(x, equalTo(z));
@@ -61,14 +61,14 @@ public class JsonPatchEditTest {
 
     @Test
     public void equalsNull() {
-        final JsonPatchEdit x = newJsonPatchEdit();
+        final DiffMatchPatchDiff x = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
         assertThat(x.equals(null), is(false));
     }
 
     @Test
-    public void nonEquals() {
-        final JsonPatchEdit x = newJsonPatchEdit();
-        final JsonPatchEdit y = JsonPatchEdit.withPatch(jsonPatch("lisa", "Lisa")).checksum("123").build();
+    public void noEquals() {
+        final DiffMatchPatchDiff x = new DiffMatchPatchDiff(Operation.ADD, "Fletch");
+        final DiffMatchPatchDiff y = new DiffMatchPatchDiff(Operation.DELETE, "Fletch");
         assertThat(x.equals(y), is(false));
     }
 

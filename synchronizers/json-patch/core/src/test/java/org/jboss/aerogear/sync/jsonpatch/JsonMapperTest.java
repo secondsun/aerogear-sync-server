@@ -17,30 +17,23 @@
 package org.jboss.aerogear.sync.jsonpatch;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.diff.JsonDiff;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.LinkedList;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jboss.aerogear.sync.jsonpatch.Patches.*;
 
 public class JsonMapperTest {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void patchMessageToJson() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final PatchMessage<JsonPatchEdit> patchMessage = patchMessage(documentId, clientId);
+        final PatchMessage<JsonPatchEdit> patchMessage = patchMessage(documentId, clientId, newJsonPatchEdit());
 
         final String json = JsonMapper.toJson(patchMessage);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
@@ -66,7 +59,7 @@ public class JsonMapperTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final JsonPatch patch = jsonPatch();
-        final String json = JsonMapper.toJson(patchMessage(documentId, clientId, patch));
+        final String json = JsonMapper.toJson(patchMessage(documentId, clientId, newJsonPatchEdit(patch)));
         final JsonPatchMessage patchMessage = JsonMapper.fromJson(json, JsonPatchMessage.class);
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
@@ -77,7 +70,7 @@ public class JsonMapperTest {
 
     @Test
     public void jsonPatchEditToJson() {
-        final String json = JsonMapper.toJson(jsonPatchEdit(jsonPatch()));
+        final String json = JsonMapper.toJson(newJsonPatchEdit());
         final JsonNode edit = JsonMapper.asJsonNode(json);
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
@@ -92,33 +85,10 @@ public class JsonMapperTest {
     @Test
     public void jsonPatchEditFromJson() {
         final JsonPatch patch = jsonPatch();
-        final String json = JsonMapper.toJson(jsonPatchEdit(patch));
+        final String json = JsonMapper.toJson(newJsonPatchEdit(patch));
         final JsonPatchEdit edit = JsonMapper.fromJson(json, JsonPatchEdit.class);
         assertThat(edit.diff(), is(notNullValue()));
         assertThat(edit.diff().jsonPatch().toString(), equalTo(patch.toString()));
     }
 
-    private static PatchMessage<JsonPatchEdit> patchMessage(final String documentId, final String clientId) {
-        return patchMessage(documentId, clientId, jsonPatchEdit(jsonPatch()));
-    }
-
-    private static JsonPatchEdit jsonPatchEdit(final JsonPatch patch) {
-        return JsonPatchEdit.withPatch(patch).build();
-    }
-
-    private static PatchMessage<JsonPatchEdit> patchMessage(final String documentId,
-                                                            final String clientId,
-                                                            final JsonPatch jsonPatch) {
-        return patchMessage(documentId, clientId, JsonPatchEdit.withPatch(jsonPatch).build());
-    }
-
-    private static JsonPatch jsonPatch() {
-        final ObjectNode source = objectMapper.createObjectNode().put("name", "fletch");
-        final ObjectNode target = objectMapper.createObjectNode().put("name", "Fletch");
-        return JsonDiff.asJsonPatch(source, target);
-    }
-
-    private static PatchMessage<JsonPatchEdit> patchMessage(final String docId, final String clientId, JsonPatchEdit... edit) {
-        return new JsonPatchMessage(docId, clientId, new LinkedList<JsonPatchEdit>(Arrays.asList(edit)));
-    }
 }

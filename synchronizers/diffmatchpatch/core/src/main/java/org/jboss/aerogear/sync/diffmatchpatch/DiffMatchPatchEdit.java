@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync.diffmatchpatch;
 
 import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.util.Arguments;
 
 import java.util.LinkedList;
 
@@ -32,7 +33,7 @@ public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
     private DiffMatchPatchEdit(final Builder builder) {
         clientVersion = builder.clientVersion;
         serverVersion = builder.serverVersion;
-        checksum = builder.checksum;
+        checksum = Arguments.checkNotNull(builder.checksum, "checksum must not be null");
         diffs = new DiffMatchPatchDiffs(builder.diffs);
     }
 
@@ -57,16 +58,14 @@ public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final DiffMatchPatchEdit that = (DiffMatchPatchEdit) o;
-
         if (clientVersion != that.clientVersion) {
             return false;
         }
@@ -76,7 +75,7 @@ public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
         if (!diffs.equals(that.diffs)) {
             return false;
         }
-        return !checksum.equals(that.checksum);
+        return checksum.equals(that.checksum);
     }
 
     @Override
@@ -84,15 +83,15 @@ public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
         int result = checksum.hashCode();
         result = 31 * result + (int) (clientVersion ^ clientVersion >>> 32);
         result = 31 * result + (int) (serverVersion ^ serverVersion >>> 32);
-        result = 31 * result + checksum.hashCode();
         result = 31 * result + diffs.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return "DefaultEdit[serverVersion=" + serverVersion +
+        return "DiffMatchPatchEdit[serverVersion=" + serverVersion +
                 ", clientVersion=" + clientVersion +
+                ", checksum=" + checksum +
                 ", diffs=" + diffs + ']';
     }
 

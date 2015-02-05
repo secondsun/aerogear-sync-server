@@ -17,30 +17,25 @@
 package org.jboss.aerogear.sync.jsonmergepatch;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jboss.aerogear.sync.jsonmergepatch.Patches.*;
 
 public class JsonMapperTest {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void patchMessageToJson() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final PatchMessage<JsonMergePatchEdit> patchMessage = patchMessage(documentId, clientId);
+        final PatchMessage<JsonMergePatchEdit> patchMessage = patchMessage(documentId, clientId, newJsonMergePatchEdit("Fletch"));
 
         final String json = JsonMapper.toJson(patchMessage);
         final JsonNode jsonNode = JsonMapper.asJsonNode(json);
@@ -61,8 +56,8 @@ public class JsonMapperTest {
     public void patchMessageFromJson() throws JsonPatchException {
         final String documentId = "1234";
         final String clientId = "client1";
-        final ObjectNode original = objectMapper.createObjectNode().put("name", "fletch");
-        final String json = JsonMapper.toJson(patchMessage(documentId, clientId, jsonMergePatch()));
+        final ObjectNode original = objectNode("fletch");
+        final String json = JsonMapper.toJson(patchMessage(documentId, clientId, newJsonMergePatchEdit("Fletch")));
         final JsonMergePatchMessage patchMessage = JsonMapper.fromJson(json, JsonMergePatchMessage.class);
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
@@ -75,7 +70,7 @@ public class JsonMapperTest {
 
     @Test
     public void jsonMergePatchEditToJson() {
-        final String json = JsonMapper.toJson(jsonMergePatchEdit(jsonMergePatch()));
+        final String json = JsonMapper.toJson(newJsonMergePatchEdit("Fletch"));
         final JsonNode edit = JsonMapper.asJsonNode(json);
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
@@ -85,8 +80,8 @@ public class JsonMapperTest {
 
     @Test
     public void jsonMergePatchEditFromJson() throws JsonPatchException {
-        final ObjectNode original = objectMapper.createObjectNode().put("name", "fletch");
-        final String json = JsonMapper.toJson(jsonMergePatchEdit(jsonMergePatch()));
+        final ObjectNode original = objectNode("fletch");
+        final String json = JsonMapper.toJson(newJsonMergePatchEdit("Fletch"));
         final JsonMergePatchEdit edit = JsonMapper.fromJson(json, JsonMergePatchEdit.class);
         assertThat(edit.diff(), is(notNullValue()));
         final JsonMergePatch patch = edit.diff().jsonMergePatch();
@@ -94,31 +89,4 @@ public class JsonMapperTest {
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }
 
-    private static PatchMessage<JsonMergePatchEdit> patchMessage(final String documentId, final String clientId) {
-        final JsonMergePatch jsonPatch = jsonMergePatch();
-        return patchMessage(documentId, clientId, jsonMergePatchEdit(jsonPatch));
-    }
-
-    private static JsonMergePatchEdit jsonMergePatchEdit(final JsonMergePatch patch) {
-        return JsonMergePatchEdit.withPatch(patch).build();
-    }
-
-    private static PatchMessage<JsonMergePatchEdit> patchMessage(final String documentId,
-                                                            final String clientId,
-                                                            final JsonMergePatch jsonMergePatch) {
-        return patchMessage(documentId, clientId, JsonMergePatchEdit.withPatch(jsonMergePatch).build());
-    }
-
-    private static JsonMergePatch jsonMergePatch() {
-        try {
-            final ObjectNode mergePatch = objectMapper.createObjectNode().put("name", "Fletch");
-            return JsonMergePatch.fromJson(mergePatch);
-        } catch (final Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private static PatchMessage<JsonMergePatchEdit> patchMessage(final String docId, final String clientId, JsonMergePatchEdit... edit) {
-        return new JsonMergePatchMessage(docId, clientId, new LinkedList<JsonMergePatchEdit>(Arrays.asList(edit)));
-    }
 }

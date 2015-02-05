@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync.diffmatchpatch;
 
 import org.jboss.aerogear.sync.Diff;
+import org.jboss.aerogear.sync.util.Arguments;
 
 public class DiffMatchPatchDiff implements Diff {
 
@@ -26,8 +27,8 @@ public class DiffMatchPatchDiff implements Diff {
     private final String text;
 
     public DiffMatchPatchDiff(final Operation operation, final String text) {
-        this.operation = operation;
-        this.text = text;
+        this.operation = Arguments.checkNotNull(operation, "operation must not be null");
+        this.text = Arguments.checkNotNull(text, "text must not be null");
     }
 
     public Operation operation() {
@@ -39,27 +40,24 @@ public class DiffMatchPatchDiff implements Diff {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        DiffMatchPatchDiff that = (DiffMatchPatchDiff) o;
-
+        final DiffMatchPatchDiff that = (DiffMatchPatchDiff) o;
         if (operation != that.operation) {
             return false;
         }
-
-        return text != null ? !text.equals(that.text) : that.text != null;
+        return text.equals(that.text);
     }
 
     @Override
     public int hashCode() {
-        int result = operation != null ? operation.hashCode() : 0;
-        result = 31 * result + (text != null ? text.hashCode() : 0);
+        int result = operation.hashCode();
+        result = 31 * result + text.hashCode();
         return result;
     }
 

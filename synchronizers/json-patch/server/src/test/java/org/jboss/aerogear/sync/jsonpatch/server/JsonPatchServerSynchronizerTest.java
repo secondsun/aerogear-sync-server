@@ -117,7 +117,7 @@ public class JsonPatchServerSynchronizerTest {
     }
 
     private static JsonPatchEdit jsonPatchEdit(final JsonPatch patch) {
-        return JsonPatchEdit.withPatch(patch).build();
+        return JsonPatchEdit.withPatch(patch).checksum("123").build();
     }
 
     private static JsonPatch jsonPatch() {

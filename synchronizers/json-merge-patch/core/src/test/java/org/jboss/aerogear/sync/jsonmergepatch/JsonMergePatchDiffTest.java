@@ -16,54 +16,39 @@
  */
 package org.jboss.aerogear.sync.jsonmergepatch;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.sync.jsonmergepatch.Patches.*;
 
-public class JsonMergePatchEditTest {
+public class JsonMergePatchDiffTest {
 
     @Test (expected = NullPointerException.class)
     public void constructWithNullPatch() {
-        JsonMergePatchEdit.withPatch(null).build();
-    }
-
-    @Test (expected = NullPointerException.class)
-    public void constructWithNullChecksum() {
-        JsonMergePatchEdit.withPatch(objectNode("Fletch")).checksum(null).build();
-    }
-
-    @Test
-    public void createJsonPatchEdit() throws Exception {
-        final ObjectNode jsonNode = objectNode("Fletch");
-        final JsonMergePatchEdit edit = JsonMergePatchEdit.withPatch(jsonNode).checksum("123").build();
-        assertThat(edit.diff(), is(notNullValue()));
-        assertThat(edit.diff(), equalTo(JsonMergePatchDiff.fromJsonNode(jsonNode)));
+        JsonMergePatchDiff.fromJsonNode(null);
     }
 
     @Test
     public void equalsReflexsive() throws Exception {
-        final JsonMergePatchEdit x = newJsonMergePatchEdit("Fletch");
+        final JsonMergePatchDiff x = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
         assertThat(x, equalTo(x));
     }
 
     @Test
     public void equalsSymmetric() throws Exception {
-        final JsonMergePatchEdit x = newJsonMergePatchEdit("Fletch");
-        final JsonMergePatchEdit y = newJsonMergePatchEdit("Fletch");
+        final JsonMergePatchDiff x = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
+        final JsonMergePatchDiff y = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(x));
     }
 
     @Test
     public void equalsTransitive() {
-        final JsonMergePatchEdit x = newJsonMergePatchEdit("Fletch");
-        final JsonMergePatchEdit y = newJsonMergePatchEdit("Fletch");
-        final JsonMergePatchEdit z = newJsonMergePatchEdit("Fletch");
+        final JsonMergePatchDiff x = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
+        final JsonMergePatchDiff y = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
+        final JsonMergePatchDiff z = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
         assertThat(x, equalTo(y));
         assertThat(y, equalTo(z));
         assertThat(x, equalTo(z));
@@ -71,14 +56,14 @@ public class JsonMergePatchEditTest {
 
     @Test
     public void equalsNull() {
-        final JsonMergePatchEdit x = newJsonMergePatchEdit("Fletch");
+        final JsonMergePatchDiff x = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
         assertThat(x.equals(null), is(false));
     }
 
     @Test
-    public void nonEqual() {
-        final JsonMergePatchEdit x = newJsonMergePatchEdit("Fletch");
-        final JsonMergePatchEdit y = JsonMergePatchEdit.withPatch(objectNode("fletch")).checksum("123").build();
+    public void nonEquals() {
+        final JsonMergePatchDiff x = JsonMergePatchDiff.fromJsonNode(objectNode("Fletch"));
+        final JsonMergePatchDiff y = JsonMergePatchDiff.fromJsonNode(objectNode("fletch"));
         assertThat(x.equals(y), is(false));
     }
 

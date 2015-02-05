@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync.diffmatchpatch;
 
 import org.jboss.aerogear.sync.Diff;
+import org.jboss.aerogear.sync.util.Arguments;
 
 import java.util.LinkedList;
 
@@ -25,7 +26,7 @@ public class DiffMatchPatchDiffs implements Diff {
     private final LinkedList<DiffMatchPatchDiff> diffs;
 
     public DiffMatchPatchDiffs(final LinkedList<DiffMatchPatchDiff> diffs) {
-        this.diffs = diffs;
+        this.diffs = Arguments.checkNotNull(diffs, "diffs must not be null");
     }
 
     public LinkedList<DiffMatchPatchDiff> diffs() {
@@ -33,21 +34,18 @@ public class DiffMatchPatchDiffs implements Diff {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        DiffMatchPatchDiffs that = (DiffMatchPatchDiffs) o;
-
+        final DiffMatchPatchDiffs that = (DiffMatchPatchDiffs) o;
         if (diffs == that.diffs) {
-            return false;
+            return true;
         }
-
-        return diffs != null ? !diffs.equals(that.diffs) : that.diffs != null;
+        return diffs.equals(that.diffs);
     }
 
     @Override

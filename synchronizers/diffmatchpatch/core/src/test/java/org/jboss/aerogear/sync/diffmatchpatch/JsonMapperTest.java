@@ -58,10 +58,6 @@ public class JsonMapperTest {
         assertThat(diffs.size(), is(3));
     }
 
-    private static PatchMessage<DiffMatchPatchEdit> patchMessage(final String docId, final String clientId, DiffMatchPatchEdit... edit) {
-        return new DiffMatchPatchMessage(docId, clientId, new LinkedList<DiffMatchPatchEdit>(Arrays.asList(edit)));
-    }
-
     @Test
     public void serializeEditsWithArray() {
         final String documentId = "1234";
@@ -203,6 +199,10 @@ public class JsonMapperTest {
         final Iterator<JsonNode> elements = contentNode.elements();
         assertThat(elements.next().asText(), equalTo("one"));
         assertThat(elements.next().asText(), equalTo("two"));
+    }
+
+    private static PatchMessage<DiffMatchPatchEdit> patchMessage(final String docId, final String clientId, DiffMatchPatchEdit... edit) {
+        return new DiffMatchPatchMessage(docId, clientId, new LinkedList<DiffMatchPatchEdit>(Arrays.asList(edit)));
     }
 
 }

@@ -18,6 +18,7 @@ package org.jboss.aerogear.sync.jsonpatch;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.util.Arguments;
 
 public class JsonPatchEdit implements Edit<JsonPatchDiff> {
 
@@ -29,7 +30,7 @@ public class JsonPatchEdit implements Edit<JsonPatchDiff> {
     private JsonPatchEdit(final Builder builder) {
         clientVersion = builder.clientVersion;
         serverVersion = builder.serverVersion;
-        checksum = builder.checksum;
+        checksum = Arguments.checkNotNull(builder.checksum, "checksum must not be null");
         diff = builder.diff;
     }
 
@@ -73,7 +74,7 @@ public class JsonPatchEdit implements Edit<JsonPatchDiff> {
         if (!diff.equals(that.diff)) {
             return false;
         }
-        return !checksum.equals(that.checksum);
+        return checksum.equals(that.checksum);
     }
 
     @Override
@@ -89,6 +90,7 @@ public class JsonPatchEdit implements Edit<JsonPatchDiff> {
     public String toString() {
         return "JsonPatctEdit[serverVersion=" + serverVersion +
                 ", clientVersion=" + clientVersion +
+                ", checksum=" + checksum +
                 ", diff=" + diff + ']';
     }
 

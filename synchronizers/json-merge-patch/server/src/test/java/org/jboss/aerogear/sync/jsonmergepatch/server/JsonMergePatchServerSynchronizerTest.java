@@ -98,7 +98,7 @@ public class JsonMergePatchServerSynchronizerTest {
         final String documentId = "1234";
         final ObjectNode source = objectMapper.createObjectNode().put("name", "fletch");
         final DefaultDocument<JsonNode> document = new DefaultDocument<JsonNode>(documentId, source);
-        final JsonMergePatch patch = jsonMergePatch();
+        final JsonNode patch = jsonMergePatch();
         final JsonMergePatchEdit edit = jsonMergePatchEdit(patch);
         final Document<JsonNode> patched = syncer.patchDocument(edit, document);
         assertThat(patched.content().get("name").asText(), equalTo("Fletch"));
@@ -111,23 +111,18 @@ public class JsonMergePatchServerSynchronizerTest {
         final ObjectNode source = objectMapper.createObjectNode().put("name", "fletch");
         final DefaultShadowDocument<JsonNode> shadowDocument = new DefaultShadowDocument<JsonNode>(0, 0,
                 new DefaultClientDocument<JsonNode>(documentId, clientId, source));
-        final JsonMergePatch patch = jsonMergePatch();
+        final JsonNode patch = jsonMergePatch();
         final JsonMergePatchEdit edit = jsonMergePatchEdit(patch);
         final ShadowDocument<JsonNode> patched = syncer.patchShadow(edit, shadowDocument);
         assertThat(patched.document().content().get("name").asText(), equalTo("Fletch"));
     }
 
-    private static JsonMergePatchEdit jsonMergePatchEdit(final JsonMergePatch patch) {
-        return JsonMergePatchEdit.withPatch(patch).build();
+    private static JsonMergePatchEdit jsonMergePatchEdit(final JsonNode patch) {
+        return JsonMergePatchEdit.withPatch(patch).checksum("123").build();
     }
 
-    private static JsonMergePatch jsonMergePatch() {
-        final ObjectNode target = objectMapper.createObjectNode().put("name", "Fletch");
-        try {
-            return JsonMergePatch.fromJson(target);
-        } catch (final JsonPatchException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+    private static JsonNode jsonMergePatch() {
+        return objectMapper.createObjectNode().put("name", "Fletch");
     }
 
     private static Queue<JsonMergePatchEdit> asQueue(final JsonMergePatchEdit... edits){

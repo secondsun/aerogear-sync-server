@@ -16,8 +16,9 @@
  */
 package org.jboss.aerogear.sync.jsonmergepatch;
 
-import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.Edit;
+import org.jboss.aerogear.sync.util.Arguments;
 
 public class JsonMergePatchEdit implements Edit<JsonMergePatchDiff> {
 
@@ -29,7 +30,7 @@ public class JsonMergePatchEdit implements Edit<JsonMergePatchDiff> {
     private JsonMergePatchEdit(final Builder builder) {
         clientVersion = builder.clientVersion;
         serverVersion = builder.serverVersion;
-        checksum = builder.checksum;
+        checksum = Arguments.checkNotNull(builder.checksum, "checksum must not be null");
         diff = builder.diff;
     }
 
@@ -54,16 +55,14 @@ public class JsonMergePatchEdit implements Edit<JsonMergePatchDiff> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         final JsonMergePatchEdit that = (JsonMergePatchEdit) o;
-
         if (clientVersion != that.clientVersion) {
             return false;
         }
@@ -73,7 +72,7 @@ public class JsonMergePatchEdit implements Edit<JsonMergePatchDiff> {
         if (!diff.equals(that.diff)) {
             return false;
         }
-        return !checksum.equals(that.checksum);
+        return checksum.equals(that.checksum);
     }
 
     @Override
@@ -87,12 +86,13 @@ public class JsonMergePatchEdit implements Edit<JsonMergePatchDiff> {
 
     @Override
     public String toString() {
-        return "JsonPatctEdit[serverVersion=" + serverVersion +
+        return "JsonMergePatchEdit[serverVersion=" + serverVersion +
                 ", clientVersion=" + clientVersion +
+                ", checksum=" + checksum +
                 ", diffs=" + diff + ']';
     }
 
-    public static Builder withPatch(final JsonMergePatch patch) {
+    public static Builder withPatch(final JsonNode patch) {
         return new Builder(patch);
     }
 
@@ -107,8 +107,8 @@ public class JsonMergePatchEdit implements Edit<JsonMergePatchDiff> {
         private String checksum;
         private JsonMergePatchDiff diff;
 
-        private Builder(final JsonMergePatch patch) {
-            diff = new JsonMergePatchDiff(patch);
+        private Builder(final JsonNode patch) {
+            diff = JsonMergePatchDiff.fromJsonNode(patch);
         }
 
         private Builder(final String checksum) {
@@ -130,8 +130,8 @@ public class JsonMergePatchEdit implements Edit<JsonMergePatchDiff> {
             return this;
         }
 
-        public Builder patch(final JsonMergePatch patch) {
-            diff = new JsonMergePatchDiff(patch);
+        public Builder patch(final JsonNode patch) {
+            diff = JsonMergePatchDiff.fromJsonNode(patch);
             return this;
         }
 
