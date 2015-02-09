@@ -63,7 +63,7 @@ the JSON Patch server:
 ### Starting the DiffMatchPatch server
 
     cd server/server-netty
-    mvn exec:exec -Pdiffmatchpatch
+    mvn exec:exec -Pdiffmatch
 
 ## Documentation
 
