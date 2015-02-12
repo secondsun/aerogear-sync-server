@@ -19,10 +19,9 @@ package org.jboss.aerogear.sync.client.netty;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.client.netty.DiffSyncClient;
 import org.junit.Test;
 
-public class DiffSyncClientIntegrationTest {
+public class SyncClientIntegrationTest {
     
     @Test
     public void connect() throws InterruptedException {
@@ -30,7 +29,7 @@ public class DiffSyncClientIntegrationTest {
         final String clientId = "client2";
         final String originalVersion = "{\"id\": 9999}";
         
-        final DiffSyncClient<String, DiffMatchPatchEdit> client = DiffSyncClient.<String, DiffMatchPatchEdit>forHost("localhost").port(7777).path("/sync").build();
+        final SyncClient<String, DiffMatchPatchEdit> client = SyncClient.<String, DiffMatchPatchEdit>forHost("localhost").port(7777).path("/sync").build();
         client.connect();
         client.addDocument(clientDoc(documentId, clientId, originalVersion));
         Thread.sleep(1000);

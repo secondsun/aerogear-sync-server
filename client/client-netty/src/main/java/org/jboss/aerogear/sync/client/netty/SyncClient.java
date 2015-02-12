@@ -50,7 +50,7 @@ import java.util.Observer;
  * @param <T> The type of the Document that this client can handle
  * @param <S> The type of {@link Edit}s that this client can handle
  */
-public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Observable {
+public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observable {
 
     private final String host;
     private final int port;
@@ -61,7 +61,7 @@ public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Obs
     private EventLoopGroup group;
     private Channel channel;
 
-    private DiffSyncClient(final Builder<T, S> builder) {
+    private SyncClient(final Builder<T, S> builder) {
         host = builder.host;
         port = builder.port;
         path = builder.path;
@@ -73,8 +73,8 @@ public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Obs
         }
     }
     
-    public DiffSyncClient<T, S> connect() throws InterruptedException {
-        final DiffSyncClientHandler<T, S> diffSyncClientHandler = new DiffSyncClientHandler<T, S>(syncEngine);
+    public SyncClient<T, S> connect() throws InterruptedException {
+        final SyncClientHandler<T, S> syncClientHandler = new SyncClientHandler<T, S>(syncEngine);
         final WebSocketClientHandler handler = newWebSocketClientHandler();
         final Bootstrap b = new Bootstrap();
         group = new NioEventLoopGroup();
@@ -88,7 +88,7 @@ public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Obs
                         new HttpObjectAggregator(8192),
                         new WebSocketClientCompressionHandler(),
                         handler,
-                        diffSyncClientHandler);
+                        syncClientHandler);
             }
         });
 
@@ -181,12 +181,12 @@ public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Obs
             return this;
         }
         
-        public DiffSyncClient<T, S> build() {
+        public SyncClient<T, S> build() {
             if (engine == null) {
                 engine = new ClientSyncEngine(new DiffMatchPatchClientSynchronizer(), new ClientInMemoryDataStore());
             }
             uri = parseUri(this);
-            return new DiffSyncClient<T, S>(this);
+            return new SyncClient<T, S>(this);
         }
     
         private URI parseUri(final Builder<T, S> b) {

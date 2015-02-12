@@ -18,6 +18,6 @@
 /**
  * This package contains Netty Client for AeroGear Sync.
  *
- * @see org.jboss.aerogear.sync.client.netty.DiffSyncClient
+ * @see org.jboss.aerogear.sync.client.netty.SyncClient
  */
 package org.jboss.aerogear.sync.client.netty;

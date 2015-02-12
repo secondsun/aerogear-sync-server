@@ -38,7 +38,7 @@ public class JsonPatchClientIntegrationTest {
         final JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
         final ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
         final ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
-        final DiffSyncClient<JsonNode, JsonPatchEdit> client = DiffSyncClient.<JsonNode, JsonPatchEdit>forHost("localhost")
+        final SyncClient<JsonNode, JsonPatchEdit> client = SyncClient.<JsonNode, JsonPatchEdit>forHost("localhost")
                 .syncEngine(clientSyncEngine)
                 .port(7777)
                 .path("/sync")
