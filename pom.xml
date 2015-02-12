@@ -31,8 +31,15 @@
     <parent>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>aerogear-parent</artifactId>
-        <version>0.2.3</version>
+        <version>0.2.12</version>
     </parent>
+
+    <scm>
+        <connection>scm:git:git://github.com/aerogear/aerogear-sync-server.git</connection>
+        <developerConnection>scm:git:git@github.com:aerogear/aerogear-sync-server.git</developerConnection>
+        <url>https://github.com/aerogear/aerogear-sync-server.git</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <version.io.netty>5.0.0.Alpha2-SNAPSHOT</version.io.netty>
