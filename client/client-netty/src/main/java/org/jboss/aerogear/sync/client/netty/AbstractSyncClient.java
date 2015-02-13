@@ -47,14 +47,14 @@ import org.jboss.aerogear.sync.client.ClientSyncEngine;
  */
 public abstract class AbstractSyncClient<T, S extends Edit<? extends Diff>> extends Observable { 
 
-    private final String host;
-    private final int port;
-    private final String path;
-    private final URI uri;
-    private final ClientSyncEngine<T, S> syncEngine;
-    private final String subprotocols;
-    private EventLoopGroup group;
-    private Channel channel;
+    protected final String host;
+    protected final int port;
+    protected final String path;
+    protected final URI uri;
+    protected final ClientSyncEngine<T, S> syncEngine;
+    protected final String subprotocols;
+    protected EventLoopGroup group;
+    protected Channel channel;
 
     protected AbstractSyncClient(final Builder<T, S> builder) {
         host = builder.host;
