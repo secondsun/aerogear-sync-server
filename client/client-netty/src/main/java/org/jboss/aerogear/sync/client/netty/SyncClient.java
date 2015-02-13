@@ -16,32 +16,14 @@
  */
 package org.jboss.aerogear.sync.client.netty;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
-import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
-import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Edit;
-import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchronizer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Observable;
 import java.util.Observer;
 
 /**
@@ -50,105 +32,36 @@ import java.util.Observer;
  * @param <T> The type of the Document that this client can handle
  * @param <S> The type of {@link Edit}s that this client can handle
  */
-public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observable {
-
-    private final String host;
-    private final int port;
-    private final String path;
-    private final URI uri;
-    private final ClientSyncEngine<T, S> syncEngine;
-    private final String subprotocols;
-    private EventLoopGroup group;
-    private Channel channel;
+public final class SyncClient<T, S extends Edit<? extends Diff>> extends AbstractSyncClient {
 
     private SyncClient(final Builder<T, S> builder) {
-        host = builder.host;
-        port = builder.port;
-        path = builder.path;
-        uri = builder.uri;
-        subprotocols = builder.subprotocols;
-        syncEngine = builder.engine;
-        if (builder.observer != null) {
-            syncEngine.addObserver(builder.observer);
-        }
-    }
-    
-    public SyncClient<T, S> connect() throws InterruptedException {
-        final SyncClientHandler<T, S> syncClientHandler = new SyncClientHandler<T, S>(syncEngine);
-        final WebSocketClientHandler handler = newWebSocketClientHandler();
-        final Bootstrap b = new Bootstrap();
-        group = new NioEventLoopGroup();
-        b.group(group).channel(NioSocketChannel.class);
-        b.handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) {
-                ChannelPipeline p = ch.pipeline();
-                p.addLast(
-                        new HttpClientCodec(),
-                        new HttpObjectAggregator(8192),
-                        new WebSocketClientCompressionHandler(),
-                        handler,
-                        syncClientHandler);
-            }
-        });
-
-        channel = b.connect(host, port).sync().channel();
-        handler.handshakeFuture().sync();
-        System.out.println("SyncClient connected to " + host + ':' + port);
-        return this;
-    }
-
-    private WebSocketClientHandler newWebSocketClientHandler() {
-        return new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(
-                uri, 
-                WebSocketVersion.V13, 
-                subprotocols, 
-                false, 
-                new DefaultHttpHeaders()));
-    }
-
-    public void addDocument(final ClientDocument<T> document) {
-        syncEngine.addDocument(document);
-        if (channel.isOpen()) {
-            final String json = syncEngine.documentToJson(document);
-            channel.writeAndFlush(new TextWebSocketFrame(json));
-        } else {
-            //TODO: store the messages in a queue. 
-        }
-    }
-    
-    public void diffAndSend(final ClientDocument<T> document) {
-        final PatchMessage<S> patchMessage = syncEngine.diff(document);
-        if (channel.isOpen()) {
-            channel.writeAndFlush(new TextWebSocketFrame(patchMessage.asJson()));
-        } else {
-            //TODO: store edits in a queue. 
-        }
-    }
-    
-    public void disconnect() {
-        channel.close();
-        group.shutdownGracefully();
-        System.out.println("SyncClient disconnected");
+        super(builder);
     }
     
     public static <T, S extends Edit<? extends Diff>> Builder<T, S> forHost(final String host) {
         return new Builder<T, S>(host);
     }
     
-    public static class Builder<T, S extends Edit<? extends Diff>> {
-        
-        private final String host;
-        private int port;
-        private String path;
-        private boolean wss;
-        private URI uri;
-        private String subprotocols;
-        private ClientSyncEngine<T, S> engine;
-        private Observer observer;
+    public static class Builder<T, S extends Edit<? extends Diff>> extends AbstractSyncClient.Builder {
         
         public Builder(final String host) {
-            this.host = host;
+            super(host);
+        }
+        
+        public SyncClient<T, S> build() {
+            if (engine == null) {
+                engine = new ClientSyncEngine(new DiffMatchPatchClientSynchronizer(), new ClientInMemoryDataStore());
+            }
+            uri = parseUri(this);
+            return new SyncClient<T, S>(this);
+        }
+    
+        private URI parseUri(final Builder<T, S> b) {
+            try {
+                return new URI(b.wss ? "wss" : "ws" + "://" + b.host + ':' + b.port + b.path);
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
         }
         
         public Builder<T, S> port(final int port) {
@@ -179,22 +92,6 @@ public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observa
         public Builder<T, S> observer(final Observer observer) {
             this.observer = observer;
             return this;
-        }
-        
-        public SyncClient<T, S> build() {
-            if (engine == null) {
-                engine = new ClientSyncEngine(new DiffMatchPatchClientSynchronizer(), new ClientInMemoryDataStore());
-            }
-            uri = parseUri(this);
-            return new SyncClient<T, S>(this);
-        }
-    
-        private URI parseUri(final Builder<T, S> b) {
-            try {
-                return new URI(b.wss ? "wss" : "ws" + "://" + b.host + ':' + b.port + b.path);
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException(e.getMessage(), e);
-            }
         }
         
     }
