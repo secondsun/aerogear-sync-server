@@ -137,7 +137,7 @@ public class ServerSyncEngineIntegrationTest {
 
         // create an update originating from client1.
         serverSyncEngine.patch(clientOneSyncEngine.diff(newClientDoc(documentId, versionTwo, clientOne)));
-        final PatchMessage<DiffMatchPatchEdit> clientOneServerPatchMessage = serverSyncEngine.diffAndCreatePatchMessage(documentId, clientOne);
+        final PatchMessage<DiffMatchPatchEdit> clientOneServerPatchMessage = serverSyncEngine.getPatchMessage(documentId, clientOne);
         assertThat(clientOneServerPatchMessage.clientId(), equalTo(clientOne));
         assertThat(clientOneServerPatchMessage.documentId(), equalTo(documentId));
         assertThat(clientOneServerPatchMessage.edits().size(), is(1));
@@ -150,7 +150,7 @@ public class ServerSyncEngineIntegrationTest {
         // no patch required for clientOneSyncEngine as this was performed after the diff was taken.
         clientOneSyncEngine.patch(clientOneServerPatchMessage);
 
-        final PatchMessage<DiffMatchPatchEdit> clientTwoServerPatchMessage = serverSyncEngine.diffAndCreatePatchMessage(documentId, clientTwo);
+        final PatchMessage<DiffMatchPatchEdit> clientTwoServerPatchMessage = serverSyncEngine.getPatchMessage(documentId, clientTwo);
         assertThat(clientTwoServerPatchMessage.clientId(), equalTo(clientTwo));
         assertThat(clientTwoServerPatchMessage.documentId(), equalTo(documentId));
         assertThat(clientTwoServerPatchMessage.edits().size(), is(1));

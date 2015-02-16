@@ -88,7 +88,7 @@ public class JsonPatchEdit implements Edit<JsonPatchDiff> {
 
     @Override
     public String toString() {
-        return "JsonPatchEdit[serverVersion=" + serverVersion +
+        return "JsonPatctEdit[serverVersion=" + serverVersion +
                 ", clientVersion=" + clientVersion +
                 ", checksum=" + checksum +
                 ", diff=" + diff + ']';

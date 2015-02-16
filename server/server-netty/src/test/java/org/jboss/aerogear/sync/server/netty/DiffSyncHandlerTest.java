@@ -268,7 +268,11 @@ public class DiffSyncHandlerTest {
         sendAddDocMsg(docId, client2Id, originalContent, channel2);
 
         final PatchMessage<DiffMatchPatchEdit> clientEdit = generateClientSideEdits(docId, originalContent, client1Id, updatedContent);
-        sendEdit(clientEdit, channel1);
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = sendEdit(clientEdit, channel1);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(client1Id));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         // client1 should not get an update as it was the one making the change.
         assertThat(channel1.readOutbound(), is(nullValue()));
@@ -326,7 +330,17 @@ public class DiffSyncHandlerTest {
         // Add the document to the client sync engine. Only used to help produce diffs.
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(docId, client1Id, original));
         final PatchMessage<DiffMatchPatchEdit> clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
-        sendEdit(clientEdit, channel1);
+
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = sendEdit(clientEdit, channel1);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(client1Id));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(patchMessage.edits().peek().clientVersion(), is(1L));
+        assertThat(patchMessage.edits().peek().serverVersion(), is(0L));
+
+        // patch the client engine so that version are updated and edits cleared
+        clientSyncEngine.patch(patchMessage);
 
         // get the update from channel2.
         final TextWebSocketFrame serverUpdateOne = channel2.readOutbound();
@@ -349,7 +363,9 @@ public class DiffSyncHandlerTest {
         assertThat(editOne.diff().diffs().get(4).text(), equalTo("th"));
 
         final PatchMessage<DiffMatchPatchEdit> clientEditTwo = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateTwo));
-        sendEdit(clientEditTwo, channel1);
+        final PatchMessage<DiffMatchPatchEdit> patchMessageTwo = sendEdit(clientEditTwo, channel1);
+        assertThat(patchMessageTwo.edits().size(), is(1));
+        assertThat(patchMessageTwo.edits().peek().diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         final TextWebSocketFrame serverUpdateTwo = channel2.readOutbound();
         final PatchMessage<DiffMatchPatchEdit> serverUpdatesTwo = fromJson(serverUpdateTwo.text(), DiffMatchPatchMessage.class);
@@ -374,11 +390,11 @@ public class DiffSyncHandlerTest {
         assertThat(editTwo.diff().diffs().get(3).operation(), is(Operation.ADD));
         assertThat(editTwo.diff().diffs().get(3).text(), equalTo("Ye"));
         assertThat(editTwo.diff().diffs().get(4).operation(), is(Operation.UNCHANGED));
-        assertThat(editTwo.diff().diffs().get(4).text(), equalTo("a "));
+        assertThat(editTwo.diff().diffs().get(4).text(), equalTo("a"));
         assertThat(editTwo.diff().diffs().get(5).operation(), is(Operation.DELETE));
-        assertThat(editTwo.diff().diffs().get(5).text(), equalTo("Si"));
+        assertThat(editTwo.diff().diffs().get(5).text(), equalTo(" Sit"));
         assertThat(editTwo.diff().diffs().get(6).operation(), is(Operation.UNCHANGED));
-        assertThat(editTwo.diff().diffs().get(6).text(), equalTo("th"));
+        assertThat(editTwo.diff().diffs().get(6).text(), equalTo("h"));
     }
 
     @Test
@@ -416,7 +432,15 @@ public class DiffSyncHandlerTest {
         // Add the document to the client sync engine. Only used to help produce diffs.
         clientSyncEngine.addDocument(new DefaultClientDocument<String>(docId, client1Id, original));
         final PatchMessage<DiffMatchPatchEdit> clientEdit = clientSyncEngine.diff(new DefaultClientDocument<String>(docId, client1Id, updateOne));
-        sendEdit(clientEdit, channel1);
+
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = sendEdit(clientEdit, channel1);
+        assertThat(patchMessage.documentId(), equalTo(docId));
+        assertThat(patchMessage.clientId(), equalTo(client1Id));
+        assertThat(patchMessage.edits().size(), is(1));
+        assertThat(patchMessage.edits().peek().diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
+
+        // patch the client engine so that version are updated and edits cleared
+        clientSyncEngine.patch(patchMessage);
 
         // get the update from channel2.
         final TextWebSocketFrame serverUpdateOne = channel2.readOutbound();
@@ -440,8 +464,8 @@ public class DiffSyncHandlerTest {
         assertThat(editOne.diff().diffs().get(4).text(), equalTo(" man"));
     }
 
-    private static void sendEdit(final PatchMessage<DiffMatchPatchEdit> patchMessage, final EmbeddedChannel ch) {
-        writeFrame(JsonMapper.toJson(patchMessage), ch);
+    private static PatchMessage<DiffMatchPatchEdit> sendEdit(final PatchMessage<DiffMatchPatchEdit> patchMessage, final EmbeddedChannel ch) {
+        return fromJson(writeFrame(JsonMapper.toJson(patchMessage), ch), DiffMatchPatchMessage.class);
     }
 
     private static JsonNode sendAddDocMsg(final String docId,
@@ -465,7 +489,7 @@ public class DiffSyncHandlerTest {
         docMsg.put("id", docId);
         docMsg.put("clientId", clientId);
         docMsg.put("content", content);
-        return fromJson(writeAndReceiveFrame(docMsg.toString(), ch), DiffMatchPatchMessage.class);
+        return fromJson(writeFrame(docMsg.toString(), ch), DiffMatchPatchMessage.class);
     }
 
     private static PatchMessage<DiffMatchPatchEdit> sendAddDoc(final String docId, final String clientId, final EmbeddedChannel ch) {
@@ -473,7 +497,7 @@ public class DiffSyncHandlerTest {
         docMsg.put("msgType", "add");
         docMsg.put("id", docId);
         docMsg.put("clientId", clientId);
-        return fromJson(writeAndReceiveFrame(docMsg.toString(), ch), DiffMatchPatchMessage.class);
+        return fromJson(writeFrame(docMsg.toString(), ch), DiffMatchPatchMessage.class);
     }
 
     private static ObjectNode message(final String type) {
@@ -488,14 +512,10 @@ public class DiffSyncHandlerTest {
         return JsonMapper.asJsonNode(textFrame.text());
     }
 
-    private static String writeAndReceiveFrame(final String content, final EmbeddedChannel ch) {
+    private static String writeFrame(final String content, final EmbeddedChannel ch) {
         ch.writeInbound(textFrame(content));
         final TextWebSocketFrame textFrame = ch.readOutbound();
         return textFrame.text();
-    }
-
-    private static void writeFrame(final String content, final EmbeddedChannel ch) {
-        ch.writeInbound(textFrame(content));
     }
 
     private static TextWebSocketFrame textFrame(final String content) {
