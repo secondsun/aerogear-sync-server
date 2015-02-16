@@ -30,18 +30,20 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.PatchMessage;
-import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
-import org.jboss.aerogear.sync.diffmatchpatch.client.DiffMatchPatchClientSynchronizer;
+import org.jboss.aerogear.sync.client.PatchListener;
+import org.jboss.aerogear.sync.client.SyncClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Observable;
-import java.util.Observer;
+
+import static org.jboss.aerogear.sync.util.Arguments.checkNotNull;
 
 /**
  * A Netty based WebSocket client for AeroGear Diff Sync Server.
@@ -49,7 +51,9 @@ import java.util.Observer;
  * @param <T> The type of the Document that this client can handle
  * @param <S> The type of {@link Edit}s that this client can handle
  */
-public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observable {
+public final class NettySyncClient<T, S extends Edit<? extends Diff>> implements SyncClient<T, S> {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(NettySyncClient.class);
 
     private final String host;
     private final int port;
@@ -60,19 +64,20 @@ public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observa
     private EventLoopGroup group;
     private Channel channel;
 
-    private SyncClient(final Builder<T, S> builder) {
-        host = builder.host;
+    private NettySyncClient(final Builder<T, S> builder) {
+        host = checkNotNull(builder.host, "host must not be null");
+        path = checkNotNull(builder.path, "path must not be null");
+        syncEngine = checkNotNull(builder.engine, "engine must not be null");
         port = builder.port;
-        path = builder.path;
-        uri = builder.uri;
+        uri = parseUri(builder.wss, host, port, path);
         subprotocols = builder.subprotocols;
-        syncEngine = builder.engine;
-        if (builder.observer != null) {
-            syncEngine.addObserver(builder.observer);
+        if (builder.listener != null) {
+            syncEngine.addPatchListener(builder.listener);
         }
     }
-    
-    public SyncClient<T, S> connect() throws InterruptedException {
+
+    @Override
+    public NettySyncClient<T, S> connect() throws InterruptedException {
         final SyncClientHandler<T, S> syncClientHandler = new SyncClientHandler<T, S>(syncEngine);
         final WebSocketClientHandler handler = newWebSocketClientHandler();
         final Bootstrap b = new Bootstrap();
@@ -85,7 +90,6 @@ public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observa
                 p.addLast(
                         new HttpClientCodec(),
                         new HttpObjectAggregator(8192),
-                        //new WebSocketClientCompressionHandler(),
                         handler,
                         syncClientHandler);
             }
@@ -93,107 +97,132 @@ public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observa
 
         channel = b.connect(host, port).sync().channel();
         handler.handshakeFuture().sync();
+        logger.info("SyncClient connected to {}:{}", host, port);
         return this;
     }
 
-    private WebSocketClientHandler newWebSocketClientHandler() {
-        return new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(
-                uri, 
-                WebSocketVersion.V13, 
-                subprotocols, 
-                false, 
-                new DefaultHttpHeaders()));
-    }
-
+    @Override
     public void addDocument(final ClientDocument<T> document) {
         syncEngine.addDocument(document);
         if (channel.isOpen()) {
             final String json = syncEngine.documentToJson(document);
             channel.writeAndFlush(new TextWebSocketFrame(json));
-        } else {
-            //TODO: store the messages in a queue. 
         }
     }
-    
+
+    @Override
     public void diffAndSend(final ClientDocument<T> document) {
         final PatchMessage<S> patchMessage = syncEngine.diff(document);
         if (channel.isOpen()) {
             channel.writeAndFlush(new TextWebSocketFrame(patchMessage.asJson()));
-        } else {
-            //TODO: store edits in a queue. 
         }
     }
-    
+
+    @Override
     public void disconnect() {
         channel.close();
         group.shutdownGracefully();
+        logger.info("SyncClient disconnected");
     }
-    
+
+    @Override
+    public boolean isConnected() {
+        return channel != null && channel.isActive();
+    }
+
+    @Override
+    public void addPatchListener(final PatchListener<T> listener) {
+        syncEngine.addPatchListener(listener);
+    }
+
+    @Override
+    public void deletePatchListener(final PatchListener<T> listener) {
+        syncEngine.removePatchListener(listener);
+    }
+
+    @Override
+    public void deletePatchListeners() {
+        syncEngine.removePatchListeners();
+    }
+
+    @Override
+    public int countPatchListeners() {
+        return syncEngine.countPatchListeners();
+    }
+
+    @Override
+    public String clientId() {
+        return "NettySyncClient";
+    }
+
+    private WebSocketClientHandler newWebSocketClientHandler() {
+        return new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(
+                uri,
+                WebSocketVersion.V13,
+                subprotocols,
+                false,
+                new DefaultHttpHeaders()));
+    }
+
+    private static URI parseUri(final boolean wss, final String host, final int port, final String path) {
+        try {
+            return new URI(wss ? "wss" : "ws" + "://" + host + ':' + port + path);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+    }
+
     public static <T, S extends Edit<? extends Diff>> Builder<T, S> forHost(final String host) {
         return new Builder<T, S>(host);
     }
     
     public static class Builder<T, S extends Edit<? extends Diff>> {
-        
+
         private final String host;
         private int port;
         private String path;
         private boolean wss;
-        private URI uri;
         private String subprotocols;
         private ClientSyncEngine<T, S> engine;
-        private Observer observer;
-        
+        private PatchListener<T> listener;
+
         public Builder(final String host) {
             this.host = host;
         }
-        
+
         public Builder<T, S> port(final int port) {
             this.port = port;
             return this;
         }
-        
+
         public Builder<T, S> path(final String path) {
             this.path = path;
             return this;
         }
-        
+
         public Builder<T, S> wss(final boolean wss) {
             this.wss = wss;
             return this;
         }
-        
+
         public Builder<T, S> subprotocols(final String subprotocols) {
             this.subprotocols = subprotocols;
             return this;
         }
-        
+
         public Builder<T, S> syncEngine(final ClientSyncEngine<T, S> engine) {
             this.engine = engine;
             return this;
         }
-        
-        public Builder<T, S> observer(final Observer observer) {
-            this.observer = observer;
+
+        public Builder<T, S> patchListener(final PatchListener<T> listener) {
+            this.listener = listener;
             return this;
         }
-        
-        public SyncClient<T, S> build() {
-            if (engine == null) {
-                engine = new ClientSyncEngine(new DiffMatchPatchClientSynchronizer(), new ClientInMemoryDataStore());
-            }
-            uri = parseUri(this);
-            return new SyncClient<T, S>(this);
+
+        public NettySyncClient<T, S> build() {
+            return new NettySyncClient<T, S>(this);
         }
-    
-        private URI parseUri(final Builder<T, S> b) {
-            try {
-                return new URI(b.wss ? "wss" : "ws" + "://" + b.host + ':' + b.port + b.path);
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException(e.getMessage(), e);
-            }
-        }
-        
     }
-    
+
 }

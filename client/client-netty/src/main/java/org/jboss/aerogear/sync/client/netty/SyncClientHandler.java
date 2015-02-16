@@ -22,14 +22,14 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 import org.jboss.aerogear.sync.server.MessageType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A Netty handler for {@link WebSocketFrame}s.
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SyncClientHandler<T, S extends Edit<? extends Diff>> extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SyncClientHandler.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(SyncClientHandler.class);
 
     private final ClientSyncEngine<T, S> syncEngine;
 

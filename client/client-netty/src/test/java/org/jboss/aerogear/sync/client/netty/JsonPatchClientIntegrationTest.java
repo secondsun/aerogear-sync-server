@@ -23,6 +23,7 @@ import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
+import org.jboss.aerogear.sync.client.DefaultPatchObservable;
 import org.jboss.aerogear.sync.jsonpatch.client.JsonPatchClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.junit.Test;
@@ -37,8 +38,9 @@ public class JsonPatchClientIntegrationTest {
         final String clientId = "client2";
         final JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
         final ClientInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ClientInMemoryDataStore<JsonNode, JsonPatchEdit>();
-        final ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
-        final SyncClient<JsonNode, JsonPatchEdit> client = SyncClient.<JsonNode, JsonPatchEdit>forHost("localhost")
+        final ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer,
+                dataStore, new DefaultPatchObservable<JsonNode>());
+        final NettySyncClient<JsonNode, JsonPatchEdit> client = NettySyncClient.<JsonNode, JsonPatchEdit>forHost("localhost")
                 .syncEngine(clientSyncEngine)
                 .port(7777)
                 .path("/sync")

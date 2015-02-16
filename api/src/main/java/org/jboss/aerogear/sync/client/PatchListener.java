@@ -14,10 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.jboss.aerogear.sync.client;
+
+import org.jboss.aerogear.sync.ClientDocument;
 
 /**
- * This package contains Netty Client for AeroGear Sync.
+ * A listener/observer of patches.
  *
- * @see org.jboss.aerogear.sync.client.netty.NettySyncClient
+ * @param <T> The content type of {@link ClientDocument} that this PatchListener listens to.
  */
-package org.jboss.aerogear.sync.client.netty;
+public interface PatchListener<T> {
+
+    /**
+     * Is called when the {@link ClientDocument} has patched a document.
+     *
+     * @param patchedDocument the {@link ClientDocument} that has been patched.
+     */
+    void patched(ClientDocument<T> patchedDocument);
+}

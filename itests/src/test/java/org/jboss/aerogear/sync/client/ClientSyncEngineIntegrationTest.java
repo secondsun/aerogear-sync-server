@@ -52,8 +52,10 @@ public class ClientSyncEngineIntegrationTest {
     @Before
     public void setup() {
         dataStore = new ClientInMemoryDataStore<String, DiffMatchPatchEdit>();
-        clientSyncEngine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(), dataStore);
-        serverSyncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchServerSynchronizer(), new ServerInMemoryDataStore<String, DiffMatchPatchEdit>());
+        clientSyncEngine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(),
+                dataStore, new DefaultPatchObservable<String>());
+        serverSyncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchServerSynchronizer(),
+                new ServerInMemoryDataStore<String, DiffMatchPatchEdit>());
     }
 
     @Test
