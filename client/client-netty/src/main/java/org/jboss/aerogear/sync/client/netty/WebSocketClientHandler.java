@@ -58,7 +58,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final Object msg) {
+    public void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
         final Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
@@ -70,7 +70,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         if (msg instanceof FullHttpResponse) {
             FullHttpResponse response = (FullHttpResponse) msg;
             throw new IllegalStateException(
-                    "Unexpected FullHttpResponse (getStatus=" + response.status() +
+                    "Unexpected FullHttpResponse (getStatus=" + response.getStatus() +
                             ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 

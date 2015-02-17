@@ -49,7 +49,7 @@ public class DiffSyncHandler<T, S extends Edit<? extends Diff>> extends SimpleCh
     }
 
     @Override
-    protected void messageReceived(final ChannelHandlerContext ctx, final WebSocketFrame frame) throws Exception {
+    protected void channelRead0(final ChannelHandlerContext ctx, final WebSocketFrame frame) throws Exception {
         if (frame instanceof CloseWebSocketFrame) {
             logger.debug("Received closeFrame");
             ctx.close();

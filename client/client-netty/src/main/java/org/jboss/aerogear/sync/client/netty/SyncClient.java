@@ -30,7 +30,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Edit;
@@ -86,7 +85,7 @@ public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observa
                 p.addLast(
                         new HttpClientCodec(),
                         new HttpObjectAggregator(8192),
-                        new WebSocketClientCompressionHandler(),
+                        //new WebSocketClientCompressionHandler(),
                         handler,
                         syncClientHandler);
             }
