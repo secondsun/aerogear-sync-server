@@ -93,7 +93,6 @@ public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observa
 
         channel = b.connect(host, port).sync().channel();
         handler.handshakeFuture().sync();
-        System.out.println("SyncClient connected to " + host + ':' + port);
         return this;
     }
 
@@ -128,7 +127,6 @@ public final class SyncClient<T, S extends Edit<? extends Diff>> extends Observa
     public void disconnect() {
         channel.close();
         group.shutdownGracefully();
-        System.out.println("SyncClient disconnected");
     }
     
     public static <T, S extends Edit<? extends Diff>> Builder<T, S> forHost(final String host) {

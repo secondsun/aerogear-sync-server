@@ -32,6 +32,8 @@ import org.jboss.aerogear.sync.jsonmergepatch.server.JsonMergePatchServerSynchro
 import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 
@@ -41,6 +43,7 @@ import java.util.concurrent.Executors;
 public final class JsonMergePatchSyncServer {
 
     private static final String DEFAULT_CONFIG = "/sync.config";
+    private static final Logger logger = LoggerFactory.getLogger(JsonMergePatchSyncServer.class);
 
     public static void main(final String... args) throws Exception {
         final String configFile = args.length == 0 ? DEFAULT_CONFIG : args[0];
@@ -72,7 +75,7 @@ public final class JsonMergePatchSyncServer {
             }
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
-            System.out.println("JsonMergePatchSyncServer bound to " + config.host() + ':' + config.port());
+            logger.info("JsonMergePatchSyncServer bound to {}:{}", config.host(), config.port());
 
             ch.closeFuture().sync();
         } finally {

@@ -32,6 +32,8 @@ import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchro
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 
@@ -40,6 +42,7 @@ import java.util.concurrent.Executors;
  */
 public final class DiffMatchPatchSyncServer {
 
+    private static final Logger logger = LoggerFactory.getLogger(DiffMatchPatchSyncServer.class);
     private static final String DEFAULT_CONFIG = "/sync.config";
 
     public static void main(final String... args) throws Exception {
@@ -72,7 +75,8 @@ public final class DiffMatchPatchSyncServer {
             }
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
-            System.out.println("DiffMatchPatchSyncServer bound to " + config.host() + ':' + config.port());
+            logger.info("DiffMatchPatchSyncServer bound to {}:{}", config.host(), config.port());
+
 
             ch.closeFuture().sync();
         } finally {
