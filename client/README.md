@@ -6,7 +6,4 @@ component, like a Netty client, an Android device, etc.
 * [client-netty](./client-netty)  
 A diffsync client that uses Netty.
 
-* [client-xmpp](./client-xmpp)  
-A diffsync client that uses Google Cloud Messaging XMPP.
-
 
