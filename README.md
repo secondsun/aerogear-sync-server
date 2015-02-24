@@ -10,7 +10,7 @@ Contains the interfaces for the server and client, plus definitions of common ty
 
 * [core](./core)  
 Contains a base implementation of the common types from the [api](./api) module. These are used by both the
-[client-engine](./client/client-engine) and the [server-core](./server/server-core) modules.
+[client-engine](./client/client-engine) and the [server-engine](./server/server-engine) modules.
 
 * [synchronizers](./synchronizers)  
 Contains a implementations that perform the synchronization operations in the Differential Synchronization algorithm.
@@ -24,7 +24,7 @@ Contains a concrete implementation of the client side core API. This implementat
 component, like a Netty client, an Android device, etc.
 
 * [itests](./itests)  
-Contains tests that use both the [server-core](./server/server-core) and [client-engine](./client/client-engine) in cooperation.
+Contains tests that use both the [server-engine](./server/server-engine) and [client-engine](./client/client-engine) in cooperation.
 
 ## Project Info
 

@@ -128,7 +128,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-server-core</artifactId>
+                <artifactId>sync-server-engine</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

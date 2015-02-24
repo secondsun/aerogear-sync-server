@@ -23,9 +23,9 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>sync-server-core</artifactId>
+    <artifactId>sync-server-engine</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization Server Core</name>
+    <name>AeroGear Data Synchronization Server Engine</name>
 
     <dependencies>
         <dependency>

@@ -29,7 +29,7 @@
     <name>AeroGear Data Synchronization Server Parent</name>
 
     <modules>
-        <module>server-core</module>
+        <module>server-engine</module>
         <module>server-netty</module>
         <module>server-xmpp</module>
     </modules>

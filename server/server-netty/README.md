@@ -1,5 +1,5 @@
 ## Netty Differential Synchronization Server Implementation
-This module embeds the [ServerSyncEngine](../server-core/src/main/java/org/jboss/aerogear/sync/server/ServerSyncEngine.java) from [server-core](../server-core) and adds network connectivity by exposing
+This module embeds the [ServerSyncEngine](../server-engine/src/main/java/org/jboss/aerogear/sync/server/ServerSyncEngine.java) from [server-engine](../server-engine) and adds network connectivity by exposing
 WebSockets.
 
 At the moment a single server can only support one data type/patch algorithm. Later version will most certainly be able

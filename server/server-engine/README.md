@@ -1,11 +1,11 @@
-## AeroGear Server Differential Synchronization Server Core
+## AeroGear Server Differential Synchronization Server Engine
 This module contains implementations for the [server side API](../api)
 
 ## SyncServerEngine
-The [SyncServerEngine](./server-core/src/main/java/org/jboss/aerogear/sync/server/ServerSyncEngine.java) is
+The [SyncServerEngine](./src/main/java/org/jboss/aerogear/sync/server/ServerSyncEngine.java) is
 responsible for driving the main differential synchronization algorithm but leaves the details of how data is stored and how diffs/patches are processed on that data to injectable
 implementations.
-It does this by getting injected during [construction](./server-core/src/main/java/org/jboss/aerogear/sync/server/ServerSyncEngine.java#L46) with an instance of a _ServerSynchronizer_ and a _ServerDataStore_.
+It does this by getting injected during [construction](./src/main/java/org/jboss/aerogear/sync/server/ServerSyncEngine.java#L46) with an instance of a _ServerSynchronizer_ and a _ServerDataStore_.
 
 ### ServerDataStore
 The [ServerDataStore](../../api/src/main/java/org/jboss/aerogear/sync/server/ServerDataStore.java) defines the methods for
