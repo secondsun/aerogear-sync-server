@@ -1,11 +1,12 @@
 ## Netty Differential Synchronization Server Implementation
-This module contains a server implementations that uses the [server-core](../server-core)
+This module embeds the [ServerSyncEngine](../server-core/src/main/java/org/jboss/aerogear/sync/server/ServerSyncEngine.java) from [server-core](../server-core) and adds network connectivity by exposing
+WebSockets.
 
 At the moment a single server can only support one data type/patch algorithm. Later version will most certainly be able
 to provide support for different types in the same server.
 
 ### DiffMatchPatchSyncServer
-The [DiffMatchPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/DiffMatchPatchSyncServer.java) is a standalone server implementation
+The [DiffMatchPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/server/netty/DiffMatchPatchSyncServer.java) is a standalone server implementation
 that uses [DiffMatchPatch](../../synchronizers/diffmatchpatch) for diffs/patches
 
 #### Starting using Maven
@@ -13,7 +14,7 @@ that uses [DiffMatchPatch](../../synchronizers/diffmatchpatch) for diffs/patches
     mvn exec:exec -Pdiffmatch
 
 ### JsonPatchSyncServer
-The [JsonPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/JsonPatchSyncServer.java) is a standalone 
+The [JsonPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/server/netty/JsonPatchSyncServer.java) is a standalone
 server implementation that uses [JSON Patch](../..//synchronizers/json-patch) for diff/patches.
 
 #### Starting using Maven
@@ -21,7 +22,7 @@ server implementation that uses [JSON Patch](../..//synchronizers/json-patch) fo
     mvn exec:exec -Pjsonpatch
     
 ### JsonMergePatchSyncServer
-The [JsonMergePatchSyncServer](./src/main/java/org/jboss/aerogear/sync/JsonMergePatchSyncServer.java) is a standalone 
+The [JsonMergePatchSyncServer](./src/main/java/org/jboss/aerogear/sync/server/netty/JsonMergePatchSyncServer.java) is a standalone
 server implementation that uses [JSON Merge Patch](../../synchronizers/json-merge-patch) for diff/patches.
 
 #### Starting using Maven
@@ -71,7 +72,7 @@ Retrieve a apiKey from [Google](https://developer.android.com/google/gcm/gs.html
 
 
 ### DiffSyncHandler
-[DiffSyncHandler](./src/main/java/org/jboss/aerogear/sync/DiffSyncHandler.java) is a Netty handler responsible for
+[DiffSyncHandler](./src/main/java/org/jboss/aerogear/sync/server/netty/DiffSyncHandler.java) is a Netty handler responsible for
 delegating requests to the sync engine and sending back responses. It also handles networking tasks like reconnects etc.
 
 
