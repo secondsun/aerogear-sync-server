@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-client-core</artifactId>
+            <artifactId>sync-client-engine</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -133,7 +133,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
-                <artifactId>sync-client-core</artifactId>
+                <artifactId>sync-client-engine</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

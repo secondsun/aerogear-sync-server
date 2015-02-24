@@ -29,7 +29,7 @@
     <name>AeroGear Data Synchronization Client Parent</name>
 
     <modules>
-        <module>client-core</module>
+        <module>client-engine</module>
         <module>client-netty</module>
     </modules>
 

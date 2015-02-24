@@ -1,4 +1,4 @@
-## AeroGear Server Differential Synchronization Client Core
+## AeroGear Server Differential Synchronization Client Engine
 This module contains implementations for the [client side API](../api)
 
 ### ClientSyncEngine
