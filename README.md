@@ -2,6 +2,17 @@
 This project in an implementation of Google's [Differential Synchonrization](http://research.google.com/pubs/pub35605.html) 
 by Neil Fraser, that can be used by AeroGear's client libraries.
 
+## Project Info
+
+|                 | Project Info  |
+| --------------- | ------------- |
+| License:        | Apache License, Version 2.0  |
+| Build:          | Maven  |
+| Documentation:  | http://aerogear.org/sync/  |
+| Issue tracker:  | https://issues.jboss.org/browse/AGSYNC  |
+| Mailing lists:  | [aerogear-users](http://aerogear-users.1116366.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-users))  |
+|                 | [aerogear-dev](http://aerogear-dev.1069024.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-dev))  |
+
 ## AeroGear Sync
 AeroGear Sync consists of the following modules:
 
@@ -28,18 +39,6 @@ This module produces an executable jar. See _Creating a distribution_ below for 
 
 * [itests](./itests)  
 Contains tests that use both the [server-engine](./server/server-engine) and [client-engine](./client/client-engine) in cooperation.
-
-## Project Info
-
-|                 | Project Info  |
-| --------------- | ------------- |
-| License:        | Apache License, Version 2.0  |
-| Build:          | Maven  |
-| Documentation:  | http://aerogear.org/sync/  |
-| Issue tracker:  | https://issues.jboss.org/browse/AGSYNC  |
-| Mailing lists:  | [aerogear-users](http://aerogear-users.1116366.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-users))  |
-|                 | [aerogear-dev](http://aerogear-dev.1069024.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-dev))  |
-
 
 ## Building
 
