@@ -13,11 +13,11 @@ Contains a base implementation of the common types from the [api](./api) module.
 [client-engine](./client/client-engine) and the [server-engine](./server/server-engine) modules.
 
 * [server](./server)  
-Contains a concrete implementation of the server side sync engine API. This implementation is inteded to be "embedded" in a server
+Contains a concrete implementation of the server side sync engine API. This implementation is intended to be "embedded" in a server
 component, like a Servlet, a Netty server, etc.
 
 * [client](./client)  
-Contains a concrete implementation of the client side sync engine API. This implementation is inteded to be "embedded" in a client
+Contains a concrete implementation of the client side sync engine API. This implementation is intended to be "embedded" in a client
 component, like a Netty client, an Android device, etc.
 
 * [synchronizers](./synchronizers)  
