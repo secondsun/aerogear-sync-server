@@ -29,7 +29,6 @@ import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
 
 import java.util.Iterator;
-import java.util.Observable;
 import java.util.Queue;
 
 
@@ -59,15 +58,19 @@ import java.util.Queue;
  * @param <T> The data type data that this implementation can handle.
  * @param <S> The type of {@link Edit}s that this implementation can handle.
  */
-public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observable {
+public class ClientSyncEngine<T, S extends Edit<? extends Diff>> {
 
     private static final ObjectMapper OM = new ObjectMapper();
     private final ClientSynchronizer<T, S> clientSynchronizer;
     private final ClientDataStore<T, S> dataStore;
+    private final PatchObservable<T> patchObservable;
 
-    public ClientSyncEngine(final ClientSynchronizer<T, S> clientSynchronizer, final ClientDataStore<T, S> dataStore) {
+    public ClientSyncEngine(final ClientSynchronizer<T, S> clientSynchronizer,
+                            final ClientDataStore<T, S> dataStore,
+                            final PatchObservable<T> patchObservable) {
         this.clientSynchronizer = clientSynchronizer;
         this.dataStore = dataStore;
+        this.patchObservable = patchObservable;
     }
 
     /**
@@ -162,6 +165,22 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
         return clientSynchronizer.patchShadow(edit, shadow);
     }
 
+    public void addPatchListener(final PatchListener<T> patchListener) {
+        patchObservable.addPatchListener(patchListener);
+    }
+
+    public void removePatchListener(final PatchListener<T> patchListener) {
+        patchObservable.removePatchListener(patchListener);
+    }
+
+    public void removePatchListeners() {
+        patchObservable.removePatchListeners();
+    }
+
+    public int countPatchListeners() {
+        return patchObservable.countPatchListeners();
+    }
+
     private ShadowDocument<T> patchShadow(final PatchMessage<S> patchMessage) {
         final String documentId = patchMessage.documentId();
         final String clientId = patchMessage.clientId();
@@ -244,8 +263,8 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
         final ClientDocument<T> patched = patchDocument(edit, clientDocument);
         saveDocument(patched);
         saveBackupShadow(shadowDocument);
-        setChanged();
-        notifyObservers(patched);
+        patchObservable.changed();
+        patchObservable.notifyPatched(patched);
         return patched;
     }
 

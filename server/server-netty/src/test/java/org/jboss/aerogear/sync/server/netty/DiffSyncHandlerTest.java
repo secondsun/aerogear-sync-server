@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
+import org.jboss.aerogear.sync.client.DefaultPatchObservable;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
@@ -544,7 +545,8 @@ public class DiffSyncHandlerTest {
 
     private static ClientSyncEngine<String, DiffMatchPatchEdit> newClientSyncEngine() {
         return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(),
-                new ClientInMemoryDataStore<String, DiffMatchPatchEdit>());
+                new ClientInMemoryDataStore<String, DiffMatchPatchEdit>(),
+                new DefaultPatchObservable<String>());
     }
 
 }

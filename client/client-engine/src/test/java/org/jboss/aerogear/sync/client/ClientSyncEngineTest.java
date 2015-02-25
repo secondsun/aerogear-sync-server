@@ -32,6 +32,7 @@ import java.util.Queue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ClientSyncEngineTest {
 
@@ -41,7 +42,15 @@ public class ClientSyncEngineTest {
     @Before
     public void setup() {
         dataStore = new ClientInMemoryDataStore<String, DiffMatchPatchEdit>();
-        engine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(), dataStore);
+        engine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchClientSynchronizer(),
+                dataStore,
+                new DefaultPatchObservable<String>());
+    }
+
+    @Test
+    public void addObserver() {
+        engine.addPatchListener(mock(PatchListener.class));
+        assertThat(engine.countPatchListeners(), is(1));
     }
 
     @Test
