@@ -61,7 +61,7 @@ import java.util.Queue;
  */
 public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observable {
 
-    private static final  ObjectMapper OM = new ObjectMapper();
+    private static final ObjectMapper OM = new ObjectMapper();
     private final ClientSynchronizer<T, S> clientSynchronizer;
     private final ClientDataStore<T, S> dataStore;
 
