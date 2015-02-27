@@ -48,5 +48,28 @@ public class WildflySubscriber implements Subscriber<Session> {
             webSocketSession.getAsyncRemote().sendText(patchMessage.asJson(), LoggingSendHandler.INSTANCE);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        final Subscriber<Session> subscriber = (Subscriber<Session>) o;
+        if (!clientId.equals(subscriber.clientId())) {
+            return false;
+        }
+        return !webSocketSession.equals(subscriber.channel());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = clientId.hashCode();
+        result = 31 * result + webSocketSession.hashCode();
+        return result;
+    }
     
 }
