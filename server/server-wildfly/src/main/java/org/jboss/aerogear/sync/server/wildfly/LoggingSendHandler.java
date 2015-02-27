@@ -21,6 +21,10 @@ import java.util.logging.Logger;
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 
+/**
+ * An implementation of the SendHandler callback object that logs any errors that occured after the websocket message 
+ * has been transmitted.
+ */ 
 public class LoggingSendHandler implements SendHandler{
     public final static SendHandler INSTANCE = new LoggingSendHandler();
 
@@ -33,5 +37,4 @@ public class LoggingSendHandler implements SendHandler{
             Logger.getAnonymousLogger().log(Level.SEVERE, error.getMessage(), error);
         }
     }
-    
 }

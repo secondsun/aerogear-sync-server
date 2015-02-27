@@ -20,7 +20,9 @@ import javax.websocket.Session;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.server.Subscriber;
 
-
+/**
+ * Represents a subscriber of patches for the WebSocket Session type.
+ */
 public class WildflySubscriber implements Subscriber<Session> {
     private final Session webSocketSession;
     private final String clientId;
