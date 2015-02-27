@@ -74,13 +74,13 @@ public class SyncEndpoint {
     }
 
     @OnOpen
-    public void myOnOpen(Session session) {
-        System.out.println("WebSocket opened: " + session.getId());
+    public void myOpen(Session session) {
+        logger.info("WebSocket opened: " + session.getId());
     }
 
     @OnClose
-    public void myOnClose(CloseReason reason, Session webSocketSession) {
-        System.out.println("Closing a WebSocket due to " + reason.getReasonPhrase());
+    public void myClose(CloseReason reason, Session webSocketSession) {
+        logger.info("Closing a WebSocket due to " + reason.getReasonPhrase());
         WildflySubscriber subscriber = (WildflySubscriber) webSocketSession.getUserProperties().get(WILDFLY_SUBSCRIBER);
         String documentId = (String) webSocketSession.getUserProperties().get(DOCUMENT_ID);
         syncEngine.removeSubscriber(subscriber, documentId);
@@ -88,7 +88,7 @@ public class SyncEndpoint {
     }
 
     private PatchMessage<JsonPatchEdit> addSubscriber(final Document<JsonNode> document,
-            final String clientId, Session session) {
+        final String clientId, Session session) {
         final Subscriber<Session> subscriber = new WildflySubscriber(clientId, session);
         return syncEngine.addSubscriber(subscriber, document);
     }
