@@ -33,13 +33,6 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-annotations-ejb3</artifactId>
-            <version>${jboss-annotations-ejb3-version}</version>
-            <scope>provided</scope>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>${java-ee-version}</version>
