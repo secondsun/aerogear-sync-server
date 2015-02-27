@@ -17,6 +17,8 @@
 package org.jboss.aerogear.sync.server.wildfly;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.websocket.CloseReason;
 import javax.websocket.OnMessage;
@@ -98,14 +100,18 @@ public class SyncEndpoint {
     }
 
     private void checkForReconnect(final String documentId, final String clientId, final Session session) {
-        if (session.getUserProperties().getOrDefault(DOC_ADD, Boolean.FALSE) == Boolean.TRUE) {
+        if (getOrDefault(session.getUserProperties(),Boolean.FALSE) == Boolean.TRUE) {
             return;
         }
         logger.info("Reconnected client [" + clientId + "]. Adding as listener.");
 
         final WildflySubscriber subscriber = new WildflySubscriber(clientId, session);
         syncEngine.connectSubscriber(subscriber, documentId);
-        
+    }
+
+    private static Boolean getOrDefault(final Map<String, Object> properties, final Boolean defaultValue) {
+        final Boolean value = (Boolean) properties.get(DOC_ADD);
+        return value != null ? value : defaultValue;
     }
 
 }
