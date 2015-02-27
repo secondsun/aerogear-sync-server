@@ -18,7 +18,11 @@ package org.jboss.aerogear.sync.server.wildfly;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.logging.Logger;
-import javax.websocket.*;
+import javax.websocket.CloseReason;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.OnClose;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
