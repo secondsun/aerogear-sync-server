@@ -18,7 +18,11 @@ package org.jboss.aerogear.sync.server.wildfly;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.logging.Logger;
-import javax.websocket.*;
+import javax.websocket.CloseReason;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.OnClose;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
@@ -70,13 +74,13 @@ public class SyncEndpoint {
     }
 
     @OnOpen
-    public void myOnOpen(Session session) {
-        System.out.println("WebSocket opened: " + session.getId());
+    public void onOpen(Session session) {
+        logger.info("WebSocket opened: " + session.getId());
     }
 
     @OnClose
-    public void myOnClose(CloseReason reason, Session webSocketSession) {
-        System.out.println("Closing a WebSocket due to " + reason.getReasonPhrase());
+    public void onClose(CloseReason reason, Session webSocketSession) {
+        logger.info("Closing a WebSocket due to " + reason.getReasonPhrase());
         WildflySubscriber subscriber = (WildflySubscriber) webSocketSession.getUserProperties().get(WILDFLY_SUBSCRIBER);
         String documentId = (String) webSocketSession.getUserProperties().get(DOCUMENT_ID);
         syncEngine.removeSubscriber(subscriber, documentId);
@@ -84,7 +88,7 @@ public class SyncEndpoint {
     }
 
     private PatchMessage<JsonPatchEdit> addSubscriber(final Document<JsonNode> document,
-            final String clientId, Session session) {
+        final String clientId, Session session) {
         final Subscriber<Session> subscriber = new WildflySubscriber(clientId, session);
         return syncEngine.addSubscriber(subscriber, document);
     }
